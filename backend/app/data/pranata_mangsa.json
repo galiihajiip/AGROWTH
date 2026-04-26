@@ -1,0 +1,251 @@
+{
+  "metadata": {
+    "source": "Pranata Mangsa - Kalender Pertanian Tradisional Jawa (Sri Susuhunan Pakubuwana VII, 1855)",
+    "version": "1.0.0",
+    "total_mangsa": 12,
+    "calendar_basis": "Tahun matahari (solar), 365 hari",
+    "reference_year": "non-leap (Februari = 28 hari)",
+    "doy_note": "period_start_doy dan period_end_doy menggunakan Day-of-Year 1-365. Untuk Kapitu yang melintasi pergantian tahun, period_end_doy < period_start_doy (wrap-around). duration_days adalah sumber kebenaran utama.",
+    "language": "id-ID",
+    "description": "Pranata Mangsa adalah sistem kalender pertanian tradisional Jawa yang membagi satu tahun menjadi 12 mangsa berdasarkan siklus alam, fenologi tanaman, dan perilaku hewan. Sistem ini digunakan petani Jawa untuk menentukan waktu tanam, panen, serta antisipasi cuaca."
+  },
+  "mangsa": [
+    {
+      "id": 1,
+      "name": "Kasa",
+      "period_label": "22 Juni - 1 Agustus",
+      "period_start_doy": 173,
+      "period_end_doy": 213,
+      "duration_days": 41,
+      "weather_pattern": "Awal musim kemarau. Curah hujan sangat rendah, kelembapan udara menurun, langit cerah pada siang hari. Suhu malam dan dini hari terasa dingin (mbediding), sementara siang hari mulai terasa panas terik.",
+      "characteristics": "Mangsa pembuka musim kemarau yang ditandai dengan kontras suhu siang dan malam yang tajam. Tanah pertanian mulai mengering di permukaan, sementara tanaman tahunan mulai menampakkan tanda-tanda meranggas sebagai respons terhadap berkurangnya kandungan air tanah.",
+      "natural_signs": [
+        "Daun pohon randu, jati, dan mahoni mulai berguguran (sotya murca saka embanan)",
+        "Pucuk-pucuk daun pada tanaman keras menampakkan tanda meranggas",
+        "Embun pagi turun cukup tebal di dataran rendah",
+        "Suhu udara malam hari terasa dingin menusuk (mbediding)",
+        "Tanah lapisan atas mulai mengering, retak halus pada lahan terbuka"
+      ],
+      "traditional_advice": "Saat yang tepat untuk menanam palawija ringan seperti kacang tanah dan jagung pada lahan tegalan. Petani sebaiknya menyemai padi gogo di lahan kering dan mempersiapkan lumbung untuk menyimpan hasil panen sebelumnya. Pengairan harus diatur efisien karena debit sumber air mulai menurun.",
+      "suitable_crops": ["padi gogo", "kacang tanah", "jagung", "ubi kayu", "sorgum"]
+    },
+    {
+      "id": 2,
+      "name": "Karo",
+      "period_label": "2 Agustus - 24 Agustus",
+      "period_start_doy": 214,
+      "period_end_doy": 236,
+      "duration_days": 23,
+      "weather_pattern": "Kemarau makin terasa nyata. Curah hujan praktis nihil, sinar matahari terik sepanjang siang, kelembapan udara rendah, dan angin timur bertiup kering membawa debu.",
+      "characteristics": "Mangsa pendek di tengah kemarau yang ditandai dengan retakan tanah (bumi nelo). Lahan persawahan tanpa irigasi mengering total dan retak-retak. Vegetasi banyak yang menggugurkan daun untuk menghemat air.",
+      "natural_signs": [
+        "Tanah pertanian retak-retak (bumi nelo / lemah rengka)",
+        "Pohon kapuk randu mulai berbuah dan buahnya merekah",
+        "Pohon mangga mulai berbunga lebat",
+        "Daun-daun kering banyak berserakan di permukaan tanah",
+        "Burung pipit dan burung gelatik bergerombol mencari air"
+      ],
+      "traditional_advice": "Lanjutkan pemeliharaan palawija yang sudah ditanam pada mangsa Kasa. Petani disarankan memperkuat penampungan air, memperbaiki saluran irigasi, dan melakukan persiapan lahan untuk musim tanam berikutnya. Kayu bakar dan jerami baik dikumpulkan pada mangsa ini karena cuaca sangat kering.",
+      "suitable_crops": ["palawija akhir", "jagung", "kacang hijau", "kedelai", "ubi jalar"]
+    },
+    {
+      "id": 3,
+      "name": "Katiga",
+      "period_label": "25 Agustus - 17 September",
+      "period_start_doy": 237,
+      "period_end_doy": 260,
+      "duration_days": 24,
+      "weather_pattern": "Puncak musim kemarau. Hujan tidak ada sama sekali, sinar matahari sangat terik, kelembapan udara rendah. Angin timur bertiup cukup kencang membawa debu dan udara kering.",
+      "characteristics": "Mangsa kemarau puncak yang dikenal dengan istilah 'mangsa nyepi'. Banyak sumber air mengecil bahkan mengering, sumur-sumur dangkal menyusut. Tanah keras dan berdebu, banyak tanaman semusim layu jika tidak diairi.",
+      "natural_signs": [
+        "Pohon turi mulai berbunga lebat",
+        "Pohon kunyit, kencur, dan tanaman empon-empon keluar bunga",
+        "Daun pohon mlinjo, asam, dan nangka berguguran",
+        "Mata air kecil mengering, sumur menyusut",
+        "Sumber-sumber sungai kecil mulai surut atau kering"
+      ],
+      "traditional_advice": "Saatnya panen palawija akhir dan menyiapkan cadangan pangan dari ubi-ubian seperti gembili, gadung, dan suweg. Petani perlu menjaga ketahanan air dengan irit dan menghindari membakar lahan secara sembarangan karena risiko kebakaran sangat tinggi pada mangsa ini.",
+      "suitable_crops": ["ubi gembili", "gadung", "suweg", "garut", "talas"]
+    },
+    {
+      "id": 4,
+      "name": "Kapat",
+      "period_label": "18 September - 12 Oktober",
+      "period_start_doy": 261,
+      "period_end_doy": 285,
+      "duration_days": 25,
+      "weather_pattern": "Akhir musim kemarau memasuki masa pancaroba. Hujan pertama (udan rebut atau udan bediding) mulai turun secara sporadis dengan intensitas ringan-sedang. Awan kumulus mulai sering terbentuk di sore hari.",
+      "characteristics": "Mangsa transisi dari kemarau menuju penghujan. Bumi mulai menerima curahan hujan pertama yang melembabkan kembali tanah yang sebelumnya keras. Banyak hewan dan tumbuhan mulai bersiap menyambut musim subur.",
+      "natural_signs": [
+        "Burung-burung mulai membuat sarang di pepohonan",
+        "Lebah membangun sarang baru di celah-celah pohon",
+        "Pohon mangga, kepel, dan kemiri berbunga lebat",
+        "Jangkrik mulai bersuara di malam hari",
+        "Awan kumulus tebal sering muncul di sore hari",
+        "Tunas-tunas baru mulai bermunculan setelah hujan pertama"
+      ],
+      "traditional_advice": "Mulai persiapan lahan basah dengan membajak sawah dan memperbaiki saluran irigasi. Petani sebaiknya menyiapkan benih padi untuk persemaian. Pada masa pancaroba ini, kewaspadaan terhadap penyakit pernapasan dan demam meningkat, jadi tubuh perlu dijaga.",
+      "suitable_crops": ["persemaian padi", "cabai", "tomat", "terong", "kacang panjang"]
+    },
+    {
+      "id": 5,
+      "name": "Kalima",
+      "period_label": "13 Oktober - 8 November",
+      "period_start_doy": 286,
+      "period_end_doy": 312,
+      "duration_days": 27,
+      "weather_pattern": "Awal musim hujan. Curah hujan meningkat menjadi rutin, intensitas sedang-deras. Angin barat-laut mulai dominan, langit sering mendung, dan petir-kilat mulai sering terlihat di sore hari.",
+      "characteristics": "Mangsa permulaan penghujan yang terkadang disertai angin kencang. Sungai-sungai mulai berair kembali, mata air kembali mengalir. Vegetasi bersemi dengan cepat, ulat dan serangga banyak bermunculan karena suburnya alam.",
+      "natural_signs": [
+        "Banyak ulat keluar dan menghampiri tanaman",
+        "Pohon asam berdaun muda berwarna hijau cerah",
+        "Petir dan kilat sering muncul di sore-malam hari",
+        "Sungai mulai berair kembali, debit naik",
+        "Cacing tanah keluar dari liang setelah hujan",
+        "Bunga-bunga liar bermekaran di tepi jalan dan ladang"
+      ],
+      "traditional_advice": "Saat optimal untuk menanam padi sawah. Pengolahan tanah harus dipercepat agar tidak terlewat waktu tanam. Petani sebaiknya memperhatikan jadwal tanam serempak agar serangan hama bisa diminimalkan. Sayuran daun cocok ditanam untuk memenuhi kebutuhan harian.",
+      "suitable_crops": ["padi sawah", "sayuran daun", "kangkung", "bayam", "sawi"]
+    },
+    {
+      "id": 6,
+      "name": "Kanem",
+      "period_label": "9 November - 21 Desember",
+      "period_start_doy": 313,
+      "period_end_doy": 355,
+      "duration_days": 43,
+      "weather_pattern": "Musim hujan mulai mantap. Curah hujan rutin sedang hingga lebat, kelembapan udara tinggi, langit sering mendung sepanjang hari. Petir dan guruh sering terdengar.",
+      "characteristics": "Mangsa subur berlimpah buah-buahan. Hujan turun teratur, lahan pertanian basah dan subur. Banyak buah musiman matang serentak, sehingga mangsa ini juga dikenal sebagai 'mangsa rayap' karena banyaknya laron yang keluar dari sarang setelah hujan.",
+      "natural_signs": [
+        "Laron keluar berbondong-bondong dari sarang setelah hujan",
+        "Pohon rambutan, manggis, durian, dan langsep mulai berbuah",
+        "Banyak ulat dan tonggeret bermunculan",
+        "Katak dan kodok bersuara di malam hari",
+        "Padi yang ditanam mulai tumbuh subur",
+        "Awan tebal sering menutupi gunung-gunung"
+      ],
+      "traditional_advice": "Saat optimal untuk menyelesaikan tanam padi penuh. Tanam palawija basah seperti cabai, terong, dan kacang panjang di pekarangan. Penjagaan tanaman dari hama tikus dan keong mas perlu intensif. Petani disarankan menyiapkan lumbung beras karena buah-buahan melimpah bisa menjadi bahan ekonomi sampingan.",
+      "suitable_crops": ["padi sawah", "cabai", "terong", "kacang panjang", "buah-buahan musiman"]
+    },
+    {
+      "id": 7,
+      "name": "Kapitu",
+      "period_label": "22 Desember - 2 Februari",
+      "period_start_doy": 356,
+      "period_end_doy": 33,
+      "duration_days": 43,
+      "weather_pattern": "Puncak musim hujan. Curah hujan sangat tinggi, hujan deras berhari-hari, sungai-sungai meluap. Angin barat kencang, mendung tebal, kelembapan udara sangat tinggi.",
+      "characteristics": "Mangsa rawan bencana hidrometeorologi. Banjir, tanah longsor, dan angin puting beliung sering terjadi. Banyak penyakit musiman seperti demam berdarah, diare, dan flu menyerang. Lahan rawan terendam jika drainase buruk.",
+      "natural_signs": [
+        "Hujan deras berlangsung berhari-hari tanpa jeda",
+        "Sungai-sungai meluap, banyak banjir di dataran rendah",
+        "Banyak nyamuk berkembang biak di genangan air",
+        "Burung-burung migrasi singgah di sawah dan rawa",
+        "Padi yang ditanam mulai meninggi dan menghijau lebat",
+        "Petir dan halilintar sering disertai angin kencang"
+      ],
+      "traditional_advice": "Waspada terhadap banjir dan longsor. Tanggul dan pematang sawah harus terus dijaga dan diperkuat. Perawatan padi dilakukan intensif termasuk penyiangan dan pemupukan. Kesehatan keluarga harus dijaga dengan menjaga kebersihan air dan lingkungan, serta menutup penampungan air agar nyamuk tidak berkembang.",
+      "suitable_crops": ["padi (perawatan intensif)", "sayuran daun tahan basah", "kangkung air", "talas air"]
+    },
+    {
+      "id": 8,
+      "name": "Kawolu",
+      "period_label": "3 Februari - 28/29 Februari",
+      "period_start_doy": 34,
+      "period_end_doy": 59,
+      "duration_days": 26,
+      "weather_pattern": "Musim hujan masih berlangsung dengan intensitas mulai menurun namun masih sering. Hujan deras kadang masih turun, kelembapan udara tetap tinggi, dan angin lebih tenang.",
+      "characteristics": "Mangsa kritis bagi tanaman padi yang sedang dalam fase bunting (meteng). Hama wereng coklat, tikus, dan walang sangit sering menyerang. Kewaspadaan terhadap hama sangat tinggi pada mangsa ini. Pada tahun kabisat, mangsa ini berdurasi 27 hari.",
+      "natural_signs": [
+        "Padi memasuki fase bunting (meteng) atau berbulir",
+        "Populasi tikus sawah meningkat",
+        "Wereng coklat mulai banyak menyerang batang padi",
+        "Pohon kapuk randu berbuah penuh",
+        "Kucing kawin dan suara mereka sering terdengar",
+        "Awan masih sering tebal walau hujan mulai jarang"
+      ],
+      "traditional_advice": "Pengendalian hama wereng dan tikus harus menjadi prioritas. Petani disarankan melakukan gropyokan tikus secara serempak dan memantau tanaman padi setiap hari. Pemupukan dilakukan sesuai kebutuhan, jangan berlebihan agar tidak memicu serangan wereng. Lakukan pengamatan harian terhadap tanaman.",
+      "suitable_crops": ["padi (fase bunting)", "umbi-umbian", "kentang dataran tinggi"]
+    },
+    {
+      "id": 9,
+      "name": "Kasanga",
+      "period_label": "1 Maret - 25 Maret",
+      "period_start_doy": 60,
+      "period_end_doy": 84,
+      "duration_days": 25,
+      "weather_pattern": "Penghujung musim hujan. Curah hujan semakin berkurang, mendung sebentar lalu cerah. Angin lebih lembut, kelembapan masih cukup tinggi terutama di pagi hari.",
+      "characteristics": "Mangsa fase berbunga padi (sundul-sundul). Banyak suara serangga dan burung menjadi penanda khas. Cuaca sudah lebih sering cerah, namun kelembapan tinggi masih mendukung pertumbuhan tanaman. Suara serangga 'gareng pung' menjadi ciri akustik mangsa ini.",
+      "natural_signs": [
+        "Padi berbunga dan mulai mengisi bulir",
+        "Suara gareng pung dan tonggeret terdengar siang malam",
+        "Jangkrik dan kinjeng (capung) bersuara ramai",
+        "Burung-burung sawah aktif mencari makan",
+        "Mendung berarakan diselingi cerah",
+        "Bunga-bunga liar berhenti mekar, daun mulai tua"
+      ],
+      "traditional_advice": "Lakukan pemupukan terakhir untuk pengisian bulir padi. Jaga padi dari serangan walang sangit dan wereng yang sering menyerang fase berbunga. Petani harus rajin memantau sawah pagi dan sore. Mulai persiapan alat panen untuk musim panen yang akan datang.",
+      "suitable_crops": ["padi (berbunga-mengisi)", "kacang panjang", "sayuran"]
+    },
+    {
+      "id": 10,
+      "name": "Kasadasa",
+      "period_label": "26 Maret - 18 April",
+      "period_start_doy": 85,
+      "period_end_doy": 108,
+      "duration_days": 24,
+      "weather_pattern": "Pancaroba menuju kemarau. Hujan jarang dengan intensitas ringan, mendung sebentar, hawa lembap di pagi hari sering disertai kabut. Suhu mulai menurun terutama dini hari.",
+      "characteristics": "Mangsa transisi menuju panen. Padi mulai menguning (mateng) di sebagian sawah. Banyak burung sibuk merumput dan mengurus anaknya. Embun pagi tebal dan kabut sering muncul di pegunungan.",
+      "natural_signs": [
+        "Padi mulai menguning (mateng) di sebagian besar sawah",
+        "Burung-burung sibuk mencari makan dan mengurus anak",
+        "Embun pagi sangat tebal, kabut sering muncul",
+        "Gabah mulai berisi penuh, tangkai padi merunduk",
+        "Banyak laba-laba membuat sarang di antara batang padi",
+        "Hujan jarang turun, langit lebih sering biru cerah"
+      ],
+      "traditional_advice": "Persiapkan panen padi dengan baik. Pasang orang-orangan sawah dan jaring untuk mengusir burung pemakan biji. Bersihkan lumbung dan alat-alat panen seperti ani-ani, sabit, dan terpal jemur. Awasi tanaman dari serangan tikus jelang panen.",
+      "suitable_crops": ["padi (pengisian-matang)", "persiapan panen"]
+    },
+    {
+      "id": 11,
+      "name": "Desta",
+      "period_label": "19 April - 11 Mei",
+      "period_start_doy": 109,
+      "period_end_doy": 131,
+      "duration_days": 23,
+      "weather_pattern": "Awal kemarau. Hujan mulai jarang dengan intensitas ringan, langit lebih cerah, angin timur mulai bertiup. Suhu siang hangat, malam mulai sejuk.",
+      "characteristics": "Mangsa panen raya padi sawah. Petani sibuk memanen, menjemur, dan menyimpan gabah. Burung-burung sibuk mengasuh anak yang baru menetas. Kegembiraan masyarakat tani memuncak pada mangsa ini karena hasil setahun mulai dipetik.",
+      "natural_signs": [
+        "Padi siap panen, sawah-sawah menguning serentak",
+        "Burung-burung memberi makan dan mengasuh anaknya di sarang",
+        "Pohon mangga mulai berbuah",
+        "Pohon manggis berbuah lebat",
+        "Cuaca cerah berturut-turut, sangat baik untuk menjemur",
+        "Air sungai mulai surut, debit menurun"
+      ],
+      "traditional_advice": "Saatnya panen padi raya. Hasil panen harus segera dijemur dengan baik agar tidak rusak. Gabah disimpan di lumbung yang kering dan bersih untuk menghindari hama gudang. Sebagian hasil dapat dijadikan benih untuk musim tanam berikutnya. Lakukan upacara wiwit atau syukuran panen sesuai tradisi.",
+      "suitable_crops": ["padi panen raya", "persiapan benih"]
+    },
+    {
+      "id": 12,
+      "name": "Sadha",
+      "period_label": "12 Mei - 21 Juni",
+      "period_start_doy": 132,
+      "period_end_doy": 172,
+      "duration_days": 41,
+      "weather_pattern": "Memasuki musim kemarau secara penuh. Curah hujan minim, langit cerah, angin timur bertiup teratur. Suhu siang hangat, malam dan dini hari mulai dingin (mbediding).",
+      "characteristics": "Mangsa peralihan setelah panen menuju kemarau. Lahan dikeringkan untuk dipersiapkan tanam palawija. Air mulai sulit, sumur-sumur dangkal menyusut. Daun-daun mulai meranggas kembali dan udara malam terasa makin dingin.",
+      "natural_signs": [
+        "Air sumur dan mata air mulai turun debitnya",
+        "Daun-daun pohon mulai meranggas dan berguguran",
+        "Angin timur bertiup teratur, udara terasa kering",
+        "Embun pagi mulai sering muncul",
+        "Lahan sawah yang sudah dipanen mulai retak permukaannya",
+        "Buah mangga mulai matang dan banyak dijual di pasar"
+      ],
+      "traditional_advice": "Setelah panen padi, lahan baik segera ditanami palawija (kacang, kedelai, jagung) sebelum kemarau penuh. Atur ketersediaan air dengan bijak, perbaiki sistem irigasi tetes atau gilir-gilir. Persiapkan diri menghadapi kemarau panjang yang akan menyusul pada mangsa Kasa.",
+      "suitable_crops": ["palawija", "kacang tanah", "kedelai", "jagung", "ubi jalar"]
+    }
+  ]
+}
