@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Exec(find)",
+      "Exec(git init)",
+      "Exec(git fetch)",
+      "Exec(git checkout)",
+      "Exec(git pull)",
+      "Exec(git status)",
+      "Exec(git add)"
+    ]
+  }
+}
