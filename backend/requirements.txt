@@ -3,5 +3,5 @@ uvicorn
 pydantic
 pydantic-settings
 python-dotenv
-google-generativeai
+google-genai
 numpy
