@@ -1,5 +1,8 @@
+"""Entry point FastAPI AGROWTH: include semua router + middleware CORS."""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from app.routers import mangsa, predict, recommendation
 
 app = FastAPI(title="AGROWTH API", version="0.1.0")
 
@@ -11,12 +14,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Routers
+app.include_router(predict.router)
+app.include_router(recommendation.router)
+app.include_router(mangsa.router)
+
 
 @app.get("/")
-def read_root():
+async def read_root():
     return {"message": "AGROWTH API", "status": "ok"}
 
 
 @app.get("/health")
-def health_check():
+async def health_check():
     return {"status": "healthy"}
