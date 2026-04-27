@@ -114,3 +114,126 @@ def test_mangsa_by_id_invalid_returns_404(client: TestClient) -> None:
     detail = response.json()["detail"]
     assert isinstance(detail, str)
     assert "tidak ditemukan" in detail.lower()
+
+
+# ---------- 7) Recommendation pipeline (weather + mangsa + LLM + crops) ----------
+
+def test_recommendation_full_pipeline(client: TestClient) -> None:
+    """``POST /api/recommendation`` mengembalikan response gabungan lengkap."""
+    response = client.post(
+        "/api/recommendation",
+        json={
+            "coordinates": {"lat": -7.7956, "lon": 110.3695},
+            "crop_type": "padi",
+        },
+    )
+    assert response.status_code == 200
+    data = response.json()
+
+    expected_keys = {
+        "location", "current", "forecast", "mangsa",
+        "risk_level", "anomaly", "recommendations", "weather_advice",
+        "risk_warnings", "summary", "generated_at",
+    }
+    assert expected_keys.issubset(data.keys()), f"missing: {expected_keys - data.keys()}"
+
+    # Forecast tetap default 7 hari pada endpoint rekomendasi
+    assert len(data["forecast"]) == 7
+
+    # Mangsa harus valid
+    assert 1 <= data["mangsa"]["number"] <= 12
+
+    # Recommendations & summary terisi (fallback statis maupun LLM)
+    assert isinstance(data["recommendations"], list) and data["recommendations"]
+    assert isinstance(data["summary"], str) and data["summary"]
+    assert isinstance(data["weather_advice"], str) and data["weather_advice"]
+
+
+def test_recommendation_outside_java_returns_422(client: TestClient) -> None:
+    """Koordinat di luar Pulau Jawa pada /api/recommendation → 422."""
+    response = client.post(
+        "/api/recommendation",
+        json={"coordinates": {"lat": -3.5, "lon": 110.0}},
+    )
+    assert response.status_code == 422
+
+
+# ---------- 8) Mangsa by-date ----------
+
+def test_mangsa_by_date_kapitu(client: TestClient) -> None:
+    """``GET /api/mangsa/by-date?date=2025-01-15`` di tengah musim hujan → Kapitu."""
+    response = client.get("/api/mangsa/by-date", params={"date": "2025-01-15"})
+    assert response.status_code == 200
+    assert response.json()["name"] == "Kapitu"
+
+
+def test_mangsa_by_date_kasa_summer(client: TestClient) -> None:
+    """``GET /api/mangsa/by-date?date=2025-06-22`` → Kasa (awal kemarau)."""
+    response = client.get("/api/mangsa/by-date", params={"date": "2025-06-22"})
+    assert response.status_code == 200
+    assert response.json()["name"] == "Kasa"
+
+
+def test_mangsa_by_date_leap_day(client: TestClient) -> None:
+    """29 Februari (leap day) dipetakan ke 28 Februari → Kawolu."""
+    response = client.get("/api/mangsa/by-date", params={"date": "2024-02-29"})
+    assert response.status_code == 200
+    assert response.json()["name"] == "Kawolu"
+
+
+def test_mangsa_by_date_invalid_format(client: TestClient) -> None:
+    """Format tanggal salah → 422."""
+    response = client.get("/api/mangsa/by-date", params={"date": "not-a-date"})
+    assert response.status_code == 422
+
+
+# ---------- 9) Mangsa /all ----------
+
+def test_mangsa_all_returns_twelve(client: TestClient) -> None:
+    """``GET /api/mangsa/all`` → tepat 12 mangsa berurutan id 1..12."""
+    response = client.get("/api/mangsa/all")
+    assert response.status_code == 200
+
+    data = response.json()
+    assert len(data) == 12
+    assert [m["number"] for m in data] == list(range(1, 13))
+    assert data[0]["name"] == "Kasa"
+    assert data[6]["name"] == "Kapitu"
+    assert data[11]["name"] == "Sadha"
+
+
+# ---------- 10) Predict dengan days param ----------
+
+@pytest.mark.parametrize("days", [1, 3, 7, 14])
+def test_predict_with_days_param(client: TestClient, days: int) -> None:
+    """``POST /api/predict?days=N`` (1..14) menyesuaikan panjang forecast."""
+    response = client.post(
+        f"/api/predict?days={days}",
+        json={"lat": -7.7956, "lon": 110.3695},
+    )
+    assert response.status_code == 200
+    assert len(response.json()["forecast"]) == days
+
+
+@pytest.mark.parametrize("days", [0, 15, -1])
+def test_predict_days_out_of_range(client: TestClient, days: int) -> None:
+    """``days`` di luar 1..14 → 422."""
+    response = client.post(
+        f"/api/predict?days={days}",
+        json={"lat": -7.7956, "lon": 110.3695},
+    )
+    assert response.status_code == 422
+
+
+# ---------- 11) X-Request-ID middleware ----------
+
+def test_request_id_header_is_set(client: TestClient) -> None:
+    """Setiap respons memiliki header ``X-Request-ID``."""
+    response = client.get("/health")
+    assert "x-request-id" in {k.lower() for k in response.headers.keys()}
+
+
+def test_request_id_header_is_echoed(client: TestClient) -> None:
+    """Bila klien mengirim ``X-Request-ID``, server harus mem-echo nilai sama."""
+    response = client.get("/health", headers={"X-Request-ID": "test-trace-xyz"})
+    assert response.headers.get("x-request-id") == "test-trace-xyz"
