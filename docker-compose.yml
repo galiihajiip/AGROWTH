@@ -1,0 +1,72 @@
+# AGROWTH dev/demo stack — backend FastAPI + frontend Next.js.
+#
+# Quick start:
+#     cp backend/.env.example backend/.env             # isi GEMINI_API_KEY (opsional)
+#     cp frontend/.env.local.example frontend/.env.local  # set NEXT_PUBLIC_MAPBOX_TOKEN
+#     docker compose up --build
+#
+# Endpoint:
+#   - Backend (FastAPI):     http://localhost:8000   (docs /docs)
+#   - Frontend (Next.js):    http://localhost:3000
+#
+# Konfigurasi:
+#   - CORS_ORIGINS otomatis di-include http://localhost:3000.
+#   - Frontend container memanggil backend via http://backend:8000 di
+#     network internal Docker (lihat env NEXT_PUBLIC_API_URL).
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: agrowth-backend:latest
+    container_name: agrowth-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      # Override default supaya frontend container (`http://frontend:3000`
+      # internal + `http://localhost:3000` browser) bisa CORS-call backend.
+      CORS_ORIGINS: "http://localhost:3000,http://frontend:3000"
+      APP_ENVIRONMENT: production
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # NEXT_PUBLIC_* di-bake ke bundle saat build.
+        # Atur di .env shell host atau lewat `docker compose build --build-arg`.
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+        NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN:-}
+    image: agrowth-frontend:latest
+    container_name: agrowth-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      # Public env juga di-set di runtime agar SSR routing rewrite tahu
+      # alamat backend di network compose.
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+
+# Untuk multi-host atau scaling, tambah `networks:` block dan/atau
+# storage Redis untuk slowapi (RATE_LIMIT_*) — saat ini storage in-memory
+# sehingga limit per-container, bukan per-cluster.
