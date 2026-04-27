@@ -15,23 +15,29 @@ from app.core import (
     limiter,
     register_exception_handlers,
 )
-from app.routers import mangsa, predict, recommendation
+from app.routers import mangsa, predict, recommendation, vulnerability
 
 configure_logging()
 settings = get_settings()
 
 # OpenAPI metadata untuk /docs dan /redoc
 _API_DESCRIPTION = """
-**AGROWTH** adalah API rekomendasi pertanian hybrid untuk Pulau Jawa yang
+**AGROWTH** (Applied Generative Reasoning for Optimal Weather & Traditional
+Harvest) adalah ekosistem intelijen iklim terintegrasi untuk Pulau Jawa yang
 memadukan:
 
-* **Prediksi cuaca + risiko + anomali** (Open-Meteo real-time / mock fallback, 1-14 hari)
+* **Multi-Machine Learning** (Random Forest, Gradient Boosting, SVM) untuk
+  klasifikasi anomali iklim & risk level berbasis data komprehensif
+* **Tiga sumber data terintegrasi**: BMKG klimatologis, NASA POWER (radiasi
+  matahari & kelembapan), dan data emisi GRK regional
+* **Prediksi cuaca real-time** (Open-Meteo API / mock fallback, 1-14 hari)
 * **Pranata Mangsa** (kalender pertanian tradisional Jawa, 12 mangsa)
 * **Rekomendasi naratif Bahasa Jawa** via Google Gemini 2.5 Flash
   (otomatis fallback ke aturan statis bila API key tidak tersedia)
+* **Pemetaan kerentanan wilayah** (spatial vulnerability grid)
 
 Validasi koordinat membatasi input ke Pulau Jawa
-(lat ∈ [-9, -5], lon ∈ [105, 115]); di luar batas → **422**.
+(lat in [-9, -5], lon in [105, 115]); di luar batas -> **422**.
 
 Setiap respons dilabeli `X-Request-ID` untuk traceability.
 """.strip()
@@ -52,6 +58,10 @@ _TAGS_METADATA = [
         "description": "Lookup mangsa Pranata Mangsa Jawa (12 mangsa).",
     },
     {
+        "name": "vulnerability",
+        "description": "Pemetaan kerentanan wilayah (spatial vulnerability grid).",
+    },
+    {
         "name": "meta",
         "description": "Health check, identitas, dan status komponen.",
     },
@@ -60,10 +70,27 @@ _TAGS_METADATA = [
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # noqa: ARG001
     """Startup / shutdown lifecycle."""
+    # Startup: pre-load ML models jika enabled (non-blocking first request)
+    if settings.ml_enabled:
+        try:
+            from app.ml.predictor import get_predictor
+            get_predictor()  # Trigger lazy-load + auto-train
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).warning(
+                "ML models gagal di-load saat startup: %s (akan retry saat request pertama)", exc,
+            )
+
     yield
-    # Shutdown: tutup shared HTTP client Open-Meteo
+
+    # Shutdown: tutup shared HTTP clients
     from app.services.weather_openmeteo import close_http_client
     await close_http_client()
+    try:
+        from app.services.nasa_power import close_nasa_http_client
+        await close_nasa_http_client()
+    except Exception:
+        pass
 
 
 app = FastAPI(
@@ -129,6 +156,7 @@ async def _ratelimit_handler(  # noqa: D401 - simple alias signature
 app.include_router(predict.router)
 app.include_router(recommendation.router)
 app.include_router(mangsa.router)
+app.include_router(vulnerability.router)
 
 
 @app.get("/", tags=["meta"])
@@ -145,6 +173,15 @@ async def read_root():
 @app.get("/health", tags=["meta"])
 async def health_check():
     """Health check ringan: identitas + status komponen + timestamp."""
+    ml_status = "disabled"
+    if settings.ml_enabled:
+        try:
+            from app.ml.predictor import get_predictor
+            p = get_predictor()
+            ml_status = "loaded" if p.is_loaded else "not_loaded"
+        except Exception:
+            ml_status = "error"
+
     return {
         "status": "healthy",
         "app": settings.app_name,
@@ -153,5 +190,18 @@ async def health_check():
         "weather_provider": settings.weather_provider,
         "llm_enabled": settings.llm_enabled,
         "llm_model": settings.gemini_model if settings.llm_enabled else None,
+        "ml_enabled": settings.ml_enabled,
+        "ml_status": ml_status,
+        "data_sources": [
+            "Open-Meteo (real-time weather)",
+            "BMKG Klimatologis (historical baseline)",
+            "NASA POWER (solar radiation & humidity)",
+            "GHG Regional (greenhouse gas emissions)",
+        ],
+        "ml_models": [
+            "Random Forest",
+            "Gradient Boosting",
+            "Support Vector Machine",
+        ] if settings.ml_enabled else [],
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }

@@ -26,6 +26,7 @@ import {
   PredictionResponse,
   RecommendationRequest,
   RecommendationResponse,
+  VulnerabilityGrid,
 } from "@/types";
 import { FORECAST_DAYS } from "@/lib/constants";
 
@@ -195,7 +196,23 @@ export async function getMangsaByDate(date: Date | string): Promise<MangsaInfo> 
   return data;
 }
 
-/** `GET /health` — health check + identitas app + status LLM. */
+/**
+ * `GET /api/vulnerability/grid` -- grid kerentanan wilayah Pulau Jawa.
+ *
+ * @param resolution Grid resolution in degrees (0.25-1.0). Default 0.5.
+ * @returns GeoJSON FeatureCollection dengan risk assessment per titik.
+ */
+export async function getVulnerabilityGrid(
+  resolution: number = 0.5,
+): Promise<VulnerabilityGrid> {
+  const { data } = await apiClient.get<VulnerabilityGrid>(
+    "/api/vulnerability/grid",
+    { params: { resolution } },
+  );
+  return data;
+}
+
+/** `GET /health` -- health check + identitas app + status LLM + ML. */
 export async function getHealth(): Promise<HealthResponse> {
   const { data } = await apiClient.get<HealthResponse>("/health");
   return data;

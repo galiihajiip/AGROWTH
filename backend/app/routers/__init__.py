@@ -1,4 +1,4 @@
 """Re-export semua router AGROWTH."""
-from app.routers import mangsa, predict, recommendation
+from app.routers import mangsa, predict, recommendation, vulnerability
 
-__all__ = ["mangsa", "predict", "recommendation"]
+__all__ = ["mangsa", "predict", "recommendation", "vulnerability"]

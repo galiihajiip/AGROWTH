@@ -47,6 +47,9 @@ logs/
 # Jupyter
 .ipynb_checkpoints/
 
+# ML model artifacts (auto-generated, jangan track)
+backend/app/ml/models/*.joblib
+
 # Node (frontend, jika ada)
 node_modules/
 .next/

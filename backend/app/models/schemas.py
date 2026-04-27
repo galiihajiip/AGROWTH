@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from enum import Enum
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -197,4 +197,20 @@ class RecommendationResponse(BaseModel):
             "(``+00:00`` / ``Z``) sehingga konsumen lintas zona waktu bisa "
             "format ulang tanpa ambiguitas."
         ),
+    )
+    data_sources: List[str] = Field(
+        default_factory=list,
+        description=(
+            "Daftar sumber data aktif yang berkontribusi ke rekomendasi ini. "
+            "Contoh: ['Open-Meteo', 'BMKG Klimatologis', 'NASA POWER', "
+            "'GHG Regional', 'Multi-ML Ensemble']."
+        ),
+    )
+    ml_anomaly_probs: Optional[Dict[str, float]] = Field(
+        default=None,
+        description="Probabilitas per kelas anomali dari ML ensemble.",
+    )
+    ml_risk_probs: Optional[Dict[str, float]] = Field(
+        default=None,
+        description="Probabilitas per kelas risk dari ML ensemble.",
     )

@@ -24,6 +24,7 @@ import Map, {
 } from "react-map-gl";
 
 import { MapMarker } from "@/components/map/MapMarker";
+import { VulnerabilityLayer } from "@/components/map/VulnerabilityLayer";
 import { isInsideJavaBounds } from "@/lib/constants";
 import {
   INITIAL_VIEW_STATE,
@@ -79,6 +80,9 @@ export function MapView() {
           showCompass={false}
           showZoom
         />
+
+        {/* Vulnerability heatmap: pemetaan kerentanan wilayah spasial */}
+        <VulnerabilityLayer />
 
         {selectedCoordinate ? (
           <MapMarker

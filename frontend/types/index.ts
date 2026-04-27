@@ -204,6 +204,55 @@ export interface RecommendationResponse {
    * eksplisit (`+00:00` / `Z`); aman di-pass ke `new Date(...)`.
    */
   generated_at: string;
+  /**
+   * Daftar sumber data aktif yang berkontribusi ke rekomendasi.
+   * Contoh: ["Open-Meteo", "BMKG Klimatologis", "NASA POWER", ...].
+   */
+  data_sources?: string[];
+  /** Probabilitas per kelas anomali dari ML ensemble. */
+  ml_anomaly_probs?: Record<string, number> | null;
+  /** Probabilitas per kelas risk dari ML ensemble. */
+  ml_risk_probs?: Record<string, number> | null;
+}
+
+// ============================================================================
+// Vulnerability (spatial risk grid)
+// ============================================================================
+
+/** Properti sebuah titik grid kerentanan. */
+export interface VulnerabilityPointProps {
+  risk_level: RiskLevel;
+  anomaly_type: AnomalyType;
+  risk_score: number;
+  risk_color: string;
+  anomaly_probs: Record<string, number>;
+  risk_probs: Record<string, number>;
+}
+
+/** GeoJSON Feature untuk grid kerentanan. */
+export interface VulnerabilityFeature {
+  type: "Feature";
+  geometry: {
+    type: "Point";
+    coordinates: [number, number]; // [lon, lat]
+  };
+  properties: VulnerabilityPointProps;
+}
+
+/** Response GeoJSON FeatureCollection dari `GET /api/vulnerability/grid`. */
+export interface VulnerabilityGrid {
+  type: "FeatureCollection";
+  features: VulnerabilityFeature[];
+  metadata: {
+    generated_date: string;
+    grid_resolution_deg: number;
+    total_points: number;
+    ml_enabled: boolean;
+    coverage: {
+      lat_range: [number, number];
+      lon_range: [number, number];
+    };
+  };
 }
 
 // ============================================================================
@@ -218,6 +267,10 @@ export interface HealthResponse {
   environment: string;
   llm_enabled: boolean;
   llm_model: string | null;
+  ml_enabled?: boolean;
+  ml_status?: string;
+  data_sources?: string[];
+  ml_models?: string[];
   /** ISO 8601 datetime UTC. */
   timestamp: string;
 }

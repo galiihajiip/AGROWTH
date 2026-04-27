@@ -75,13 +75,23 @@ class AppSettings(BaseSettings):
     gemini_timeout_sec: float = Field(default=20.0, gt=0)
 
     # ---------- Weather provider ----------
-    # ``openmeteo`` (default) → call api.open-meteo.com (gratis, no key)
-    # ``mock`` → fallback statis deterministic untuk dev/CI offline.
+    # ``openmeteo`` (default) -> call api.open-meteo.com (gratis, no key)
+    # ``mock`` -> fallback statis deterministic untuk dev/CI offline.
     # Bila Open-Meteo gagal/timeout, orchestrator akan fallback otomatis ke mock
     # supaya UI tetap responsif.
     weather_provider: str = Field(default="openmeteo")
     open_meteo_base_url: str = Field(default="https://api.open-meteo.com/v1/forecast")
     open_meteo_timeout_sec: float = Field(default=8.0, gt=0)
+
+    # ---------- Multi-ML pipeline ----------
+    # ``true`` (default) -> gunakan ensemble ML (Random Forest, Gradient
+    # Boosting, SVM) untuk klasifikasi anomali & risk. Model di-train
+    # otomatis saat pertama kali dimuat jika belum ada.
+    # ``false`` -> pakai rule-based threshold (legacy).
+    ml_enabled: bool = Field(
+        default=True,
+        description="Aktifkan Multi-ML ensemble untuk anomaly/risk classification.",
+    )
 
     @field_validator("weather_provider")
     @classmethod

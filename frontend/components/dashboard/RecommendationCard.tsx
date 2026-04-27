@@ -42,6 +42,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import {
   AlertTriangle,
   CheckSquare,
+  Database,
   Leaf,
   Sparkles,
 } from "lucide-react";
@@ -139,8 +140,38 @@ function PoweredByGemini() {
         strokeWidth={2.25}
         aria-hidden
       />
-      Powered by Gemini AI
+      Powered by Multi-ML + Gemini AI
     </span>
+  );
+}
+
+interface DataSourcesBarProps {
+  sources: string[];
+}
+
+function DataSourcesBar({ sources }: DataSourcesBarProps) {
+  if (sources.length === 0) return null;
+  return (
+    <div className="flex flex-col gap-1.5">
+      <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        Sumber Data Terintegrasi
+      </h3>
+      <div className="flex flex-wrap gap-1">
+        {sources.map((src, i) => (
+          <span
+            key={i}
+            className={cn(
+              "inline-flex items-center gap-1 rounded-full",
+              "border border-sky-500/25 bg-sky-500/10",
+              "px-2 py-0.5 text-[10px] font-medium text-sky-300",
+            )}
+          >
+            <Database className="h-2.5 w-2.5" strokeWidth={2.25} aria-hidden />
+            {src}
+          </span>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -257,6 +288,7 @@ export function RecommendationCard({ className, span }: RecommendationCardProps)
   const actions = recommendation?.recommendations ?? [];
   const crops = recommendation?.crops ?? [];
   const warnings = recommendation?.risk_warnings ?? [];
+  const dataSources = recommendation?.data_sources ?? [];
 
   return (
     <BentoCard
@@ -327,6 +359,9 @@ export function RecommendationCard({ className, span }: RecommendationCardProps)
               </div>
             </div>
           ) : null}
+
+          {/* ----- Section 5: Data sources ----- */}
+          <DataSourcesBar sources={dataSources} />
 
           {/* ----- Footer: warning + powered-by chip ----- */}
           <div className="mt-auto flex flex-col gap-2 pt-2">
