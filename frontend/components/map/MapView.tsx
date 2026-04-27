@@ -19,12 +19,11 @@
  */
 import { useCallback } from "react";
 import Map, {
-  Marker,
   NavigationControl,
   type MapLayerMouseEvent,
 } from "react-map-gl";
-import { MapPin } from "lucide-react";
 
+import { MapMarker } from "@/components/map/MapMarker";
 import { isInsideJavaBounds } from "@/lib/constants";
 import {
   INITIAL_VIEW_STATE,
@@ -41,6 +40,7 @@ export function MapView() {
   const selectedCoordinate = useAgrowthStore(
     (state) => state.selectedCoordinate,
   );
+  const weatherData = useAgrowthStore((state) => state.weatherData);
 
   const token = assertMapboxToken();
 
@@ -78,17 +78,11 @@ export function MapView() {
         />
 
         {selectedCoordinate ? (
-          <Marker
-            longitude={selectedCoordinate.lon}
-            latitude={selectedCoordinate.lat}
-            anchor="bottom"
-          >
-            <MapPin
-              aria-label="Koordinat terpilih"
-              className="h-10 w-10 animate-pulse-glow text-agrowth-500 drop-shadow-[0_0_12px_rgba(16,185,129,0.65)]"
-              strokeWidth={2.5}
-            />
-          </Marker>
+          <MapMarker
+            lng={selectedCoordinate.lon}
+            lat={selectedCoordinate.lat}
+            riskLevel={weatherData?.risk_level ?? null}
+          />
         ) : null}
       </Map>
     </div>
