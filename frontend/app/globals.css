@@ -4,7 +4,8 @@
 
 /* ===========================================================================
  * Design tokens — mengikuti pola shadcn/ui supaya konsisten light & dark mode.
- * Nilai HSL tanpa unit agar bisa dipakai dengan opacity Tailwind.
+ * Nilai HSL tanpa unit agar bisa dipakai dengan opacity Tailwind
+ * (mis. ``hsl(var(--primary) / 0.5)``).
  * =========================================================================== */
 
 @layer base {
@@ -18,16 +19,19 @@
     --muted: 220 14% 96%;
     --muted-foreground: 220 9% 46%;
 
-    --primary: 142 70% 45%; /* AGROWTH green */
+    --primary: 142 70% 45%; /* AGROWTH emerald */
     --primary-foreground: 0 0% 100%;
 
-    --accent: 38 92% 50%; /* sun-yellow accent */
+    --accent: 38 92% 50%; /* matahari amber */
     --accent-foreground: 222 47% 11%;
 
     --border: 220 13% 91%;
     --ring: 142 70% 45%;
 
     --radius: 0.625rem;
+
+    /* Solid base background (dipakai untuk hero / canvas). */
+    --bg-base: #f8fafc; /* slate-50 */
   }
 
   .dark {
@@ -48,6 +52,9 @@
 
     --border: 217 19% 22%;
     --ring: 142 70% 55%;
+
+    /* Slate-950 sebagai base dark — sumber kebenaran utama. */
+    --bg-base: #020617;
   }
 
   * {
@@ -56,17 +63,81 @@
 
   html {
     @apply scroll-smooth;
+    /* Dark scrollbar di level html (Firefox + browser modern). */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background font-sans text-foreground antialiased;
+    background-color: var(--bg-base);
+    background-image:
+      radial-gradient(
+        circle at 0% 0%,
+        rgba(16, 185, 129, 0.08) 0%,
+        transparent 40%
+      ),
+      radial-gradient(
+        circle at 100% 100%,
+        rgba(245, 158, 11, 0.06) 0%,
+        transparent 35%
+      );
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Scrollbar dark untuk WebKit (Chrome, Edge, Safari). */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(16, 185, 129, 0.45);
+    background-clip: padding-box;
+  }
+
+  /* Selection: emerald glow. */
   ::selection {
-    background: hsl(var(--primary) / 0.25);
+    background: rgba(16, 185, 129, 0.35);
     color: hsl(var(--foreground));
+  }
+  ::-moz-selection {
+    background: rgba(16, 185, 129, 0.35);
+    color: hsl(var(--foreground));
+  }
+
+  /* Hilangkan blue tap highlight di mobile. */
+  a,
+  button,
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ===========================================================================
+ * Helper utility classes — kombinasi yang sering dipakai.
+ * =========================================================================== */
+@layer components {
+  .glass-panel {
+    @apply rounded-xl border border-glass-border bg-glass shadow-glass backdrop-blur-xl;
+  }
+  .glass-panel-strong {
+    @apply rounded-2xl border border-glass-border-strong bg-glass-strong shadow-glass-strong backdrop-blur-2xl;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
   }
 }

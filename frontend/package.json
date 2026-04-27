@@ -11,9 +11,13 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
+    "framer-motion": "^11.11.0",
+    "lucide-react": "^0.468.0",
     "next": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "tailwind-merge": "^2.5.5"
   },
   "devDependencies": {
     "@types/node": "^22.7.0",
