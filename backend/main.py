@@ -14,7 +14,58 @@ from app.routers import mangsa, predict, recommendation
 
 configure_logging()
 settings = get_settings()
-app = FastAPI(title=settings.app_name, version=settings.app_version)
+
+# OpenAPI metadata untuk /docs dan /redoc
+_API_DESCRIPTION = """
+**AGROWTH** adalah API rekomendasi pertanian hybrid untuk Pulau Jawa yang
+memadukan:
+
+* **Prediksi cuaca + risiko + anomali** (mock deterministik 1-14 hari)
+* **Pranata Mangsa** (kalender pertanian tradisional Jawa, 12 mangsa)
+* **Rekomendasi naratif Bahasa Jawa** via Google Gemini 2.5 Flash
+  (otomatis fallback ke aturan statis bila API key tidak tersedia)
+
+Validasi koordinat membatasi input ke Pulau Jawa
+(lat ∈ [-9, -5], lon ∈ [105, 115]); di luar batas → **422**.
+
+Setiap respons dilabeli `X-Request-ID` untuk traceability.
+""".strip()
+
+_TAGS_METADATA = [
+    {
+        "name": "prediction",
+        "description": "Prediksi cuaca harian, risiko, dan anomali iklim.",
+    },
+    {
+        "name": "recommendation",
+        "description": (
+            "Rekomendasi pertanian gabungan cuaca + Pranata Mangsa + LLM."
+        ),
+    },
+    {
+        "name": "mangsa",
+        "description": "Lookup mangsa Pranata Mangsa Jawa (12 mangsa).",
+    },
+    {
+        "name": "meta",
+        "description": "Health check, identitas, dan status komponen.",
+    },
+]
+
+app = FastAPI(
+    title=settings.app_name,
+    version=settings.app_version,
+    description=_API_DESCRIPTION,
+    summary="Hybrid agriculture recommendation API for Java island.",
+    contact={
+        "name": "AGROWTH",
+        "url": "https://github.com/galiihajiip/AGROWTH",
+    },
+    license_info={"name": "MIT"},
+    openapi_tags=_TAGS_METADATA,
+    docs_url="/docs",
+    redoc_url="/redoc",
+)
 
 app.add_middleware(
     CORSMiddleware,
