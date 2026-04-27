@@ -159,6 +159,10 @@ const config: Config = {
         shimmer: "shimmer 2.4s linear infinite",
         "pulse-glow": "pulse-glow 2.4s ease-in-out infinite",
         float: "float 4s ease-in-out infinite",
+        // Pakai keyframes ``spin`` bawaan Tailwind (360°, linear) dengan
+        // durasi panjang supaya cocok untuk ikon dekoratif (mis. Sparkles
+        // di RecommendationCard) tanpa mendistraksi mata.
+        "spin-slow": "spin 6s linear infinite",
       },
 
       // ========== BACKGROUND IMAGES (gradient siap pakai) ==========

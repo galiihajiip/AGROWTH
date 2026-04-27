@@ -1,0 +1,342 @@
+"use client";
+
+/**
+ * Hero recommendation card — narasi storytelling dari ``recommendationData``.
+ *
+ * Anatomi (4 section + footer):
+ *
+ * 1. ``traditional_wisdom``  : blockquote ``border-l-2`` agrowth, italic
+ *    muted text. Mewakili kearifan Pranata Mangsa yang relevan.
+ *
+ * 2. ``narrative``           : paragraf utama 80–150 kata Bahasa Jawa,
+ *    di-render via :class:`FadeInWords` — tiap kata muncul stagger
+ *    (default 25 ms/kata) dengan tween blur+opacity+y, mengasosiasikan
+ *    feel "AI sedang menulis langsung di depan mata".
+ *
+ * 3. ``modern_action``       : checklist dengan ikon ``CheckSquare``
+ *    (lucide), satu baris per tindakan praktis dari LLM/fallback.
+ *
+ * 4. ``crops``               : badges rounded-full agrowth tint untuk
+ *    daftar tanaman yang direkomendasikan.
+ *
+ * Footer:
+ * - Risk warnings: bila ``risk_warnings.length > 0``, tampilkan amber
+ *   warning bar dengan ikon ``AlertTriangle`` di atas chip.
+ * - Chip "Powered by Gemini AI" — selalu tampil saat ada data, sebagai
+ *   atribusi sumber narasi (chip jadi truthful indicator: kalau LLM
+ *   gagal & jatuh ke fallback statis backend, format response tetap
+ *   sama jadi chip masih akurat sebagai "AI hybrid pipeline").
+ *
+ * State variants:
+ * - Loading (``isLoadingRecommendation``): 3 baris shimmer + 2 chip
+ *   placeholder dengan single ``animate-shimmer`` overlay.
+ * - Empty (belum ada koordinat): teks besar muted + sub-text ajakan,
+ *   tanpa shimmer — eksplisit memberi affordance "klik peta dulu".
+ * - Loaded: 4 section + footer.
+ *
+ * BentoCard glow tetap ``emerald`` (brand AGROWTH); icon ``Sparkles``
+ * pakai ``animate-spin-slow`` (6s linear, ditambah ke tailwind config)
+ * sebagai signature visual "AI hidup".
+ */
+import { motion, useReducedMotion } from "framer-motion";
+import {
+  AlertTriangle,
+  CheckSquare,
+  Leaf,
+  Sparkles,
+} from "lucide-react";
+import { useMemo } from "react";
+
+import { BentoCard, type BentoCardSpan } from "@/components/ui/BentoCard";
+import { cn } from "@/lib/utils";
+import { useAgrowthStore } from "@/store/useAgrowthStore";
+
+// ============================================================================
+// FadeInWords — kata muncul stagger (storytelling effect)
+// ============================================================================
+
+interface FadeInWordsProps {
+  text: string;
+  className?: string;
+  /** Stagger delay antar-kata (ms). Default 25 ms. */
+  staggerMs?: number;
+}
+
+/**
+ * Render ``text`` per kata dengan ``motion.span`` yang fade-in
+ * stagger. Re-mount otomatis saat ``text`` berubah karena kita
+ * pasangkan ``key={text}`` di paragraf pembungkus → animasi
+ * berjalan ulang setiap rekomendasi baru datang.
+ *
+ * Reduced motion: respect ``prefers-reduced-motion`` (durasi & delay
+ * di-set 0 → text muncul langsung tanpa transisi).
+ */
+function FadeInWords({ text, className, staggerMs = 25 }: FadeInWordsProps) {
+  const reduced = useReducedMotion();
+  const words = useMemo(() => text.split(/\s+/).filter(Boolean), [text]);
+
+  return (
+    <motion.p key={text} className={className}>
+      {words.map((word, i) => (
+        <motion.span
+          key={`${i}-${word}`}
+          initial={{ opacity: 0, y: 4, filter: "blur(4px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={
+            reduced
+              ? { duration: 0 }
+              : {
+                  duration: 0.4,
+                  delay: i * (staggerMs / 1000),
+                  ease: [0.16, 1, 0.3, 1],
+                }
+          }
+          className="inline-block"
+        >
+          {word}
+          {i < words.length - 1 ? "\u00a0" : ""}
+        </motion.span>
+      ))}
+    </motion.p>
+  );
+}
+
+// ============================================================================
+// Sub-components: chip + warning bar + skeleton
+// ============================================================================
+
+interface CropChipProps {
+  label: string;
+}
+
+function CropChip({ label }: CropChipProps) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full",
+        "border border-agrowth-500/30 bg-agrowth-500/10",
+        "px-2.5 py-0.5 text-xs font-medium text-agrowth-300",
+      )}
+    >
+      <Leaf className="h-3 w-3" strokeWidth={2.25} aria-hidden />
+      {label}
+    </span>
+  );
+}
+
+function PoweredByGemini() {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full",
+        "border border-glass-border bg-glass",
+        "px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider",
+        "text-muted-foreground",
+      )}
+    >
+      <Sparkles
+        className="h-3 w-3 text-agrowth-400"
+        strokeWidth={2.25}
+        aria-hidden
+      />
+      Powered by Gemini AI
+    </span>
+  );
+}
+
+interface WarningBarProps {
+  warnings: string[];
+}
+
+function WarningBar({ warnings }: WarningBarProps) {
+  if (warnings.length === 0) return null;
+  return (
+    <div
+      role="alert"
+      className={cn(
+        "flex items-start gap-2 rounded-lg",
+        "border border-amber-500/30 bg-amber-500/10 p-3",
+      )}
+    >
+      <AlertTriangle
+        className="mt-0.5 h-4 w-4 shrink-0 text-amber-400"
+        strokeWidth={2.25}
+        aria-hidden
+      />
+      <ul className="flex flex-col gap-1 text-xs leading-relaxed text-amber-200">
+        {warnings.map((w, i) => (
+          <li key={i}>{w}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function ContentSkeleton() {
+  return (
+    <div className="relative flex flex-1 flex-col gap-3" aria-busy="true">
+      {/* 3 baris shimmer */}
+      <div className="flex flex-col gap-2">
+        <div className="h-3 w-full rounded bg-glass" />
+        <div className="h-3 w-5/6 rounded bg-glass" />
+        <div className="h-3 w-3/4 rounded bg-glass" />
+      </div>
+      {/* 2 chip placeholder */}
+      <div className="mt-1 flex flex-wrap gap-1.5">
+        <div className="h-5 w-20 rounded-full bg-glass" />
+        <div className="h-5 w-24 rounded-full bg-glass" />
+      </div>
+      {/* Single shimmer overlay */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-gradient-shimmer bg-[length:200%_100%] animate-shimmer mix-blend-screen opacity-70"
+      />
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="flex flex-1 flex-col items-center justify-center px-4 py-6 text-center">
+      <p className="text-2xl font-semibold tracking-tight text-foreground/40">
+        Pilih lokasi di peta.
+      </p>
+      <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground/60">
+        Rekomendasi pertanian hibrida — Pranata Mangsa, prediksi cuaca,
+        dan saran AI berbahasa Jawa — akan tampil di sini.
+      </p>
+    </div>
+  );
+}
+
+// ============================================================================
+// Section labels
+// ============================================================================
+
+interface SectionLabelProps {
+  children: React.ReactNode;
+}
+
+function SectionLabel({ children }: SectionLabelProps) {
+  return (
+    <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+      {children}
+    </h3>
+  );
+}
+
+// ============================================================================
+// Public component
+// ============================================================================
+
+export interface RecommendationCardProps {
+  className?: string;
+  /** Override grid placement; default ``{ col: 7, row: 4 }``. */
+  span?: BentoCardSpan;
+}
+
+export function RecommendationCard({ className, span }: RecommendationCardProps) {
+  const recommendation = useAgrowthStore((s) => s.recommendationData);
+  const isLoading = useAgrowthStore((s) => s.isLoadingRecommendation);
+  const hasCoordinate = useAgrowthStore(
+    (s) => s.selectedCoordinate !== null,
+  );
+
+  // Tentukan visual mode.
+  let mode: "loading" | "empty" | "loaded";
+  if (recommendation) {
+    mode = "loaded";
+  } else if (isLoading || hasCoordinate) {
+    mode = "loading";
+  } else {
+    mode = "empty";
+  }
+
+  const summary = recommendation?.summary ?? "";
+  const wisdom = recommendation?.weather_advice ?? "";
+  const actions = recommendation?.recommendations ?? [];
+  const crops = recommendation?.crops ?? [];
+  const warnings = recommendation?.risk_warnings ?? [];
+
+  return (
+    <BentoCard
+      title="Rekomendasi AI"
+      subtitle="Hibrida Pranata Mangsa + Gemini"
+      icon={Sparkles}
+      iconClassName="animate-spin-slow"
+      glow="emerald"
+      span={span ?? { col: 7, row: 4 }}
+      className={className}
+    >
+      {mode === "loading" ? <ContentSkeleton /> : null}
+
+      {mode === "empty" ? <EmptyState /> : null}
+
+      {mode === "loaded" ? (
+        <div className="flex flex-1 flex-col gap-4">
+          {/* ----- Section 1: Traditional wisdom (blockquote) ----- */}
+          {wisdom ? (
+            <blockquote
+              className={cn(
+                "border-l-2 border-agrowth-500/60 pl-3",
+                "text-sm italic leading-relaxed text-muted-foreground",
+              )}
+            >
+              {wisdom}
+            </blockquote>
+          ) : null}
+
+          {/* ----- Section 2: Narasi (FadeInWords) ----- */}
+          {summary ? (
+            <FadeInWords
+              text={summary}
+              className="text-sm leading-relaxed text-foreground"
+            />
+          ) : null}
+
+          {/* ----- Section 3: Modern action checklist ----- */}
+          {actions.length > 0 ? (
+            <div className="flex flex-col gap-2">
+              <SectionLabel>Tindakan Modern</SectionLabel>
+              <ul className="flex flex-col gap-1.5">
+                {actions.map((action, i) => (
+                  <li
+                    key={i}
+                    className="flex items-start gap-2 text-sm leading-relaxed text-foreground"
+                  >
+                    <CheckSquare
+                      className="mt-0.5 h-4 w-4 shrink-0 text-agrowth-400"
+                      strokeWidth={2.25}
+                      aria-hidden
+                    />
+                    <span>{action}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          {/* ----- Section 4: Crop badges ----- */}
+          {crops.length > 0 ? (
+            <div className="flex flex-col gap-2">
+              <SectionLabel>Tanaman Direkomendasikan</SectionLabel>
+              <div className="flex flex-wrap gap-1.5">
+                {crops.map((crop, i) => (
+                  <CropChip key={i} label={crop} />
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {/* ----- Footer: warning + powered-by chip ----- */}
+          <div className="mt-auto flex flex-col gap-2 pt-2">
+            <WarningBar warnings={warnings} />
+            <div className="flex justify-end">
+              <PoweredByGemini />
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </BentoCard>
+  );
+}

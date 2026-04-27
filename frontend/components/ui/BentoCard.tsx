@@ -59,6 +59,11 @@ export interface BentoCardProps {
   subtitle?: string;
   /** Lucide icon component, ditampilkan di kiri header. */
   icon?: LucideIcon;
+  /**
+   * Class tambahan untuk SVG icon di header (mis. ``"animate-spin-slow"``).
+   * Di-merge ke className default; tidak menggantikan tint dari ``glow``.
+   */
+  iconClassName?: string;
   /** Class tambahan untuk container terluar (mis. tweak grid placement manual). */
   className?: string;
   /** Konten utama kartu. */
@@ -171,6 +176,7 @@ export function BentoCard({
   title,
   subtitle,
   icon: Icon,
+  iconClassName,
   className,
   children,
   glow = "none",
@@ -215,7 +221,7 @@ export function BentoCard({
               )}
             >
               <Icon
-                className={cn("h-4 w-4", ICON_TINT[glow])}
+                className={cn("h-4 w-4", ICON_TINT[glow], iconClassName)}
                 strokeWidth={2.25}
                 aria-hidden
               />
