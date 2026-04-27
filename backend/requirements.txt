@@ -1,9 +1,18 @@
-fastapi
-uvicorn
-pydantic
-pydantic-settings
-python-dotenv
-google-genai
-numpy
-pytest
-httpx
+# Core web framework
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.34,<1.0
+
+# Validation & config
+pydantic>=2.10,<3.0
+pydantic-settings>=2.7,<3.0
+python-dotenv>=1.0,<2.0
+
+# LLM (Google Gemini, latest SDK)
+google-genai>=1.0,<2.0
+
+# Numerics (deterministic mock weather)
+numpy>=2.0,<3.0
+
+# Testing
+pytest>=8.0,<10.0
+httpx>=0.27,<1.0
