@@ -1,3 +1,6 @@
+/* External: Mapbox GL controls & default styles (HARUS sebelum @tailwind base). */
+@import "mapbox-gl/dist/mapbox-gl.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
