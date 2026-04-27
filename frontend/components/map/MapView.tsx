@@ -23,8 +23,10 @@ import Map, {
   type MapLayerMouseEvent,
 } from "react-map-gl";
 
+import { MapLegend } from "@/components/map/MapLegend";
 import { MapMarker } from "@/components/map/MapMarker";
 import { VulnerabilityLayer } from "@/components/map/VulnerabilityLayer";
+import { VulnerabilityToggle } from "@/components/map/VulnerabilityToggle";
 import { isInsideJavaBounds } from "@/lib/constants";
 import {
   INITIAL_VIEW_STATE,
@@ -59,7 +61,7 @@ export function MapView() {
   );
 
   return (
-    <div className="h-full w-full overflow-hidden rounded-2xl border border-white/10">
+    <div className="relative h-full w-full overflow-hidden rounded-2xl border border-white/10">
       <Map
         mapboxAccessToken={token}
         mapStyle={MAP_STYLE}
@@ -92,6 +94,10 @@ export function MapView() {
           />
         ) : null}
       </Map>
+
+      {/* Overlay controls (positioned outside <Map> for proper stacking) */}
+      <VulnerabilityToggle />
+      <MapLegend />
     </div>
   );
 }

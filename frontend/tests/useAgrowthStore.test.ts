@@ -211,6 +211,7 @@ describe("useAgrowthStore", () => {
     expect(s.recommendationData).toBeNull();
     expect(s.currentMangsa).toBeNull();
     expect(s.isLoadingRecommendation).toBe(false);
+    expect(s.showVulnerabilityLayer).toBe(true);
     expect(s.error).toBeNull();
   });
 });

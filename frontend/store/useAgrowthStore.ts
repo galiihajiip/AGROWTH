@@ -56,6 +56,10 @@ export interface AgrowthState {
   /** True saat fetch ``POST /api/recommendation`` in-flight. */
   isLoadingRecommendation: boolean;
 
+  // ---------- Map UI ----------
+  /** Tampilkan vulnerability heatmap layer di peta. */
+  showVulnerabilityLayer: boolean;
+
   // ---------- Error ----------
   /** Error terakhir dari operasi async manapun. ``null`` jika sehat. */
   error: ApiError | null;
@@ -82,6 +86,9 @@ export interface AgrowthState {
 
   /** Refresh mangsa aktif (idempotent). */
   fetchCurrentMangsa: () => Promise<void>;
+
+  /** Toggle visibility vulnerability heatmap layer. */
+  toggleVulnerabilityLayer: () => void;
 
   /** Hapus error tanpa mengubah data. */
   clearError: () => void;
@@ -114,12 +121,14 @@ const INITIAL_STATE: Pick<
   | "recommendationData"
   | "currentMangsa"
   | "isLoadingRecommendation"
+  | "showVulnerabilityLayer"
   | "error"
 > = {
   selectedCoordinate: null,
   recommendationData: null,
   currentMangsa: null,
   isLoadingRecommendation: false,
+  showVulnerabilityLayer: true,
   error: null,
 };
 
@@ -220,6 +229,14 @@ export const useAgrowthStore = create<AgrowthState>()(
           });
         }
       },
+
+      // ---------- toggleVulnerabilityLayer ----------
+      toggleVulnerabilityLayer: () =>
+        set(
+          (s) => ({ showVulnerabilityLayer: !s.showVulnerabilityLayer }),
+          false,
+          "toggleVulnerabilityLayer",
+        ),
 
       // ---------- clearError ----------
       clearError: () => set({ error: null }, false, "clearError"),
