@@ -138,6 +138,8 @@ async def recommend(
         weather_advice=llm.traditional_wisdom,
         risk_warnings=list(llm.warning),
         summary=llm.narrative,
+        mangsa_greeting=llm.mangsa_greeting,
+        traditional_proverb=llm.traditional_proverb,
         # UTC + offset eksplisit supaya kompatibel dengan parser ISO 8601
         # apa pun (mis. Date di JS, dateutil di Python, dst.)
         generated_at=datetime.now(timezone.utc),

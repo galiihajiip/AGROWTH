@@ -78,6 +78,8 @@ const FAKE_RECOMMENDATION = {
   weather_advice: "Cuaca cerah",
   risk_warnings: [],
   summary: "Mangsa Desta",
+  mangsa_greeting: "Kulo nuwun, sedulur tani ing mangsa Desta menika, mugi tansah pinaringan wilujeng lan berkah.",
+  traditional_proverb: "Sapa nandur bakal ngundhuh; alam kang tentrem iku kanca sejatining tani.",
   generated_at: "2025-04-27T12:00:00+00:00",
 };
 

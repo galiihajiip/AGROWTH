@@ -190,6 +190,14 @@ class RecommendationResponse(BaseModel):
     summary: Optional[str] = Field(
         default=None, description="Ringkasan naratif (LLM-generated)"
     )
+    mangsa_greeting: str = Field(
+        default="",
+        description="Sapaan pembuka Jawa krama terkait mangsa aktif",
+    )
+    traditional_proverb: str = Field(
+        default="",
+        description="Peribahasa/ungkapan Jawa relevan dengan kondisi anomali",
+    )
     generated_at: datetime = Field(
         ...,
         description=(

@@ -139,7 +139,8 @@ def test_recommendation_full_pipeline(client: TestClient) -> None:
     expected_keys = {
         "location", "current", "forecast", "mangsa",
         "risk_level", "anomaly", "recommendations", "crops",
-        "weather_advice", "risk_warnings", "summary", "generated_at",
+        "weather_advice", "risk_warnings", "summary",
+        "mangsa_greeting", "traditional_proverb", "generated_at",
     }
     assert expected_keys.issubset(data.keys()), f"missing: {expected_keys - data.keys()}"
 

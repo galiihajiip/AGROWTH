@@ -289,6 +289,8 @@ export function RecommendationCard({ className, span }: RecommendationCardProps)
   const crops = recommendation?.crops ?? [];
   const warnings = recommendation?.risk_warnings ?? [];
   const dataSources = recommendation?.data_sources ?? [];
+  const mangsaGreeting = recommendation?.mangsa_greeting ?? "";
+  const traditionalProverb = recommendation?.traditional_proverb ?? "";
 
   return (
     <BentoCard
@@ -306,6 +308,13 @@ export function RecommendationCard({ className, span }: RecommendationCardProps)
 
       {mode === "loaded" ? (
         <div className="flex flex-1 flex-col gap-4">
+          {/* ----- Mangsa greeting (sub-header) ----- */}
+          {mangsaGreeting ? (
+            <p className="text-sm italic leading-relaxed text-agrowth-300/80">
+              {mangsaGreeting}
+            </p>
+          ) : null}
+
           {/* ----- Section 1: Traditional wisdom (blockquote) ----- */}
           {wisdom ? (
             <blockquote
@@ -324,6 +333,18 @@ export function RecommendationCard({ className, span }: RecommendationCardProps)
               text={summary}
               className="text-sm leading-relaxed text-foreground"
             />
+          ) : null}
+
+          {/* ----- Traditional proverb (footer quote) ----- */}
+          {traditionalProverb ? (
+            <p
+              className={cn(
+                "text-xs italic leading-relaxed text-muted-foreground/70",
+                "border-t border-glass-border pt-2",
+              )}
+            >
+              &ldquo;{traditionalProverb}&rdquo;
+            </p>
           ) : null}
 
           {/* ----- Section 3: Modern action checklist ----- */}

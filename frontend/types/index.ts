@@ -199,6 +199,10 @@ export interface RecommendationResponse {
   risk_warnings: string[];
   /** Ringkasan naratif Bahasa Jawa 80-120 kata. */
   summary?: string | null;
+  /** Sapaan pembuka Jawa krama terkait mangsa aktif. */
+  mangsa_greeting?: string;
+  /** Peribahasa/ungkapan Jawa relevan dengan kondisi anomali. */
+  traditional_proverb?: string;
   /**
    * ISO 8601 datetime saat rekomendasi dibuat. Selalu UTC dengan offset
    * eksplisit (`+00:00` / `Z`); aman di-pass ke `new Date(...)`.

@@ -50,6 +50,14 @@ class RecommendationLLM(BaseModel):
         default_factory=list, description="Peringatan risiko relevan"
     )
     narrative: str = Field(..., description="Narasi 80-120 kata Bahasa Jawa")
+    mangsa_greeting: str = Field(
+        default="",
+        description="Sapaan pembuka Jawa krama terkait mangsa aktif",
+    )
+    traditional_proverb: str = Field(
+        default="",
+        description="Peribahasa/ungkapan Jawa relevan dengan kondisi anomali",
+    )
 
 
 # ---------- TTL cache (manual) ----------
@@ -171,15 +179,20 @@ def build_recommendation_prompt(
     planting_date: Optional[date] = None,
     notes: Optional[str] = None,
 ) -> str:
-    """Format prompt: cuaca + mangsa + konteks petani + instruksi JSON output."""
+    """Format prompt: persona + cuaca + mangsa + konteks petani + instruksi JSON output."""
     lokasi = (
         location.name
         or location.province
         or f"{location.lat:.3f},{location.lon:.3f}"
     )
     farmer_block = _format_farmer_context(crop_type, planting_date, notes)
-    return f"""Kowe asisten pertanian sing nguasai Pranata Mangsa Jawa lan agroklimatologi modern.
-Tugasmu: nggawe rekomendasi tindakan kanggo petani ing lokasi {lokasi} (lat {location.lat}, lon {location.lon}).
+    tanda_alam_pertama = mangsa.characteristics[0] if mangsa.characteristics else "-"
+    return f"""== PERSONA ==
+Kamu adalah Mbah Tani Digital — penasihat pertanian yang menguasai ilmu cuaca modern \
+DAN hafal seluruh 12 Pranata Mangsa beserta tanda alamnya. Bicaramu hangat, \
+menggunakan krama alus Jawa namun tetap mudah dipahami. Ing wektu menika, \
+tugasmu nggawe rekomendasi tindakan kanggo petani ing lokasi {lokasi} \
+(lat {location.lat}, lon {location.lon}).
 
 == KONTEKS CUACA SAIKI ==
 - Suhu: {weather.temperature_c}°C
@@ -197,6 +210,7 @@ Tugasmu: nggawe rekomendasi tindakan kanggo petani ing lokasi {lokasi} (lat {loc
 - Musim umum: {mangsa.season}
 - Watak alam: {mangsa.description}
 - Tandha alam: {"; ".join(mangsa.characteristics) or "-"}
+- Tandha alam utama: {tanda_alam_pertama}
 - Pangrasa tradhisi: {"; ".join(mangsa.recommended_activities) or "-"}
 
 == ANALISIS RISIKO ==
@@ -211,18 +225,50 @@ Schema:
   "modern_action": ["<langkah modern 1>", "<langkah 2>", "<langkah 3>", "..."],
   "crop_recommendation": ["<tanaman 1>", "<tanaman 2>", "..."],
   "warning": ["<peringatan 1>", "<peringatan 2>", "..."],
-  "narrative": "<narasi 80-120 tembung basa Jawa, padu antara tradisi lan praktik modern>"
+  "narrative": "<narasi 80-120 tembung basa Jawa>",
+  "mangsa_greeting": "<1 ukara sapaan Jawa krama terkait mangsa aktif>",
+  "traditional_proverb": "<1 peribahasa/ungkapan Jawa relevan karo anomali {anomaly.value}>"
 }}
 
 Aturan tambahan:
 - "modern_action" 3-5 item; ringkes lan iso ditindakaké petani.
+  Ing wektu menika, miturut kawruh leluhur, gunakna frasa Jawa sing hangat
+  (umpamané "Ing wektu menika", "Miturut kawruh leluhur") tinimbang tembung
+  generik kaya "Sebaiknya" utawa "Disarankan".
 - "crop_recommendation" max 5 item; prioritas tanaman cocok mangsa+anomali.
   Yen petani wis nyebutake tanaman utama (KONTEKS PETANI), prioritasake
   varietas/nawala kanggo tanaman kuwi.
 - "warning" 1-3 item; selaras karo tingkat risiko ({risk_level.value}).
-- "narrative" wajib basa Jawa krama lugu, 80-120 tembung, ngandhut konteks
-  mangsa, cuaca saiki, lan tindakan utama. Yen tanggal tanam diwenehake,
-  lebokake estimasi fase tanduran (vegetatif/generatif/panen)."""
+- "narrative" wajib basa Jawa krama lugu, 80-120 tembung, padu antara
+  tradisi lan praktik modern. WAJIB nyebut jeneng mangsa "{mangsa.name}"
+  minimal 2 kali lan nyebut tandha alam "{tanda_alam_pertama}" minimal
+  1 kali ing narasi. Yen tanggal tanam diwenehake, lebokake estimasi fase
+  tanduran (vegetatif/generatif/panen).
+- "mangsa_greeting" sapaan 1 ukara Jawa krama kanggo petani, nyebut mangsa
+  aktif (conto: "Kulo nuwun, sedulur tani ing mangsa {mangsa.name} menika...").
+- "traditional_proverb" 1 peribahasa utawa ungkapan Jawa sing gathuk karo
+  anomali {anomaly.value} saiki (conto: "Sapa nandur bakal ngundhuh").
+
+== CONTO (FEW-SHOT) ==
+Input: Mangsa Kasa (mangsa ke-1), anomali drought, risiko medium, suhu 33°C.
+Output:
+{{
+  "traditional_wisdom": "Ing mangsa Kasa, godhong jati lan randu wiwit gogrog, pratandha ketiga wiwit tumeka. Miturut kawruh leluhur, wektu iki becike nyimpen banyu lan ngirit sumber daya.",
+  "modern_action": [
+    "Ing wektu menika, pasang mulsa kanggo njaga kalengeran lemah",
+    "Miturut kawruh leluhur, gunakna irigasi tetes kanggo ngirit banyu",
+    "Ing wektu menika, semprotna pupuk daun wayah esuk utawa sore",
+    "Miturut kawruh leluhur, tanduran palawija sing tahan ketiga"
+  ],
+  "crop_recommendation": ["kacang tanah", "jagung hibrida", "kedelai", "wijen"],
+  "warning": [
+    "Risiko cuaca sedang; tandha alam godhong gogrog nandhakaké ketiga nyata",
+    "Simpenen banyu — sumber tuk lan sumur bisa suda drastis"
+  ],
+  "narrative": "Kulo aturaken, sedulur tani, ing mangsa Kasa menika bumi nembe mlebet wektu ketiga. Mangsa Kasa ingkang kaping setunggal saking rolas mangsa Pranata Mangsa dipuntandhani kaliyan godhong jati lan randu ingkang sami gogrog — pratandha bilih udan sampun boten tumeka. Ing wektu menika, siti wiwit garing lan nelo. Miturut kawruh leluhur, wektu menika prayoginipun dipunginakaken kangge nanem palawija ingkang tahan ketiga kados kacang tanah lan jagung hibrida. Suhu ingkang dumugi 33°C ndadosaken penting sanget kangge njagi kalengeran lemah mawi mulsa lan irigasi tetes. Mugi-mugi mangsa Kasa menika paring berkah lan asil ingkang sae.",
+  "mangsa_greeting": "Kulo nuwun, sedulur tani ing mangsa Kasa menika, mugi tansah pinaringan wilujeng.",
+  "traditional_proverb": "Sapa sing tlaten ngopeni lemah ing mangsa ketiga, bakal ngundhuh berkah ing mangsa rendheng."
+}}"""
 
 
 # ---------- Generation ----------
@@ -310,6 +356,33 @@ _ANOMALY_WARNING_EXTRA: Dict[AnomalyType, List[str]] = {
     AnomalyType.NORMAL: [],
 }
 
+_ANOMALY_PROVERB: Dict[AnomalyType, str] = {
+    AnomalyType.DROUGHT: (
+        "Banyu iku nyawané tanduran; sing sapa bisa nyimpen, "
+        "bakal ngundhuh ing mangsa ketiga."
+    ),
+    AnomalyType.FLOOD: (
+        "Yen banjir teka, sing waspada urip slamet; "
+        "sing sapa nata kali, ora bakal kelangan pari."
+    ),
+    AnomalyType.HEATWAVE: (
+        "Srengenge kang kepanasen iku pacoban; "
+        "tanduran sing dikayomi bakal tetep ngrembaka."
+    ),
+    AnomalyType.EL_NINO: (
+        "Ketiga dawa iku ujian kesabaran; "
+        "sapa tlaten ngopeni lemah, bakal nampa ganjaran."
+    ),
+    AnomalyType.LA_NINA: (
+        "Udan kang tanpa kendhat iku berkah lan bebaya; "
+        "sing sapa wicaksana nata banyu, panenipun lestari."
+    ),
+    AnomalyType.NORMAL: (
+        "Sapa nandur bakal ngundhuh; "
+        "alam kang tentrem iku kanca sejatining tani."
+    ),
+}
+
 
 def _fallback_recommendation(
     mangsa: MangsaInfo,
@@ -336,17 +409,32 @@ def _fallback_recommendation(
         f"nelakaké musim {mangsa.season}: {mangsa.description}"
     )
 
+    tanda_alam_pertama = (
+        mangsa.characteristics[0] if mangsa.characteristics else "-"
+    )
     crop_phrase = ", ".join(crops[:3]) if crops else "palawija umum"
     action_phrase = "; ".join(actions[:3])
     narrative = (
-        f"Sak iki mlebu mangsa {mangsa.name}, mangsa kaping {mangsa.number} "
-        f"saka rolas mangsa ing Pranata Mangsa Jawa. Mangsa iki nelakaké musim "
-        f"{mangsa.season} kanthi watak: {mangsa.description} "
-        f"Tindakan utama sing dianjuraké yaiku: {action_phrase}. "
-        f"Tanduran sing pas kanggo wektu iki: {crop_phrase}. "
-        f"Tingkat risiko cuaca {risk_level.value} kanthi anomali {anomaly.value}; "
-        f"para tani disuwun ngati-ati lan tetep ngrungokaké tandha alam ing "
-        f"sakiwa-tengené supaya panen lestari."
+        f"Kulo aturaken, sedulur tani, ing mangsa {mangsa.name} menika "
+        f"bumi nembe mlebet musim {mangsa.season}. "
+        f"Mangsa {mangsa.name} ingkang kaping {mangsa.number} saking rolas "
+        f"mangsa Pranata Mangsa dipuntandhani kaliyan {tanda_alam_pertama}. "
+        f"Ing wektu menika, tindakan utama ingkang dipunanjuraken inggih menika: "
+        f"{action_phrase}. "
+        f"Tanduran ingkang pas kangge wektu menika: {crop_phrase}. "
+        f"Miturut kawruh leluhur, tingkat risiko cuaca {risk_level.value} "
+        f"kanthi anomali {anomaly.value}; para tani dipunsuwun ngatos-atos "
+        f"lan tetep mirengaken tandha alam ing sakiwa-tengenipun supados "
+        f"panen lestari."
+    )
+
+    greeting = (
+        f"Kulo nuwun, sedulur tani ing mangsa {mangsa.name} menika, "
+        f"mugi tansah pinaringan wilujeng lan berkah."
+    )
+    proverb = _ANOMALY_PROVERB.get(
+        anomaly,
+        "Sapa nandur bakal ngundhuh; alam kang tentrem iku kanca sejatining tani.",
     )
 
     return RecommendationLLM(
@@ -355,6 +443,8 @@ def _fallback_recommendation(
         crop_recommendation=crops,
         warning=warnings,
         narrative=narrative,
+        mangsa_greeting=greeting,
+        traditional_proverb=proverb,
     )
 
 

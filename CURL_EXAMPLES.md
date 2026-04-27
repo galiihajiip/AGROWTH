@@ -164,7 +164,9 @@ curl -X POST http://localhost:8000/api/recommendation \
   "risk_warnings": [
     "Risiko cuaca rendah; lanjutkan pemantauan harian sawah dan kebun."
   ],
-  "summary": "Sak iki mlebu mangsa Desta, mangsa kaping 11 saka rolas mangsa ing Pranata Mangsa Jawa. ...",
+  "summary": "Kulo aturaken, sedulur tani, ing mangsa Desta menika bumi nembe mlebet musim pancaroba. ...",
+  "mangsa_greeting": "Kulo nuwun, sedulur tani ing mangsa Desta menika, mugi tansah pinaringan wilujeng lan berkah.",
+  "traditional_proverb": "Sapa nandur bakal ngundhuh; alam kang tentrem iku kanca sejatining tani.",
   "generated_at": "2025-04-27T09:45:12.345678"
 }
 ```
