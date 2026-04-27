@@ -13,6 +13,13 @@
  *
  * ``useInitMangsa()`` di-call sekali di top component supaya store
  * langsung punya ``currentMangsa`` saat header pertama kali render.
+ *
+ * ``MapView`` di-load via :func:`dynamic` dengan ``ssr: false`` karena
+ * ``mapbox-gl`` mengakses ``window``/``document`` saat init dan token
+ * Mapbox di-validasi di runtime (lihat ``assertMapboxToken``); render
+ * di server akan throw saat token belum di-set. Pendekatan ini menjaga
+ * ``next build`` tetap hijau dan halaman lain (Header + slot) tetap
+ * di-prerender secara statis.
  */
 import {
   AlertTriangle,
@@ -23,11 +30,25 @@ import {
   TrendingUp,
   type LucideIcon,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 
 import { Header } from "@/components/layout/Header";
-import { MapView } from "@/components/map/MapView";
 import { useInitMangsa } from "@/hooks/useInitMangsa";
 import { cn } from "@/lib/utils";
+
+const MapView = dynamic(
+  () => import("@/components/map/MapView").then((mod) => mod.MapView),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        className="glass-panel h-full w-full animate-pulse"
+        aria-label="Memuat peta…"
+        role="status"
+      />
+    ),
+  },
+);
 
 interface PlaceholderSlotProps {
   className?: string;
