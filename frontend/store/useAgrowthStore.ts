@@ -27,6 +27,7 @@
 import { toast } from "sonner";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
+import { useShallow } from "zustand/react/shallow";
 
 import { getCurrentMangsa, getRecommendation } from "@/lib/api";
 import {
@@ -244,17 +245,19 @@ export const useAgrowthStore = create<AgrowthState>()(
  * belum ada koordinat dipilih.
  */
 export const useWeatherData = (): PredictionResponse | null =>
-  useAgrowthStore((state) => {
-    const r = state.recommendationData;
-    if (r === null) return null;
-    return {
-      location: r.location,
-      current: r.current,
-      forecast: r.forecast,
-      risk_level: r.risk_level,
-      anomaly: r.anomaly,
-    };
-  });
+  useAgrowthStore(
+    useShallow((state) => {
+      const r = state.recommendationData;
+      if (r === null) return null;
+      return {
+        location: r.location,
+        current: r.current,
+        forecast: r.forecast,
+        risk_level: r.risk_level,
+        anomaly: r.anomaly,
+      };
+    }),
+  );
 
 /** Subset selector untuk recommendation (full bundle). */
 export const useRecommendationData = () =>

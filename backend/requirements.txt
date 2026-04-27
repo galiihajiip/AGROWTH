@@ -13,9 +13,16 @@ slowapi>=0.1.9,<1.0
 # LLM (Google Gemini, latest SDK)
 google-genai>=1.0,<2.0
 
-# Numerics (deterministic mock weather)
+# Numerics
 numpy>=2.0,<3.0
+
+# Machine Learning (Multi-ML anomaly detection + risk classification)
+scikit-learn>=1.5,<2.0
+joblib>=1.4,<2.0
+pandas>=2.2,<3.0
+
+# Async HTTP client (Open-Meteo + NASA POWER)
+httpx>=0.27,<1.0
 
 # Testing
 pytest>=8.0,<10.0
-httpx>=0.27,<1.0

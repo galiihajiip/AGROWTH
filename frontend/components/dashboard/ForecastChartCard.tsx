@@ -322,15 +322,15 @@ export function ForecastChartCard({ className, span }: ForecastChartCardProps) {
       span={span ?? { col: 7, row: 2 }}
       className={className}
     >
-      <div className="flex min-h-[220px] flex-1 flex-col">
+      <div className="w-full" style={{ height: 240 }}>
         {showSkeleton ? (
           <ChartSkeleton />
         ) : showEmpty ? (
-          <div className="flex flex-1 items-center justify-center text-xs text-muted-foreground/60">
+          <div className="flex h-full items-center justify-center text-xs text-muted-foreground/60">
             Pilih lokasi untuk melihat prakiraan.
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height={240}>
             <LineChart
               data={data}
               margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
