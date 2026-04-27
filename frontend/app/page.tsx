@@ -1,48 +1,128 @@
+"use client";
+
 /**
- * Placeholder root page untuk dashboard AGROWTH.
+ * Halaman utama AGROWTH Dashboard.
  *
- * Akan diganti komponen kompleks (peta, kartu cuaca, mangsa, rekomendasi LLM)
- * pada iterasi berikutnya.
+ * Komposisi:
+ * 1. ``<Header />``  sticky di atas (h-14)
+ * 2. Grid 12-kolom × 6-baris yang mengisi sisa viewport:
+ *    - Kolom 1-7 (col-span-7) × seluruh 6 baris → ``<MapView />``
+ *    - Kolom 8-12 (5 kolom kanan) menampung 6 placeholder slot yang akan
+ *      diisi komponen real pada iterasi berikutnya (cuaca, mangsa,
+ *      forecast, anomaly, risk badge, summary LLM).
+ *
+ * ``useInitMangsa()`` di-call sekali di top component supaya store
+ * langsung punya ``currentMangsa`` saat header pertama kali render.
  */
-export default function HomePage() {
+import {
+  AlertTriangle,
+  CloudSun,
+  Leaf,
+  Sparkles,
+  Sprout,
+  TrendingUp,
+  type LucideIcon,
+} from "lucide-react";
+
+import { Header } from "@/components/layout/Header";
+import { MapView } from "@/components/map/MapView";
+import { useInitMangsa } from "@/hooks/useInitMangsa";
+import { cn } from "@/lib/utils";
+
+interface PlaceholderSlotProps {
+  className?: string;
+  icon: LucideIcon;
+  label: string;
+  hint?: string;
+}
+
+function PlaceholderSlot({
+  className,
+  icon: Icon,
+  label,
+  hint,
+}: PlaceholderSlotProps) {
   return (
-    <main className="mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center gap-6 px-6 py-16 text-center">
-      <span className="rounded-full border border-border bg-card px-3 py-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-        Beta · v0.1.0
-      </span>
-
-      <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-6xl">
-        AGROWTH Dashboard
-      </h1>
-
-      <p className="max-w-2xl text-pretty text-base text-muted-foreground sm:text-lg">
-        Rekomendasi pertanian hybrid berbasis{" "}
-        <span className="font-semibold text-foreground">Pranata Mangsa</span>,
-        prediksi cuaca, dan saran narasi Bahasa Jawa via Gemini.
-      </p>
-
-      <div className="mt-2 flex flex-wrap items-center justify-center gap-3 text-sm">
-        <a
-          href="http://localhost:8000/docs"
-          className="rounded-md border border-border bg-card px-4 py-2 font-medium text-foreground transition hover:bg-muted"
-          target="_blank"
-          rel="noreferrer"
-        >
-          API Docs (Swagger)
-        </a>
-        <a
-          href="http://localhost:8000/health"
-          className="rounded-md border border-border px-4 py-2 font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Health Check
-        </a>
+    <section
+      className={cn(
+        "glass-panel flex flex-col gap-2 overflow-hidden p-4",
+        className,
+      )}
+    >
+      <header className="flex items-center gap-2 text-muted-foreground">
+        <Icon className="h-4 w-4 text-agrowth-400" aria-hidden strokeWidth={2.25} />
+        <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em]">
+          {label}
+        </h2>
+      </header>
+      <div className="flex flex-1 items-center justify-center text-xs text-muted-foreground">
+        {hint ?? "— placeholder —"}
       </div>
+    </section>
+  );
+}
 
-      <p className="mt-12 text-xs text-muted-foreground">
-        Frontend Next.js · Tailwind · TypeScript — siap dikembangkan.
-      </p>
-    </main>
+export default function HomePage() {
+  // Pre-fetch mangsa aktif sehingga Header langsung punya pill terisi.
+  useInitMangsa();
+
+  return (
+    <div className="flex h-screen flex-col bg-background">
+      <Header />
+
+      <main
+        className={cn(
+          "grid flex-1 gap-4 overflow-auto p-4",
+          "grid-cols-12 grid-rows-6",
+        )}
+      >
+        {/* ---------- Map (kiri besar) ---------- */}
+        <div className="col-span-12 row-span-3 lg:col-span-7 lg:row-span-6">
+          <MapView />
+        </div>
+
+        {/* ---------- 6 placeholder slot (kanan) ---------- */}
+        <PlaceholderSlot
+          className="col-span-12 row-span-1 lg:col-span-5 lg:row-span-2"
+          icon={CloudSun}
+          label="Cuaca Saat Ini"
+          hint="Suhu, kelembapan, curah hujan, angin"
+        />
+
+        <PlaceholderSlot
+          className="col-span-6 row-span-1 lg:col-span-3"
+          icon={AlertTriangle}
+          label="Risiko"
+          hint="Risk badge"
+        />
+
+        <PlaceholderSlot
+          className="col-span-6 row-span-1 lg:col-span-2"
+          icon={TrendingUp}
+          label="Anomali"
+        />
+
+        <PlaceholderSlot
+          className="col-span-12 row-span-1 lg:col-span-5"
+          icon={Sprout}
+          label="Mangsa Aktif"
+          hint="Detail Pranata Mangsa hari ini"
+        />
+
+        <PlaceholderSlot
+          className="col-span-12 row-span-1 lg:col-span-5"
+          icon={Leaf}
+          label="Tanaman Direkomendasikan"
+          hint="Crop matcher per anomaly"
+        />
+
+        <PlaceholderSlot
+          className="col-span-12 row-span-1 lg:col-span-5"
+          icon={Sparkles}
+          label="Narasi Gemini (Bahasa Jawa)"
+          hint="Ringkasan rekomendasi 80–120 kata"
+        />
+      </main>
+    </div>
   );
 }
