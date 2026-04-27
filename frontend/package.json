@@ -18,7 +18,8 @@
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "tailwind-merge": "^2.5.5"
+    "tailwind-merge": "^2.5.5",
+    "zustand": "^5.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.7.0",
