@@ -11,9 +11,10 @@ sebelum rute dinamis (``/{mangsa_id}``) untuk menghindari shadowing.
 """
 from __future__ import annotations
 
+from datetime import date
 from typing import List
 
-from fastapi import APIRouter, HTTPException, Path, status
+from fastapi import APIRouter, HTTPException, Path, Query, status
 
 from app.models import MangsaInfo
 from app.services.pranata_mangsa import (
@@ -46,6 +47,31 @@ async def current_mangsa() -> MangsaInfo:
 async def all_mangsa() -> List[MangsaInfo]:
     """Daftar lengkap 12 mangsa, urutan id 1..12."""
     return list_all_mangsa()
+
+
+@router.get(
+    "/by-date",
+    response_model=MangsaInfo,
+    summary="Mangsa aktif untuk tanggal arbitrer.",
+    responses={
+        200: {"description": "Mangsa pada tanggal tersebut."},
+        422: {"description": "Format tanggal tidak valid (harus ISO YYYY-MM-DD)."},
+    },
+)
+async def mangsa_by_date(
+    date_: date = Query(
+        ...,
+        alias="date",
+        description="Tanggal target dalam format ISO 8601 (YYYY-MM-DD).",
+        examples=["2025-01-15"],
+    ),
+) -> MangsaInfo:
+    """Lookup mangsa berdasarkan tanggal arbitrer.
+
+    Mendukung wrap-around Kapitu (22 Des – 2 Feb melintasi pergantian tahun)
+    dan leap day (29 Feb dipetakan ke 28 Feb).
+    """
+    return get_current_mangsa(date_)
 
 
 @router.get(
