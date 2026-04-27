@@ -333,3 +333,133 @@ def test_generate_recommendation_cache_hit(
     ))
     # Hasil identik (cache hit)
     assert r1.narrative == r2.narrative
+
+
+# ---------- generate_recommendation: jalur sukses Gemini (mocked) ----------
+
+# JSON valid yang meniru output Gemini sesuai schema RecommendationLLM.
+_FAKE_GEMINI_JSON = """{
+  "traditional_wisdom": "Mangsa Kapitu wektune ngati-ati banyu lan tanggul.",
+  "modern_action": [
+    "Cek tanggul lan saluran irigasi saben esuk.",
+    "Pasang sirip bambu kanggo nyegah bondol pari.",
+    "Gabung karo kelompok tani kanggo gropyokan tikus.",
+    "Pantau prediksi BMKG saben jam."
+  ],
+  "crop_recommendation": [
+    "padi Inpari 30 (tahan rendam)",
+    "kangkung air",
+    "talas air"
+  ],
+  "warning": [
+    "Resiko banjir lokal tinggi 2-3 dina ngarep.",
+    "Awas leptospirosis saka banyu reged."
+  ],
+  "narrative": "Sak iki mangsa Kapitu, tanggal 22 Desember nganti 2 Februari, mangsa kang nelakaké puncak musim hujan ing Tanah Jawa. Ing wektu iki banyu sing tumiba saka langit lumrahe akeh banget, sungai lan kali isa ndilat, lan tanggul ing sawah kudu dijaga supaya ora bobol. Para tani disuwun supaya tetep ngrungokaké tandha alam, mliginipun swarane manuk lan owah-owahan rasa angin, lan tetep nggunakaké teknologi modern kayata prediksi BMKG kanggo njaga kaslametaning panenan. Tindakan utama yaiku njaga tanggul, ngecek saluran banyu, lan njaga kaséhatan saka panyakit musiman."
+}"""
+
+
+def test_generate_recommendation_happy_path_with_mocked_gemini(
+    mangsa_kapitu, location_yogya, weather_sample, forecast_sample, monkeypatch,
+):
+    """Jalur sukses: Gemini client dummy + _call_gemini di-mock balikin JSON valid."""
+    import app.services.llm_service as llm_mod
+
+    # 1) Force client jadi non-None supaya code path sukses bisa jalan.
+    monkeypatch.setattr(llm_mod, "_client", object())
+
+    # 2) Mock _call_gemini async untuk return JSON tetap (deterministik).
+    async def fake_call(prompt: str) -> str:  # noqa: ARG001
+        return _FAKE_GEMINI_JSON
+
+    monkeypatch.setattr(llm_mod, "_call_gemini", fake_call)
+
+    result = asyncio.run(generate_recommendation(
+        weather_sample, forecast_sample, mangsa_kapitu,
+        RiskLevel.HIGH, AnomalyType.FLOOD, location_yogya,
+    ))
+
+    # Schema validation
+    assert isinstance(result, RecommendationLLM)
+
+    # Field-field LLM persis dari JSON yang kita supply (bukan fallback).
+    assert "Mangsa Kapitu wektune ngati-ati banyu" in result.traditional_wisdom
+    assert "Cek tanggul" in result.modern_action[0]
+    assert any(
+        "padi Inpari 30" in c.lower() or "padi inpari 30" in c.lower()
+        for c in result.crop_recommendation
+    )
+    assert any("banjir" in w.lower() for w in result.warning)
+    # Narrative wajib basa Jawa, panjang dalam range 80-150 kata.
+    n_words = len(result.narrative.split())
+    assert 80 <= n_words <= 150, f"narrative {n_words} kata di luar 80-150"
+
+
+def test_generate_recommendation_with_markdown_fence_in_response(
+    mangsa_kapitu, location_yogya, weather_sample, forecast_sample, monkeypatch,
+):
+    """Gemini kadang wrap output di ```json fence — _strip harus rapi."""
+    import app.services.llm_service as llm_mod
+
+    monkeypatch.setattr(llm_mod, "_client", object())
+
+    async def fake_call_with_fence(prompt: str) -> str:  # noqa: ARG001
+        return f"```json\n{_FAKE_GEMINI_JSON}\n```"
+
+    monkeypatch.setattr(llm_mod, "_call_gemini", fake_call_with_fence)
+
+    result = asyncio.run(generate_recommendation(
+        weather_sample, forecast_sample, mangsa_kapitu,
+        RiskLevel.HIGH, AnomalyType.FLOOD, location_yogya,
+    ))
+    assert isinstance(result, RecommendationLLM)
+    assert "Mangsa Kapitu" in result.traditional_wisdom
+
+
+def test_generate_recommendation_falls_back_on_invalid_llm_json(
+    mangsa_kapitu, location_yogya, weather_sample, forecast_sample, monkeypatch,
+):
+    """Saat LLM balikin JSON rusak, generate_recommendation HARUS fallback."""
+    import app.services.llm_service as llm_mod
+
+    monkeypatch.setattr(llm_mod, "_client", object())
+
+    async def broken_call(prompt: str) -> str:  # noqa: ARG001
+        return "this is not json at all"
+
+    monkeypatch.setattr(llm_mod, "_call_gemini", broken_call)
+
+    result = asyncio.run(generate_recommendation(
+        weather_sample, forecast_sample, mangsa_kapitu,
+        RiskLevel.HIGH, AnomalyType.FLOOD, location_yogya,
+    ))
+    # Hasil berasal dari _fallback_recommendation: traditional_wisdom
+    # selalu mengandung pola "Mangsa <name> (<period_start>–<period_end>)".
+    assert isinstance(result, RecommendationLLM)
+    assert "Mangsa Kapitu" in result.traditional_wisdom
+    assert "12-22" in result.traditional_wisdom
+    # Mocked Gemini text ("this is not json...") jangan bocor ke output.
+    assert "not json" not in result.traditional_wisdom.lower()
+    assert "not json" not in result.narrative.lower()
+
+
+def test_generate_recommendation_falls_back_on_timeout(
+    mangsa_kapitu, location_yogya, weather_sample, forecast_sample, monkeypatch,
+):
+    """Timeout dari _call_gemini → fallback statis (tidak crash)."""
+    import app.services.llm_service as llm_mod
+
+    monkeypatch.setattr(llm_mod, "_client", object())
+
+    async def timeout_call(prompt: str) -> str:  # noqa: ARG001
+        raise asyncio.TimeoutError("Gemini took too long")
+
+    monkeypatch.setattr(llm_mod, "_call_gemini", timeout_call)
+
+    result = asyncio.run(generate_recommendation(
+        weather_sample, forecast_sample, mangsa_kapitu,
+        RiskLevel.HIGH, AnomalyType.FLOOD, location_yogya,
+    ))
+    assert isinstance(result, RecommendationLLM)
+    # Fallback narrative pasti mention Pranata Mangsa.
+    assert "Pranata Mangsa" in result.narrative
