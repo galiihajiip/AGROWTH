@@ -38,10 +38,20 @@ curl http://localhost:8000/health
 Koordinat **harus** di dalam Pulau Jawa: `lat ∈ [-9, -5]`, `lon ∈ [105, 115]`.
 Di luar batas → **422 Unprocessable Entity**.
 
-### Contoh sukses (Yogyakarta)
+Optional query param `days` (1..14, default 7) mengatur panjang forecast.
+
+### Contoh sukses (Yogyakarta, 7 hari)
 
 ```bash
 curl -X POST http://localhost:8000/api/predict \
+  -H "Content-Type: application/json" \
+  -d '{"lat": -7.7956, "lon": 110.3695}'
+```
+
+### Forecast 14 hari
+
+```bash
+curl -X POST 'http://localhost:8000/api/predict?days=14' \
   -H "Content-Type: application/json" \
   -d '{"lat": -7.7956, "lon": 110.3695}'
 ```
@@ -67,7 +77,7 @@ curl -X POST http://localhost:8000/api/predict \
     "pressure_hpa": 1010.2,
     "condition": "cerah berawan"
   },
-  "forecast_7d": [
+  "forecast": [
     {
       "date": "2025-04-28",
       "temp_min_c": 23.4,
@@ -77,7 +87,7 @@ curl -X POST http://localhost:8000/api/predict \
       "wind_speed_ms": 2.0,
       "condition": "cerah berawan"
     }
-    /* ... 6 entri lainnya ... */
+    /* ... 6 entri lainnya (default days=7) ... */
   ],
   "risk_level": "low",
   "anomaly": "normal"
@@ -127,7 +137,7 @@ curl -X POST http://localhost:8000/api/recommendation \
 {
   "location": { "lat": -7.79, "lon": 110.37, "province": "DI Yogyakarta", "name": "Lokasi DI Yogyakarta" },
   "current": { "temperature_c": 27.4, "humidity_pct": 82.1, "condition": "cerah berawan" /* ... */ },
-  "forecast_7d": [ /* 7 entri */ ],
+  "forecast": [ /* 7 entri */ ],
   "mangsa": {
     "number": 11,
     "name": "Desta",

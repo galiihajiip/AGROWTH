@@ -105,19 +105,12 @@ class PredictionResponse(BaseModel):
 
     location: LocationInfo
     current: WeatherCurrent
-    forecast_7d: List[ForecastPoint] = Field(
-        ..., min_length=7, max_length=7,
-        description="Prakiraan cuaca 7 hari ke depan",
+    forecast: List[ForecastPoint] = Field(
+        ..., min_length=1, max_length=14,
+        description="Prakiraan cuaca harian (1-14 hari ke depan)",
     )
     risk_level: RiskLevel
     anomaly: AnomalyType
-
-    @field_validator("forecast_7d")
-    @classmethod
-    def validate_forecast_length(cls, v: List[ForecastPoint]) -> List[ForecastPoint]:
-        if len(v) != 7:
-            raise ValueError("forecast_7d harus berisi tepat 7 entri (7 hari)")
-        return v
 
 
 # ---------- Mangsa (Pranata Mangsa Jawa) ----------
@@ -173,7 +166,7 @@ class RecommendationResponse(BaseModel):
 
     location: LocationInfo
     current: WeatherCurrent
-    forecast_7d: List[ForecastPoint] = Field(..., min_length=7, max_length=7)
+    forecast: List[ForecastPoint] = Field(..., min_length=1, max_length=14)
     mangsa: MangsaInfo
     risk_level: RiskLevel
     anomaly: AnomalyType

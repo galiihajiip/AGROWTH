@@ -172,17 +172,21 @@ def _anomaly_score(temp: float, rain: float, wind: float) -> Tuple[float, Anomal
     return min(score, 1.0), dominant
 
 
-# ---------- Forecast 7 hari ----------
+# ---------- Forecast harian ----------
 
-def generate_forecast_7d(
-    lat: float, lon: float, start_date: date
+def generate_forecast(
+    lat: float, lon: float, start_date: date, days: int = 7,
 ) -> Tuple[List[ForecastPoint], List[float], List[AnomalyType]]:
-    """Generate 7 hari forecast + skor anomali per hari + tipe anomali per hari."""
+    """Generate ``days`` hari forecast + skor anomali per hari + tipe anomali per hari.
+
+    ``days`` di-clamp ke rentang [1, 14] untuk keamanan.
+    """
+    days = max(1, min(int(days), 14))
     forecast: List[ForecastPoint] = []
     scores: List[float] = []
     types: List[AnomalyType] = []
 
-    for i in range(7):
+    for i in range(days):
         d = start_date + timedelta(days=i)
         seed = _seed_for(lat, lon, d)
         rng = np.random.default_rng(seed)
@@ -245,7 +249,7 @@ def classify_risk(
 
 @lru_cache(maxsize=128)
 def _predict_weather_cached(
-    lat_r: float, lon_r: float, date_iso: str
+    lat_r: float, lon_r: float, date_iso: str, days: int,
 ) -> PredictionResponse:
     ref_date = date.fromisoformat(date_iso)
     region = get_region_name(lat_r, lon_r)
@@ -256,29 +260,32 @@ def _predict_weather_cached(
         name=f"Lokasi {region}",
     )
     current = generate_current_weather(lat_r, lon_r, ref_date)
-    forecast, scores, types = generate_forecast_7d(
-        lat_r, lon_r, ref_date + timedelta(days=1)
+    forecast, scores, types = generate_forecast(
+        lat_r, lon_r, ref_date + timedelta(days=1), days=days,
     )
     risk, anomaly = classify_risk(scores, types)
     return PredictionResponse(
         location=location,
         current=current,
-        forecast_7d=forecast,
+        forecast=forecast,
         risk_level=risk,
         anomaly=anomaly,
     )
 
 
 def predict_weather(
-    lat: float, lon: float, ref_date: date | None = None
+    lat: float, lon: float, ref_date: date | None = None, days: int = 7,
 ) -> PredictionResponse:
-    """Orchestrator publik: cuaca saat ini + forecast 7h + risk + anomaly.
+    """Orchestrator publik: cuaca saat ini + forecast ``days`` hari + risk + anomaly.
 
-    Cache key: (lat dibulatkan 2 desimal, lon dibulatkan 2 desimal, tanggal ISO).
+    ``days`` di-clamp ke [1, 14]. Cache key: (lat~2dp, lon~2dp, tanggal ISO, days).
     """
     if ref_date is None:
         ref_date = date.today()
-    return _predict_weather_cached(round(lat, 2), round(lon, 2), ref_date.isoformat())
+    days = max(1, min(int(days), 14))
+    return _predict_weather_cached(
+        round(lat, 2), round(lon, 2), ref_date.isoformat(), days,
+    )
 
 
 def clear_cache() -> None:

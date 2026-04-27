@@ -9,7 +9,7 @@ Unprocessable Entity** bila batas dilanggar.
 """
 from __future__ import annotations
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Query, status
 
 from app.models import CoordinateInput, PredictionResponse
 from app.services.weather_mock import predict_weather
@@ -24,12 +24,18 @@ router = APIRouter(prefix="/api", tags=["prediction"])
     summary="Prediksi cuaca + risiko + anomali untuk koordinat (Pulau Jawa).",
     responses={
         200: {"description": "Prediksi berhasil dibuat."},
-        422: {"description": "Koordinat di luar batas Pulau Jawa."},
+        422: {"description": "Koordinat di luar batas Pulau Jawa atau days di luar 1..14."},
     },
 )
-async def predict(coords: CoordinateInput) -> PredictionResponse:
-    """Hitung cuaca saat ini + forecast 7 hari + risiko & anomali.
+async def predict(
+    coords: CoordinateInput,
+    days: int = Query(
+        default=7, ge=1, le=14,
+        description="Panjang forecast harian (1-14 hari). Default 7.",
+    ),
+) -> PredictionResponse:
+    """Hitung cuaca saat ini + forecast 1..14 hari + risiko & anomali.
 
-    Cache deterministik di layer service (lat~2dp, lon~2dp, tanggal).
+    Cache deterministik di layer service (lat~2dp, lon~2dp, tanggal, days).
     """
-    return predict_weather(coords.lat, coords.lon)
+    return predict_weather(coords.lat, coords.lon, days=days)

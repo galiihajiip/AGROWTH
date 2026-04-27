@@ -47,7 +47,7 @@ async def recommend(req: RecommendationRequest) -> RecommendationResponse:
     # 3) Rekomendasi terstruktur dari LLM (cache + fallback statis).
     llm = await generate_recommendation(
         weather=pred.current,
-        forecast=pred.forecast_7d,
+        forecast=pred.forecast,
         mangsa=mangsa,
         risk_level=pred.risk_level,
         anomaly=pred.anomaly,
@@ -72,7 +72,7 @@ async def recommend(req: RecommendationRequest) -> RecommendationResponse:
     return RecommendationResponse(
         location=pred.location,
         current=pred.current,
-        forecast_7d=pred.forecast_7d,
+        forecast=pred.forecast,
         mangsa=mangsa,
         risk_level=pred.risk_level,
         anomaly=pred.anomaly,

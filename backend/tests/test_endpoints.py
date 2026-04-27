@@ -45,12 +45,12 @@ def test_predict_valid_yogyakarta(client: TestClient) -> None:
     assert response.status_code == 200
 
     data = response.json()
-    for key in ("location", "current", "forecast_7d", "risk_level", "anomaly"):
+    for key in ("location", "current", "forecast", "risk_level", "anomaly"):
         assert key in data, f"missing key {key}"
 
-    # Forecast wajib tepat 7 hari
-    assert isinstance(data["forecast_7d"], list)
-    assert len(data["forecast_7d"]) == 7
+    # Default forecast 7 hari
+    assert isinstance(data["forecast"], list)
+    assert len(data["forecast"]) == 7
 
     # Enum values valid
     assert data["risk_level"] in {"low", "medium", "high", "critical"}
