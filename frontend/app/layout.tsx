@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { Toaster } from "sonner";
 
 import "./globals.css";
 
@@ -57,6 +58,31 @@ export default function RootLayout({
     >
       <body className="min-h-screen bg-background font-sans text-foreground antialiased">
         {children}
+
+        {/*
+          Global toast notifier (sonner). Subscribe-once dari layout root
+          supaya bisa dipanggil dari mana saja via ``import { toast } from "sonner"``.
+          - richColors: tipe error/success/info dapat warna kontekstual.
+          - theme="dark": match dark dashboard (background slate-950).
+          - position top-right: tidak menutupi map klik di kiri.
+          - closeButton: user bisa dismiss manual (selain auto-dismiss).
+          - duration 5s default — cukup baca, tidak menumpuk lama.
+        */}
+        <Toaster
+          richColors
+          theme="dark"
+          position="top-right"
+          closeButton
+          duration={5000}
+          toastOptions={{
+            classNames: {
+              toast:
+                "border border-glass-border bg-glass-dark backdrop-blur-xl",
+              title: "text-sm font-semibold",
+              description: "text-xs text-muted-foreground",
+            },
+          }}
+        />
       </body>
     </html>
   );

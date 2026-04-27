@@ -34,7 +34,8 @@
  * ``assertMapboxToken`` throw bila ``NEXT_PUBLIC_MAPBOX_TOKEN`` belum
  * di-set.
  */
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ArrowLeft, MousePointer2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
 
@@ -45,6 +46,7 @@ import { RecommendationCard } from "@/components/dashboard/RecommendationCard";
 import { RiskGaugeCard } from "@/components/dashboard/RiskGaugeCard";
 import { WeatherMetricsCard } from "@/components/dashboard/WeatherMetricsCard";
 import { cn } from "@/lib/utils";
+import { useAgrowthStore } from "@/store/useAgrowthStore";
 
 // MapView client-only (mapbox-gl + assertMapboxToken).
 const MapView = dynamic(
@@ -131,15 +133,109 @@ const SLOTS: readonly CardSlot[] = [
 ];
 
 // ============================================================================
+// Onboarding overlay
+// ============================================================================
+
+/**
+ * Overlay onboarding yang tampil saat user belum memilih koordinat.
+ *
+ * Visual:
+ * - Glass-card panel di sisi kanan (di area widget yang sedang empty),
+ *   pointer ``ArrowLeft`` ber-bobbing horizontal mengarah ke peta.
+ * - Sub-icon ``MousePointer2`` kecil sebagai shorthand "klik".
+ * - Teks utama besar + uppercase mono caption sebagai sub-instruksi.
+ *
+ * Interaksi:
+ * - ``pointer-events-none`` di container utama supaya seluruh klik
+ *   tetap pass-through ke peta. Map tidak ter-block sama sekali.
+ * - Posisi ``absolute right-4 top-1/2 -translate-y-1/2`` (desktop),
+ *   centered di mobile.
+ *
+ * Animasi:
+ * - ``AnimatePresence`` di parent membuat overlay fade out smooth
+ *   begitu ``selectedCoordinate`` menjadi non-null.
+ * - ``ArrowLeft`` punya inner ``motion.div`` dengan ``x: [0, -12, 0]``
+ *   loop infinite (1.8s easeInOut) → efek "tarikan" mengarah ke peta.
+ * - ``prefers-reduced-motion`` aware: animasi pointer dimatikan, tapi
+ *   panel tetap tampil (overlay penting untuk first-run UX).
+ */
+function OnboardingOverlay({ reduced }: { reduced: boolean }) {
+  return (
+    <motion.div
+      key="onboarding"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      role="status"
+      aria-live="polite"
+      className={cn(
+        "pointer-events-none absolute inset-0 z-30",
+        // Mobile: pusatkan; desktop: dorong ke kanan dekat area widget.
+        "flex items-center justify-center p-4",
+        "lg:items-center lg:justify-end lg:p-6",
+      )}
+    >
+      <div
+        className={cn(
+          "flex max-w-sm flex-col items-center gap-4 text-center",
+          "rounded-2xl border border-agrowth-500/40",
+          "bg-glass-dark px-6 py-5 backdrop-blur-xl",
+          "shadow-glow-emerald",
+        )}
+      >
+        {/* Stack ikon: mouse-pointer kecil di atas arrow besar — narasi
+            visual "klik (mouse) ke kiri (arrow) ke peta". */}
+        <div className="flex flex-col items-center gap-1">
+          <MousePointer2
+            className="h-4 w-4 text-agrowth-300"
+            strokeWidth={2.25}
+            aria-hidden
+          />
+          <motion.div
+            animate={reduced ? undefined : { x: [0, -12, 0] }}
+            transition={
+              reduced
+                ? undefined
+                : { duration: 1.8, repeat: Infinity, ease: "easeInOut" }
+            }
+            aria-hidden
+          >
+            <ArrowLeft
+              className="h-12 w-12 text-agrowth-400 drop-shadow-[0_0_12px_rgba(16,185,129,0.65)]"
+              strokeWidth={2.25}
+            />
+          </motion.div>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <p className="text-base font-semibold leading-relaxed text-foreground">
+            Klik titik di peta Pulau Jawa untuk memulai analisis
+          </p>
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+            Pranata Mangsa · Cuaca · AI Gemini
+          </p>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ============================================================================
 // Component
 // ============================================================================
 
 export function BentoGrid() {
-  const reduced = useReducedMotion();
+  const reduced = useReducedMotion() ?? false;
+  const hasCoordinate = useAgrowthStore(
+    (s) => s.selectedCoordinate !== null,
+  );
 
   return (
     <div
       className={cn(
+        // ``relative`` supaya OnboardingOverlay bisa di-absolute di atas.
+        "relative",
         // Mobile: single column flow via col-span-12 default per slot.
         "grid grid-cols-12 gap-4",
         // Tinggi baris auto sesuai konten dengan minimum 120px supaya
@@ -178,6 +274,11 @@ export function BentoGrid() {
           <slot.Component className="h-full" />
         </motion.div>
       ))}
+
+      {/* Onboarding overlay — only when no coordinate selected yet. */}
+      <AnimatePresence>
+        {hasCoordinate ? null : <OnboardingOverlay reduced={reduced} />}
+      </AnimatePresence>
     </div>
   );
 }

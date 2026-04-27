@@ -8,7 +8,6 @@
  * 2. ``<BentoGrid />``   isi seluruh sisa viewport — 7 kartu widget
  *    diatur sebagai bento layout 12-kolom, masing-masing dengan
  *    entrance animation stagger.
- * 3. ``<ErrorToast />``  notifier global subscribe ke ``store.error``.
  *
  * Header h-14 (3.5rem). Main pakai ``flex-1 min-h-0 overflow-auto``
  * sehingga tinggi-nya = ``100vh - 3.5rem`` secara otomatis (lebih
@@ -19,9 +18,12 @@
  * ``useInitMangsa()`` di-call sekali di top component supaya store
  * langsung punya ``currentMangsa`` saat ``Header`` & ``PranataMangsaCard``
  * render pertama kali.
+ *
+ * Catatan: notifikasi error/success global ditangani oleh sonner
+ * ``<Toaster />`` yang di-mount sekali di ``app/layout.tsx``. Tidak ada
+ * mounting tambahan di page level.
  */
 import { BentoGrid } from "@/components/dashboard/BentoGrid";
-import { ErrorToast } from "@/components/feedback/ErrorToast";
 import { Header } from "@/components/layout/Header";
 import { useInitMangsa } from "@/hooks/useInitMangsa";
 
@@ -36,9 +38,6 @@ export default function HomePage() {
       <main className="flex-1 min-h-0 overflow-auto p-4">
         <BentoGrid />
       </main>
-
-      {/* Toast error global (subscribe ke state.error) */}
-      <ErrorToast />
     </div>
   );
 }

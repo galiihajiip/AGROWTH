@@ -24,6 +24,7 @@
  * Devtools middleware aktif di development; setiap mutasi diberi label
  * action sehingga mudah diinspeksi via Redux DevTools extension.
  */
+import { toast } from "sonner";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
@@ -163,12 +164,33 @@ export const useAgrowthStore = create<AgrowthState>()(
             false,
             "fetchRecommendation:success",
           );
+
+          // Toast success singkat — tampilkan region untuk konteks.
+          // ID stabil supaya cache hit / re-fetch cepat tidak menumpuk
+          // toast (sonner replace by id).
+          const region =
+            data.location.province ??
+            data.location.name ??
+            "lokasi terpilih";
+          toast.success(`Rekomendasi siap · ${region}`, {
+            id: "recommendation-success",
+            duration: 2200,
+          });
         } catch (err) {
+          const apiErr = toApiError(err);
           set(
-            { error: toApiError(err), isLoadingRecommendation: false },
+            { error: apiErr, isLoadingRecommendation: false },
             false,
             "fetchRecommendation:error",
           );
+
+          // Toast error: title singkat + description detail.
+          // ID konsisten supaya retry cepat menggantikan toast lama,
+          // bukan menumpuk.
+          toast.error("Gagal memuat rekomendasi", {
+            id: "recommendation-error",
+            description: apiErr.friendlyMessage,
+          });
         }
       },
 
@@ -182,11 +204,19 @@ export const useAgrowthStore = create<AgrowthState>()(
             "fetchCurrentMangsa:success",
           );
         } catch (err) {
+          const apiErr = toApiError(err);
           set(
-            { error: toApiError(err) },
+            { error: apiErr },
             false,
             "fetchCurrentMangsa:error",
           );
+
+          // Mangsa fetch fail tidak memutus alur user (bukan blocking),
+          // jadi toast lebih ringan + auto-dismiss biasa.
+          toast.error("Gagal memuat mangsa aktif", {
+            id: "mangsa-error",
+            description: apiErr.friendlyMessage,
+          });
         }
       },
 
