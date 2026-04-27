@@ -32,9 +32,11 @@ import {
 } from "lucide-react";
 import dynamic from "next/dynamic";
 
+import { ErrorToast } from "@/components/feedback/ErrorToast";
 import { Header } from "@/components/layout/Header";
 import { useInitMangsa } from "@/hooks/useInitMangsa";
 import { cn } from "@/lib/utils";
+import { useAgrowthStore } from "@/store/useAgrowthStore";
 
 const MapView = dynamic(
   () => import("@/components/map/MapView").then((mod) => mod.MapView),
@@ -55,6 +57,15 @@ interface PlaceholderSlotProps {
   icon: LucideIcon;
   label: string;
   hint?: string;
+  /**
+   * Pesan empty-state saat user belum memilih koordinat (mis. "Klik di
+   * peta untuk mulai"). Akan menggantikan ``hint`` jika ``hasData`` false.
+   */
+  emptyHint?: string;
+  /** True bila slot sudah punya data nyata (akan ditampilkan oleh widget). */
+  hasData?: boolean;
+  /** True bila fetch sedang berjalan; tampilkan shimmer skeleton. */
+  isLoading?: boolean;
 }
 
 function PlaceholderSlot({
@@ -62,7 +73,33 @@ function PlaceholderSlot({
   icon: Icon,
   label,
   hint,
+  emptyHint,
+  hasData = false,
+  isLoading = false,
 }: PlaceholderSlotProps) {
+  let body: React.ReactNode;
+  if (isLoading) {
+    body = (
+      <div className="flex flex-1 flex-col gap-2" aria-label="Memuat data…">
+        <div className="h-3 w-3/4 animate-pulse rounded bg-glass" />
+        <div className="h-3 w-1/2 animate-pulse rounded bg-glass" />
+        <div className="mt-auto h-2.5 w-2/3 animate-pulse rounded bg-glass" />
+      </div>
+    );
+  } else if (!hasData && emptyHint) {
+    body = (
+      <div className="flex flex-1 items-center justify-center text-xs text-muted-foreground/80">
+        {emptyHint}
+      </div>
+    );
+  } else {
+    body = (
+      <div className="flex flex-1 items-center justify-center text-xs text-muted-foreground">
+        {hint ?? "— placeholder —"}
+      </div>
+    );
+  }
+
   return (
     <section
       className={cn(
@@ -76,9 +113,7 @@ function PlaceholderSlot({
           {label}
         </h2>
       </header>
-      <div className="flex flex-1 items-center justify-center text-xs text-muted-foreground">
-        {hint ?? "— placeholder —"}
-      </div>
+      {body}
     </section>
   );
 }
@@ -86,6 +121,23 @@ function PlaceholderSlot({
 export default function HomePage() {
   // Pre-fetch mangsa aktif sehingga Header langsung punya pill terisi.
   useInitMangsa();
+
+  // State umum untuk semua slot placeholder (sebelum widget real terpasang).
+  const hasCoordinate = useAgrowthStore(
+    (state) => state.selectedCoordinate !== null,
+  );
+  const isLoading = useAgrowthStore(
+    (state) => state.isLoadingRecommendation,
+  );
+  const hasRecommendation = useAgrowthStore(
+    (state) => state.recommendationData !== null,
+  );
+
+  const slotState = {
+    isLoading,
+    hasData: hasRecommendation,
+    emptyHint: hasCoordinate ? undefined : "Klik di peta untuk mulai",
+  };
 
   return (
     <div className="flex h-screen flex-col bg-background">
@@ -108,6 +160,7 @@ export default function HomePage() {
           icon={CloudSun}
           label="Cuaca Saat Ini"
           hint="Suhu, kelembapan, curah hujan, angin"
+          {...slotState}
         />
 
         <PlaceholderSlot
@@ -115,12 +168,14 @@ export default function HomePage() {
           icon={AlertTriangle}
           label="Risiko"
           hint="Risk badge"
+          {...slotState}
         />
 
         <PlaceholderSlot
           className="col-span-6 row-span-1 lg:col-span-2"
           icon={TrendingUp}
           label="Anomali"
+          {...slotState}
         />
 
         <PlaceholderSlot
@@ -128,6 +183,9 @@ export default function HomePage() {
           icon={Sprout}
           label="Mangsa Aktif"
           hint="Detail Pranata Mangsa hari ini"
+          // Mangsa tidak butuh koordinat — selalu treat as data-ready.
+          hasData
+          isLoading={false}
         />
 
         <PlaceholderSlot
@@ -135,6 +193,7 @@ export default function HomePage() {
           icon={Leaf}
           label="Tanaman Direkomendasikan"
           hint="Crop matcher per anomaly"
+          {...slotState}
         />
 
         <PlaceholderSlot
@@ -142,8 +201,12 @@ export default function HomePage() {
           icon={Sparkles}
           label="Narasi Gemini (Bahasa Jawa)"
           hint="Ringkasan rekomendasi 80–120 kata"
+          {...slotState}
         />
       </main>
+
+      {/* Toast error global (subscribe ke state.error) */}
+      <ErrorToast />
     </div>
   );
 }
