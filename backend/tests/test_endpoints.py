@@ -29,10 +29,16 @@ def client() -> TestClient:
 # ---------- 1) Health check ----------
 
 def test_health_check(client: TestClient) -> None:
-    """``GET /health`` mengembalikan 200 dengan ``status=healthy``."""
+    """``GET /health`` mengembalikan 200 dengan info app + status=healthy."""
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "healthy"}
+
+    data = response.json()
+    assert data["status"] == "healthy"
+    for k in ("app", "version", "environment", "llm_enabled", "timestamp"):
+        assert k in data, f"missing key {k}"
+    # llm_enabled adalah bool
+    assert isinstance(data["llm_enabled"], bool)
 
 
 # ---------- 2) Predict valid (Yogyakarta) ----------

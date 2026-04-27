@@ -1,4 +1,6 @@
 """Entry point FastAPI AGROWTH: include semua router + middleware CORS."""
+from datetime import datetime, timezone
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -31,11 +33,26 @@ app.include_router(recommendation.router)
 app.include_router(mangsa.router)
 
 
-@app.get("/")
+@app.get("/", tags=["meta"])
 async def read_root():
-    return {"message": "AGROWTH API", "status": "ok"}
+    """Landing route: identitas singkat + tautan dokumentasi."""
+    return {
+        "message": settings.app_name,
+        "version": settings.app_version,
+        "docs": "/docs",
+        "status": "ok",
+    }
 
 
-@app.get("/health")
+@app.get("/health", tags=["meta"])
 async def health_check():
-    return {"status": "healthy"}
+    """Health check ringan: identitas + status komponen + timestamp."""
+    return {
+        "status": "healthy",
+        "app": settings.app_name,
+        "version": settings.app_version,
+        "environment": settings.app_environment,
+        "llm_enabled": settings.llm_enabled,
+        "llm_model": settings.gemini_model if settings.llm_enabled else None,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
