@@ -15,6 +15,7 @@ import asyncio
 import json
 import logging
 import time
+from datetime import date
 from typing import Any, Dict, List, Optional, Tuple
 
 from pydantic import BaseModel, Field, ValidationError
@@ -53,12 +54,27 @@ class RecommendationLLM(BaseModel):
 
 # ---------- TTL cache (manual) ----------
 
-_CacheKey = Tuple[float, float, int, str]
+_CacheKey = Tuple[float, float, int, str, Optional[str], Optional[str]]
 _CACHE: Dict[_CacheKey, Tuple[float, RecommendationLLM]] = {}
 
 
-def _cache_key(lat: float, lon: float, mangsa: MangsaInfo, risk_level: RiskLevel) -> _CacheKey:
-    return (round(lat, 2), round(lon, 2), mangsa.number, risk_level.value)
+def _cache_key(
+    lat: float,
+    lon: float,
+    mangsa: MangsaInfo,
+    risk_level: RiskLevel,
+    crop_type: Optional[str] = None,
+    planting_date: Optional[date] = None,
+) -> _CacheKey:
+    """Cache key gabungan koordinat + mangsa + risiko + konteks petani."""
+    return (
+        round(lat, 2),
+        round(lon, 2),
+        mangsa.number,
+        risk_level.value,
+        (crop_type or "").lower().strip() or None,
+        planting_date.isoformat() if planting_date else None,
+    )
 
 
 def _cache_get(key: _CacheKey) -> Optional[RecommendationLLM]:
@@ -125,6 +141,25 @@ def _format_forecast(forecast: List[ForecastPoint]) -> str:
     )
 
 
+def _format_farmer_context(
+    crop_type: Optional[str],
+    planting_date: Optional[date],
+    notes: Optional[str],
+) -> str:
+    """Bagian ``KONTEKS PETANI`` di prompt — kosong bila tidak ada input."""
+    items: List[str] = []
+    if crop_type:
+        items.append(f"- Tanaman utama: {crop_type}")
+    if planting_date:
+        items.append(f"- Tanggal tanam: {planting_date.isoformat()}")
+    if notes:
+        notes_clean = notes.strip().replace("\n", " ")
+        items.append(f"- Catatan petani: {notes_clean}")
+    if not items:
+        return ""
+    return "\n== KONTEKS PETANI ==\n" + "\n".join(items) + "\n"
+
+
 def build_recommendation_prompt(
     weather: WeatherCurrent,
     forecast: List[ForecastPoint],
@@ -132,13 +167,17 @@ def build_recommendation_prompt(
     risk_level: RiskLevel,
     anomaly: AnomalyType,
     location: LocationInfo,
+    crop_type: Optional[str] = None,
+    planting_date: Optional[date] = None,
+    notes: Optional[str] = None,
 ) -> str:
-    """Format prompt: cuaca + mangsa + instruksi JSON output (Bahasa Jawa)."""
+    """Format prompt: cuaca + mangsa + konteks petani + instruksi JSON output."""
     lokasi = (
         location.name
         or location.province
         or f"{location.lat:.3f},{location.lon:.3f}"
     )
+    farmer_block = _format_farmer_context(crop_type, planting_date, notes)
     return f"""Kowe asisten pertanian sing nguasai Pranata Mangsa Jawa lan agroklimatologi modern.
 Tugasmu: nggawe rekomendasi tindakan kanggo petani ing lokasi {lokasi} (lat {location.lat}, lon {location.lon}).
 
@@ -163,7 +202,7 @@ Tugasmu: nggawe rekomendasi tindakan kanggo petani ing lokasi {lokasi} (lat {loc
 == ANALISIS RISIKO ==
 - Tingkat risiko: {risk_level.value}
 - Anomali iklim: {anomaly.value}
-
+{farmer_block}
 == INSTRUKSI OUTPUT ==
 Jawaben MUNG nganggo JSON valid (tanpa markdown fence, tanpa tembung tambahan).
 Schema:
@@ -178,9 +217,12 @@ Schema:
 Aturan tambahan:
 - "modern_action" 3-5 item; ringkes lan iso ditindakaké petani.
 - "crop_recommendation" max 5 item; prioritas tanaman cocok mangsa+anomali.
+  Yen petani wis nyebutake tanaman utama (KONTEKS PETANI), prioritasake
+  varietas/nawala kanggo tanaman kuwi.
 - "warning" 1-3 item; selaras karo tingkat risiko ({risk_level.value}).
 - "narrative" wajib basa Jawa krama lugu, 80-120 tembung, ngandhut konteks
-  mangsa, cuaca saiki, lan tindakan utama."""
+  mangsa, cuaca saiki, lan tindakan utama. Yen tanggal tanam diwenehake,
+  lebokake estimasi fase tanduran (vegetatif/generatif/panen)."""
 
 
 # ---------- Generation ----------
@@ -325,13 +367,21 @@ async def generate_recommendation(
     risk_level: RiskLevel,
     anomaly: AnomalyType,
     location: LocationInfo,
+    crop_type: Optional[str] = None,
+    planting_date: Optional[date] = None,
+    notes: Optional[str] = None,
 ) -> RecommendationLLM:
     """Generate rekomendasi via Gemini dengan TTL cache + fallback.
 
-    Cache key: ``(lat~2dp, lon~2dp, mangsa.number, risk_level.value)``;
-    TTL default 300 detik.
+    Cache key: ``(lat~2dp, lon~2dp, mangsa.number, risk_level.value,
+    crop_type_norm, planting_date_iso)``; TTL default 300 detik.
+
+    ``notes`` tidak masuk cache key (free text yang bervariasi tidak akan
+    dapat cache hit) tapi tetap dipakai untuk membentuk prompt.
     """
-    key = _cache_key(location.lat, location.lon, mangsa, risk_level)
+    key = _cache_key(
+        location.lat, location.lon, mangsa, risk_level, crop_type, planting_date,
+    )
     cached = _cache_get(key)
     if cached is not None:
         return cached
@@ -348,6 +398,9 @@ async def generate_recommendation(
         risk_level=risk_level,
         anomaly=anomaly,
         location=location,
+        crop_type=crop_type,
+        planting_date=planting_date,
+        notes=notes,
     )
 
     try:

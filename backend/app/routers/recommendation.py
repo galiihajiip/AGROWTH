@@ -52,6 +52,9 @@ async def recommend(req: RecommendationRequest) -> RecommendationResponse:
         risk_level=pred.risk_level,
         anomaly=pred.anomaly,
         location=pred.location,
+        crop_type=req.crop_type,
+        planting_date=req.planting_date,
+        notes=req.notes,
     )
 
     # 4) Tanaman: utamakan output LLM, fallback ke matcher Pranata Mangsa.
