@@ -16,8 +16,9 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import List
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Request, status
 
+from app.core import get_limit, limiter
 from app.models import RecommendationRequest, RecommendationResponse
 from app.services.llm_service import generate_recommendation
 from app.services.pranata_mangsa import get_current_mangsa, match_crops_to_mangsa
@@ -34,9 +35,14 @@ router = APIRouter(prefix="/api", tags=["recommendation"])
     responses={
         200: {"description": "Rekomendasi berhasil dibuat."},
         422: {"description": "Koordinat di luar batas Pulau Jawa."},
+        429: {"description": "Rate limit terlampaui (per-IP)."},
     },
 )
-async def recommend(req: RecommendationRequest) -> RecommendationResponse:
+@limiter.limit(lambda: get_limit("recommendation"))
+async def recommend(
+    request: Request,  # noqa: ARG001 — wajib agar slowapi bisa baca client IP
+    req: RecommendationRequest,
+) -> RecommendationResponse:
     """Gabungkan prediksi cuaca + mangsa aktif + saran LLM menjadi satu respons."""
     # 1) Prediksi cuaca + risiko + anomali untuk koordinat tersebut.
     pred = predict_weather(req.coordinates.lat, req.coordinates.lon)

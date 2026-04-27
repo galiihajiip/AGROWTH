@@ -50,6 +50,23 @@ class AppSettings(BaseSettings):
     # ---------- Logging ----------
     log_level: str = Field(default="INFO")
 
+    # ---------- Rate limiting (slowapi) ----------
+    # Format mengikuti limits library: "<count>/<period>" — mis.
+    # "30/minute", "100/hour", "5/second". Set ``RATE_LIMIT_ENABLED=false``
+    # di test/CI untuk men-disable.
+    rate_limit_enabled: bool = Field(default=True)
+    rate_limit_predict: str = Field(
+        default="60/minute",
+        description="Limit per-IP untuk POST /api/predict.",
+    )
+    rate_limit_recommendation: str = Field(
+        default="20/minute",
+        description=(
+            "Limit per-IP untuk POST /api/recommendation. Lebih ketat "
+            "karena memicu Gemini call yang ber-biaya token."
+        ),
+    )
+
     # ---------- Gemini LLM ----------
     gemini_api_key: str = Field(default="", description="Google AI Studio API key")
     gemini_model: str = Field(default="gemini-2.5-flash")

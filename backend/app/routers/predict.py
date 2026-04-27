@@ -9,8 +9,9 @@ Unprocessable Entity** bila batas dilanggar.
 """
 from __future__ import annotations
 
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, Query, Request, status
 
+from app.core import get_limit, limiter
 from app.models import CoordinateInput, PredictionResponse
 from app.services.weather_mock import predict_weather
 
@@ -25,9 +26,12 @@ router = APIRouter(prefix="/api", tags=["prediction"])
     responses={
         200: {"description": "Prediksi berhasil dibuat."},
         422: {"description": "Koordinat di luar batas Pulau Jawa atau days di luar 1..14."},
+        429: {"description": "Rate limit terlampaui (per-IP)."},
     },
 )
+@limiter.limit(lambda: get_limit("predict"))
 async def predict(
+    request: Request,  # noqa: ARG001 — wajib agar slowapi bisa baca client IP
     coords: CoordinateInput,
     days: int = Query(
         default=7, ge=1, le=14,
@@ -37,5 +41,6 @@ async def predict(
     """Hitung cuaca saat ini + forecast 1..14 hari + risiko & anomali.
 
     Cache deterministik di layer service (lat~2dp, lon~2dp, tanggal, days).
+    Rate limit per-IP: lihat ``RATE_LIMIT_PREDICT`` (default 60/menit).
     """
     return predict_weather(coords.lat, coords.lon, days=days)

@@ -7,6 +7,9 @@ pydantic>=2.10,<3.0
 pydantic-settings>=2.7,<3.0
 python-dotenv>=1.0,<2.0
 
+# Rate limiting (per-IP token bucket via slowapi)
+slowapi>=0.1.9,<1.0
+
 # LLM (Google Gemini, latest SDK)
 google-genai>=1.0,<2.0
 

@@ -1,13 +1,17 @@
 """Entry point FastAPI AGROWTH: include semua router + middleware CORS."""
 from datetime import datetime, timezone
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
+from starlette.responses import JSONResponse
 
 from app.core import (
     RequestLoggingMiddleware,
     configure_logging,
     get_settings,
+    limiter,
     register_exception_handlers,
 )
 from app.routers import mangsa, predict, recommendation
@@ -75,8 +79,40 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.add_middleware(RequestLoggingMiddleware)
+app.add_middleware(SlowAPIMiddleware)
 
 register_exception_handlers(app)
+
+
+# ---------- Rate limit hookup ----------
+# slowapi membutuhkan limiter terpasang di app.state agar decorator
+# ``@limiter.limit(...)`` di router-level bisa menemukannya.
+app.state.limiter = limiter
+
+
+@app.exception_handler(RateLimitExceeded)
+async def _ratelimit_handler(  # noqa: D401 - simple alias signature
+    request: Request, exc: RateLimitExceeded,
+) -> JSONResponse:
+    """Map ``RateLimitExceeded`` → **429 Too Many Requests** dengan body
+    yang konsisten dengan format error AGROWTH (``{"detail", "code"}``)
+    dan header ``Retry-After`` dari slowapi (kalau ada).
+    """
+    response = JSONResponse(
+        status_code=429,
+        content={
+            "detail": (
+                f"Terlalu banyak request. Limit: {exc.detail}. "
+                "Silakan tunggu beberapa saat lalu coba lagi."
+            ),
+            "code": "rate_limited",
+        },
+    )
+    # slowapi menyetel Retry-After di response yang di-bocor lewat exc.headers
+    retry_after = getattr(exc, "headers", None) or {}
+    if "Retry-After" in retry_after:
+        response.headers["Retry-After"] = str(retry_after["Retry-After"])
+    return response
 
 # Routers
 app.include_router(predict.router)
