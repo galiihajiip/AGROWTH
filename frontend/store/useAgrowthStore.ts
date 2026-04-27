@@ -3,16 +3,23 @@
  *
  * Mengelola:
  * - Koordinat terpilih (peta klik / form input)
- * - Hasil prediksi cuaca (PredictionResponse)
- * - Hasil rekomendasi hybrid (RecommendationResponse)
- * - Mangsa aktif hari ini (MangsaInfo)
- * - Flag loading per operasi async (weather + recommendation)
+ * - Hasil rekomendasi hybrid (RecommendationResponse) — sumber kebenaran
+ *   tunggal untuk cuaca + mangsa + risk + anomaly + LLM narrative
+ * - Mangsa aktif hari ini (MangsaInfo) — independen, untuk Header pill
+ * - Flag loading recommendation
  * - Error terakhir (ApiError, harmonis dengan interceptor di lib/api.ts)
  *
- * Action ``setCoordinate`` adalah ENTRY UTAMA dari interaksi user — sekali
- * koordinat di-set, store memicu chain fetch (prediction + recommendation
- * paralel) sehingga komponen UI hanya perlu observe state, tidak perlu
- * orchestrate multiple panggilan.
+ * Arsitektur:
+ * - ``setCoordinate`` adalah ENTRY UTAMA dari interaksi user. Sekali
+ *   koordinat di-set, store memicu **satu** fetch ke
+ *   ``POST /api/recommendation`` yang sudah berisi prediction +
+ *   recommendation dalam satu round-trip. ``predictWeather`` di-eksport
+ *   tetap tersedia untuk konsumen yang butuh prediksi tanpa LLM, tetapi
+ *   tidak dipanggil otomatis di sini.
+ * - Selector ``useWeatherData`` adalah view turunan dari
+ *   ``recommendationData`` (current + forecast + risk_level + anomaly +
+ *   location di-bungkus jadi ``PredictionResponse``-shape) supaya
+ *   konsumen lama tetap kompatibel.
  *
  * Devtools middleware aktif di development; setiap mutasi diberi label
  * action sehingga mudah diinspeksi via Redux DevTools extension.
@@ -20,12 +27,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
-import {
-  getCurrentMangsa,
-  getRecommendation,
-  predictWeather,
-} from "@/lib/api";
-import { FORECAST_DAYS } from "@/lib/constants";
+import { getCurrentMangsa, getRecommendation } from "@/lib/api";
 import {
   ApiError,
   type Coordinate,
@@ -43,15 +45,13 @@ export interface AgrowthState {
   // ---------- Data ----------
   /** Koordinat aktif yang dipilih user. ``null`` = belum memilih. */
   selectedCoordinate: Coordinate | null;
-  /** Hasil terbaru `POST /api/predict`. */
-  weatherData: PredictionResponse | null;
-  /** Hasil terbaru `POST /api/recommendation`. */
+  /** Hasil terbaru `POST /api/recommendation` (cuaca + mangsa + LLM). */
   recommendationData: RecommendationResponse | null;
-  /** Mangsa aktif berdasarkan tanggal hari ini. */
+  /** Mangsa aktif berdasarkan tanggal hari ini (untuk Header pill). */
   currentMangsa: MangsaInfo | null;
 
   // ---------- Loading flags ----------
-  isLoadingWeather: boolean;
+  /** True saat fetch ``POST /api/recommendation`` in-flight. */
   isLoadingRecommendation: boolean;
 
   // ---------- Error ----------
@@ -60,19 +60,16 @@ export interface AgrowthState {
 
   // ---------- Actions ----------
   /**
-   * Set koordinat aktif lalu memicu chain fetch:
-   * `predictWeather` + `getRecommendation` secara paralel.
+   * Set koordinat aktif dan fetch rekomendasi (cuaca + mangsa + LLM)
+   * dalam SATU round-trip ke backend.
+   *
+   * Berbeda dari versi sebelumnya, action ini tidak lagi memicu
+   * ``predictWeather`` paralel — ``recommendationData`` sudah berisi
+   * semua field yang dibutuhkan UI.
    *
    * @param coord Koordinat baru (harus dalam Pulau Jawa per backend validator).
-   * @param days  Panjang forecast (1..14, default 7).
    */
-  setCoordinate: (coord: Coordinate, days?: number) => Promise<void>;
-
-  /**
-   * Refresh prediksi cuaca tanpa mengganti koordinat.
-   * Pakai `coord` opsional untuk override; default pakai `selectedCoordinate`.
-   */
-  fetchPrediction: (coord?: Coordinate, days?: number) => Promise<void>;
+  setCoordinate: (coord: Coordinate) => Promise<void>;
 
   /**
    * Refresh rekomendasi tanpa mengganti koordinat.
@@ -112,18 +109,14 @@ function toApiError(err: unknown): ApiError {
 const INITIAL_STATE: Pick<
   AgrowthState,
   | "selectedCoordinate"
-  | "weatherData"
   | "recommendationData"
   | "currentMangsa"
-  | "isLoadingWeather"
   | "isLoadingRecommendation"
   | "error"
 > = {
   selectedCoordinate: null,
-  weatherData: null,
   recommendationData: null,
   currentMangsa: null,
-  isLoadingWeather: false,
   isLoadingRecommendation: false,
   error: null,
 };
@@ -138,39 +131,13 @@ export const useAgrowthStore = create<AgrowthState>()(
       ...INITIAL_STATE,
 
       // ---------- setCoordinate (entry utama) ----------
-      setCoordinate: async (coord, days = FORECAST_DAYS.default) => {
+      setCoordinate: async (coord) => {
         set(
           { selectedCoordinate: coord, error: null },
           false,
           "setCoordinate",
         );
-        // Chain fetch paralel; biarkan masing-masing handle errornya sendiri.
-        await Promise.all([
-          get().fetchPrediction(coord, days),
-          get().fetchRecommendation({ coordinates: coord }),
-        ]);
-      },
-
-      // ---------- fetchPrediction ----------
-      fetchPrediction: async (coord, days = FORECAST_DAYS.default) => {
-        const target = coord ?? get().selectedCoordinate;
-        if (!target) return;
-
-        set({ isLoadingWeather: true }, false, "fetchPrediction:start");
-        try {
-          const data = await predictWeather(target, days);
-          set(
-            { weatherData: data, isLoadingWeather: false, error: null },
-            false,
-            "fetchPrediction:success",
-          );
-        } catch (err) {
-          set(
-            { error: toApiError(err), isLoadingWeather: false },
-            false,
-            "fetchPrediction:error",
-          );
-        }
+        await get().fetchRecommendation({ coordinates: coord });
       },
 
       // ---------- fetchRecommendation ----------
@@ -240,11 +207,26 @@ export const useAgrowthStore = create<AgrowthState>()(
 // Selector hooks (opsional, agar konsumen lebih granular & re-render minimal)
 // ============================================================================
 
-/** Subset selector aman untuk komponen yang hanya butuh data weather. */
-export const useWeatherData = () =>
-  useAgrowthStore((state) => state.weatherData);
+/**
+ * Subset selector untuk konsumen yang hanya butuh ``PredictionResponse``-
+ * shape (cuaca + forecast + risk + anomaly + location). Diturunkan dari
+ * ``recommendationData`` sehingga 1 fetch dipakai bersama; ``null`` saat
+ * belum ada koordinat dipilih.
+ */
+export const useWeatherData = (): PredictionResponse | null =>
+  useAgrowthStore((state) => {
+    const r = state.recommendationData;
+    if (r === null) return null;
+    return {
+      location: r.location,
+      current: r.current,
+      forecast: r.forecast,
+      risk_level: r.risk_level,
+      anomaly: r.anomaly,
+    };
+  });
 
-/** Subset selector untuk recommendation. */
+/** Subset selector untuk recommendation (full bundle). */
 export const useRecommendationData = () =>
   useAgrowthStore((state) => state.recommendationData);
 
@@ -252,11 +234,9 @@ export const useRecommendationData = () =>
 export const useCurrentMangsa = () =>
   useAgrowthStore((state) => state.currentMangsa);
 
-/** Gabungan loading flag (true bila salah satu sedang in-flight). */
-export const useIsAnyLoading = () =>
-  useAgrowthStore(
-    (state) => state.isLoadingWeather || state.isLoadingRecommendation,
-  );
+/** Loading flag rekomendasi (chain fetch tunggal). */
+export const useIsLoading = () =>
+  useAgrowthStore((state) => state.isLoadingRecommendation);
 
 /** Subset selector untuk error terakhir. */
 export const useStoreError = () => useAgrowthStore((state) => state.error);

@@ -40,7 +40,10 @@ export function MapView() {
   const selectedCoordinate = useAgrowthStore(
     (state) => state.selectedCoordinate,
   );
-  const weatherData = useAgrowthStore((state) => state.weatherData);
+  // risk_level ikut hidup dari single recommendation fetch (sumber tunggal).
+  const riskLevel = useAgrowthStore(
+    (state) => state.recommendationData?.risk_level ?? null,
+  );
 
   const token = assertMapboxToken();
 
@@ -81,7 +84,7 @@ export function MapView() {
           <MapMarker
             lng={selectedCoordinate.lon}
             lat={selectedCoordinate.lat}
-            riskLevel={weatherData?.risk_level ?? null}
+            riskLevel={riskLevel}
           />
         ) : null}
       </Map>
