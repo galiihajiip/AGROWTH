@@ -25,7 +25,6 @@ interface ErrorPageProps {
 export default function ErrorPage({ error, reset }: ErrorPageProps) {
   // Log ke console untuk Sentry/observability di kemudian hari.
   useEffect(() => {
-    // eslint-disable-next-line no-console
     console.error("[AGROWTH] App error boundary:", error);
   }, [error]);
 
