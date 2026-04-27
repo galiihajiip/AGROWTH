@@ -28,6 +28,9 @@ from app.services.pranata_mangsa import _normalize_doy
 
 # Bounding box approx tiap provinsi (lat_min, lat_max, lon_min, lon_max).
 # Urutan dari yang paling spesifik (kecil) ke umum agar prioritas benar.
+# Catatan: scope AGROWTH dibatasi ke Pulau Jawa via ``CoordinateInput``
+# (lon ∈ [105, 115]); provinsi seperti Bali sengaja tidak di-list karena
+# berada di luar area validasi.
 _PROVINCE_BBOX: List[Tuple[str, float, float, float, float]] = [
     ("DKI Jakarta",   -6.40, -6.00, 106.65, 107.00),
     ("DI Yogyakarta", -8.20, -7.50, 110.00, 110.80),
@@ -35,7 +38,6 @@ _PROVINCE_BBOX: List[Tuple[str, float, float, float, float]] = [
     ("Jawa Barat",    -7.80, -5.90, 106.40, 108.85),
     ("Jawa Tengah",   -8.25, -6.40, 108.50, 111.70),
     ("Jawa Timur",    -8.80, -6.80, 111.00, 114.60),
-    ("Bali",          -8.90, -8.00, 114.40, 115.80),
 ]
 
 

@@ -35,7 +35,6 @@ from app.services.weather_mock import (
     (-7.00, 107.50, "Jawa Barat"),
     (-7.00, 110.00, "Jawa Tengah"),
     (-7.50, 112.50, "Jawa Timur"),
-    (-8.50, 115.00, "Bali"),
 ])
 def test_region_name_known_provinces(lat: float, lon: float, expected: str) -> None:
     assert get_region_name(lat, lon) == expected
@@ -44,6 +43,8 @@ def test_region_name_known_provinces(lat: float, lon: float, expected: str) -> N
 def test_region_name_fallback_for_outside_box() -> None:
     """Koordinat di luar bounding box yang dikenal → fallback Pulau Jawa."""
     assert get_region_name(-5.5, 113.0) == "Pulau Jawa"
+    # Bali sengaja tidak masuk list provinsi (scope dibatasi Pulau Jawa)
+    assert get_region_name(-8.5, 115.0) == "Pulau Jawa"
 
 
 # ---------- _seed_for: determinism ----------

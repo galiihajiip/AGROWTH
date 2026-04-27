@@ -15,8 +15,10 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import List
 
-from pydantic import Field, field_validator
+from pydantic import Field, computed_field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_DEFAULT_CORS = "http://localhost:3000,http://localhost:5173,http://localhost:8080"
 
 
 class AppSettings(BaseSettings):
@@ -35,14 +37,14 @@ class AppSettings(BaseSettings):
     app_environment: str = Field(default="development")  # development|staging|production
 
     # ---------- CORS ----------
-    # Pisah dengan koma di env, mis: CORS_ORIGINS="http://a,http://b"
-    cors_origins: List[str] = Field(
-        default_factory=lambda: [
-            "http://localhost:3000",  # Next.js default
-            "http://localhost:5173",  # Vite default
-            "http://localhost:8080",  # alt dev
-        ],
-        description="Daftar origin yang diizinkan akses CORS",
+    # Disimpan sebagai string CSV supaya pydantic-settings TIDAK menjalankan
+    # JSON-decode otomatis pada complex type ``List[str]`` (yang akan crash
+    # bila value berupa CSV biasa). Property :attr:`cors_origins` melakukan
+    # split + strip on access.
+    cors_origins_raw: str = Field(
+        default=_DEFAULT_CORS,
+        alias="CORS_ORIGINS",
+        description="Origin yang diizinkan, pisahkan dengan koma (CSV).",
     )
 
     # ---------- Logging ----------
@@ -55,18 +57,20 @@ class AppSettings(BaseSettings):
     gemini_cache_ttl_sec: int = Field(default=300, ge=1)
     gemini_timeout_sec: float = Field(default=20.0, gt=0)
 
-    @field_validator("cors_origins", mode="before")
-    @classmethod
-    def _split_csv(cls, v):  # noqa: ANN001
-        """Toleran terhadap CSV string maupun list."""
-        if isinstance(v, str):
-            return [item.strip() for item in v.split(",") if item.strip()]
-        return v
-
     @field_validator("log_level")
     @classmethod
     def _normalize_log_level(cls, v: str) -> str:
         return v.upper()
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def cors_origins(self) -> List[str]:
+        """Daftar origin CORS terparsing dari ``CORS_ORIGINS`` (CSV)."""
+        return [
+            item.strip()
+            for item in self.cors_origins_raw.split(",")
+            if item.strip()
+        ]
 
     @property
     def is_production(self) -> bool:
