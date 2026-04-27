@@ -2,7 +2,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.core import RequestLoggingMiddleware, configure_logging, get_settings
+from app.core import (
+    RequestLoggingMiddleware,
+    configure_logging,
+    get_settings,
+    register_exception_handlers,
+)
 from app.routers import mangsa, predict, recommendation
 
 configure_logging()
@@ -17,6 +22,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.add_middleware(RequestLoggingMiddleware)
+
+register_exception_handlers(app)
 
 # Routers
 app.include_router(predict.router)
