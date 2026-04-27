@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===========================================================================
+ * Design tokens — mengikuti pola shadcn/ui supaya konsisten light & dark mode.
+ * Nilai HSL tanpa unit agar bisa dipakai dengan opacity Tailwind.
+ * =========================================================================== */
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+
+    --primary: 142 70% 45%; /* AGROWTH green */
+    --primary-foreground: 0 0% 100%;
+
+    --accent: 38 92% 50%; /* sun-yellow accent */
+    --accent-foreground: 222 47% 11%;
+
+    --border: 220 13% 91%;
+    --ring: 142 70% 45%;
+
+    --radius: 0.625rem;
+  }
+
+  .dark {
+    --background: 222 47% 6%;
+    --foreground: 210 20% 96%;
+
+    --card: 222 40% 10%;
+    --card-foreground: 210 20% 96%;
+
+    --muted: 217 19% 18%;
+    --muted-foreground: 215 16% 65%;
+
+    --primary: 142 70% 55%;
+    --primary-foreground: 222 47% 6%;
+
+    --accent: 38 92% 60%;
+    --accent-foreground: 222 47% 6%;
+
+    --border: 217 19% 22%;
+    --ring: 142 70% 55%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.25);
+    color: hsl(var(--foreground));
+  }
+}
