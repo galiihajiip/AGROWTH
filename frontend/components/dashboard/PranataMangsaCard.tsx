@@ -175,12 +175,12 @@ function ProgressBar({ progress, daysInto, total, reducedMotion }: ProgressBarPr
       >
         <motion.div
           className="h-full rounded-full bg-gradient-to-r from-agrowth-500 to-agrowth-300"
-          initial={{ width: 0 }}
+          initial={{ width: "0%" }}
           animate={{ width: `${pct}%` }}
           transition={
             reducedMotion
               ? { duration: 0 }
-              : { duration: 0.9, ease: [0.16, 1, 0.3, 1] }
+              : { duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }
           }
         />
       </div>

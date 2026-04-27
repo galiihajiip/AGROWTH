@@ -49,6 +49,7 @@ import {
 import { useMemo } from "react";
 
 import { BentoCard, type BentoCardSpan } from "@/components/ui/BentoCard";
+import { useMinLoadingTime } from "@/hooks/useMinLoadingTime";
 import { cn } from "@/lib/utils";
 import { useAgrowthStore } from "@/store/useAgrowthStore";
 
@@ -69,6 +70,10 @@ interface FadeInWordsProps {
  * pasangkan ``key={text}`` di paragraf pembungkus → animasi
  * berjalan ulang setiap rekomendasi baru datang.
  *
+ * Stagger: opacity 0→1, x -4→0 per kata, delay = index * 0.025s.
+ * Total durasi di-clamp max 2s agar kalimat panjang (>80 kata)
+ * tidak terlalu lambat: ``perWordDelay = min(staggerMs, 2000 / wordCount)``.
+ *
  * Reduced motion: respect ``prefers-reduced-motion`` (durasi & delay
  * di-set 0 → text muncul langsung tanpa transisi).
  */
@@ -76,19 +81,26 @@ function FadeInWords({ text, className, staggerMs = 25 }: FadeInWordsProps) {
   const reduced = useReducedMotion();
   const words = useMemo(() => text.split(/\s+/).filter(Boolean), [text]);
 
+  // Clamp stagger sehingga total max 2s (2000ms / jumlah kata).
+  const clampedStagger = useMemo(() => {
+    if (words.length <= 1) return staggerMs;
+    const maxPerWord = 2000 / words.length;
+    return Math.min(staggerMs, maxPerWord);
+  }, [words.length, staggerMs]);
+
   return (
     <motion.p key={text} className={className}>
       {words.map((word, i) => (
         <motion.span
           key={`${i}-${word}`}
-          initial={{ opacity: 0, y: 4, filter: "blur(4px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          initial={{ opacity: 0, x: -4, filter: "blur(4px)" }}
+          animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
           transition={
             reduced
               ? { duration: 0 }
               : {
                   duration: 0.4,
-                  delay: i * (staggerMs / 1000),
+                  delay: i * (clampedStagger / 1000),
                   ease: [0.16, 1, 0.3, 1],
                 }
           }
@@ -268,16 +280,19 @@ export interface RecommendationCardProps {
 
 export function RecommendationCard({ className, span }: RecommendationCardProps) {
   const recommendation = useAgrowthStore((s) => s.recommendationData);
-  const isLoading = useAgrowthStore((s) => s.isLoadingRecommendation);
+  const isLoadingRaw = useAgrowthStore((s) => s.isLoadingRecommendation);
   const hasCoordinate = useAgrowthStore(
     (s) => s.selectedCoordinate !== null,
   );
 
+  // Jamin skeleton tampil min 300ms — sinkron dengan card lain.
+  const showData = useMinLoadingTime(isLoadingRaw, 300);
+
   // Tentukan visual mode.
   let mode: "loading" | "empty" | "loaded";
-  if (recommendation) {
+  if (recommendation && showData) {
     mode = "loaded";
-  } else if (isLoading || hasCoordinate) {
+  } else if (isLoadingRaw || !showData || hasCoordinate) {
     mode = "loading";
   } else {
     mode = "empty";

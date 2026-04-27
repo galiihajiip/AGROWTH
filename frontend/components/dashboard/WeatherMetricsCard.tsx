@@ -45,11 +45,12 @@ import {
   Wind,
   type LucideIcon,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { BentoCard, type BentoCardSpan } from "@/components/ui/BentoCard";
 import { CardSkeleton } from "@/components/ui/CardSkeleton";
 import { DataSourceBadge } from "@/components/ui/DataSourceBadge";
+import { useMinLoadingTime } from "@/hooks/useMinLoadingTime";
 import { cn } from "@/lib/utils";
 import { useAgrowthStore, useWeatherData } from "@/store/useAgrowthStore";
 
@@ -63,6 +64,11 @@ interface AnimatedNumberProps {
   /** Jumlah angka di belakang koma untuk display. Default 1. */
   decimals?: number;
   className?: string;
+  /**
+   * Jika berubah, spring di-reset ke 0 dulu sebelum animate ke value.
+   * Digunakan saat lat/lon berubah agar counter selalu "mulai dari 0".
+   */
+  resetKey?: string;
 }
 
 /**
@@ -76,22 +82,38 @@ interface AnimatedNumberProps {
  * teks tanpa memicu re-render React, sehingga performa tetap halus
  * walau nilai berubah cepat.
  *
+ * Reset behaviour: saat ``resetKey`` berubah (mis. lat/lon baru),
+ * spring di-``jump(0)`` dulu → lalu ``set(value)`` supaya counter
+ * selalu terlihat naik 0 → final value.
+ *
  * Reduced motion: jika user mengaktifkan ``prefers-reduced-motion``,
  * ``spring.jump(value)`` di-pakai sebagai pengganti ``set()`` supaya
  * counter langsung menampilkan nilai final tanpa animasi.
+ *
+ * Test checklist:
+ * - [ ] Data update saat ganti koordinat: AnimatedNumber reset ke 0 dulu
  */
-function AnimatedNumber({ value, decimals = 1, className }: AnimatedNumberProps) {
+function AnimatedNumber({ value, decimals = 1, className, resetKey }: AnimatedNumberProps) {
   const reduced = useReducedMotion();
   const spring = useSpring(0, { stiffness: 90, damping: 22, mass: 0.6 });
   const display = useTransform(spring, (v) => v.toFixed(decimals));
+  const prevResetKey = useRef(resetKey);
 
   useEffect(() => {
+    // Jika resetKey berubah (koordinat baru), reset ke 0 dulu lalu animate ke final.
+    const keyChanged = resetKey !== undefined && resetKey !== prevResetKey.current;
+    prevResetKey.current = resetKey;
+
     if (reduced) {
       spring.jump(value);
+    } else if (keyChanged) {
+      spring.jump(0);
+      // requestAnimationFrame agar jump(0) ter-render sebelum set(value) dimulai.
+      requestAnimationFrame(() => spring.set(value));
     } else {
       spring.set(value);
     }
-  }, [reduced, spring, value]);
+  }, [reduced, spring, value, resetKey]);
 
   return <motion.span className={className}>{display}</motion.span>;
 }
@@ -117,6 +139,8 @@ interface MetricProps {
   unit: string;
   decimals?: number;
   tint?: MetricTint;
+  /** Propagated to AnimatedNumber for reset-on-coordinate-change. */
+  resetKey?: string;
 }
 
 function Metric({
@@ -126,6 +150,7 @@ function Metric({
   unit,
   decimals = 1,
   tint = "emerald",
+  resetKey,
 }: MetricProps) {
   return (
     <div
@@ -148,6 +173,7 @@ function Metric({
         <AnimatedNumber
           value={value}
           decimals={decimals}
+          resetKey={resetKey}
           className="text-2xl font-semibold tabular-nums leading-none text-foreground"
         />
         <span className="text-[11px] font-medium text-muted-foreground">
@@ -178,18 +204,26 @@ const SKELETON_TILE_CLASSES = cn(
 
 export function WeatherMetricsCard({ className, span }: WeatherMetricsCardProps) {
   const weather = useWeatherData();
-  const isLoading = useAgrowthStore((s) => s.isLoadingRecommendation);
+  const isLoadingRaw = useAgrowthStore((s) => s.isLoadingRecommendation);
   const hasCoordinate = useAgrowthStore(
     (s) => s.selectedCoordinate !== null,
   );
+  const coordinate = useAgrowthStore((s) => s.selectedCoordinate);
 
-  const showSkeleton = isLoading || weather === null;
+  // Jamin skeleton tampil min 300ms — mencegah flicker pada koneksi cepat.
+  const showData = useMinLoadingTime(isLoadingRaw, 300);
+  const showSkeleton = !showData || weather === null;
+
+  // resetKey berubah setiap kali koordinat berubah → AnimatedNumber reset 0→final.
+  const resetKey = coordinate
+    ? `${coordinate.lat.toFixed(4)},${coordinate.lon.toFixed(4)}`
+    : undefined;
 
   // Subtitle adaptif: tunjukkan kondisi cuaca saat data ada,
   // pesan ramah saat menunggu / belum ada koordinat.
-  const subtitle = weather
+  const subtitle = weather && !showSkeleton
     ? weather.current.condition
-    : isLoading
+    : isLoadingRaw || !showData
       ? "Memuat data cuaca…"
       : hasCoordinate
         ? "Memuat data cuaca…"
@@ -203,77 +237,55 @@ export function WeatherMetricsCard({ className, span }: WeatherMetricsCardProps)
       glow="emerald"
       span={span ?? { col: 5, row: 2 }}
       className={className}
+      isLoading={showSkeleton}
+      animateIn
+      skeletonProps={{ lines: 2 }}
     >
       <div className="grid flex-1 grid-cols-2 gap-3">
-        {showSkeleton ? (
-          <>
-            <CardSkeleton
-              showHeader={false}
-              lines={1}
-              className={SKELETON_TILE_CLASSES}
-            />
-            <CardSkeleton
-              showHeader={false}
-              lines={1}
-              className={SKELETON_TILE_CLASSES}
-            />
-            <CardSkeleton
-              showHeader={false}
-              lines={1}
-              className={SKELETON_TILE_CLASSES}
-            />
-            <CardSkeleton
-              showHeader={false}
-              lines={1}
-              className={SKELETON_TILE_CLASSES}
-            />
-          </>
-        ) : (
-          <>
-            <Metric
-              icon={Thermometer}
-              label="Suhu"
-              value={weather.current.temperature_c}
-              unit="°C"
-              decimals={1}
-              tint="emerald"
-            />
-            <Metric
-              icon={Droplets}
-              label="Kelembapan"
-              value={weather.current.humidity_pct}
-              unit="%"
-              decimals={0}
-              tint="sky"
-            />
-            <Metric
-              icon={CloudRain}
-              label="Curah Hujan"
-              value={weather.current.rainfall_mm}
-              unit="mm"
-              decimals={1}
-              tint="blue"
-            />
-            <Metric
-              icon={Wind}
-              label="Angin"
-              // Backend menyimpan dalam m/s; konversi ke km/h (× 3.6)
-              // supaya selaras format laporan BMKG dan lebih intuitif.
-              value={weather.current.wind_speed_ms * 3.6}
-              unit="km/h"
-              decimals={1}
-              tint="violet"
-            />
-          </>
-        )}
+        <Metric
+          icon={Thermometer}
+          label="Suhu"
+          value={weather?.current.temperature_c ?? 0}
+          unit="°C"
+          decimals={1}
+          tint="emerald"
+          resetKey={resetKey}
+        />
+        <Metric
+          icon={Droplets}
+          label="Kelembapan"
+          value={weather?.current.humidity_pct ?? 0}
+          unit="%"
+          decimals={0}
+          tint="sky"
+          resetKey={resetKey}
+        />
+        <Metric
+          icon={CloudRain}
+          label="Curah Hujan"
+          value={weather?.current.rainfall_mm ?? 0}
+          unit="mm"
+          decimals={1}
+          tint="blue"
+          resetKey={resetKey}
+        />
+        <Metric
+          icon={Wind}
+          label="Angin"
+          // Backend menyimpan dalam m/s; konversi ke km/h (× 3.6)
+          // supaya selaras format laporan BMKG dan lebih intuitif.
+          value={(weather?.current.wind_speed_ms ?? 0) * 3.6}
+          unit="km/h"
+          decimals={1}
+          tint="violet"
+          resetKey={resetKey}
+        />
       </div>
 
       {/* Data source transparency badge */}
-      {!showSkeleton ? (
-        <div className="flex justify-end">
-          <DataSourceBadge />
-        </div>
-      ) : null}
+      <div className="flex justify-end">
+        <DataSourceBadge />
+      </div>
     </BentoCard>
   );
 }

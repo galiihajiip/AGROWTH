@@ -32,9 +32,11 @@
  *       <WeatherDetail />
  *     </BentoCard>
  */
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
+import { CardSkeleton, type CardSkeletonProps } from "@/components/ui/CardSkeleton";
 import { cn } from "@/lib/utils";
 
 /** Warna inner-glow & hover-glow. ``"none"`` mematikan keduanya. */
@@ -72,6 +74,26 @@ export interface BentoCardProps {
   glow?: BentoGlow;
   /** Grid span (col/row di lg + col di mobile). */
   span?: BentoCardSpan;
+
+  // ---------- Transition props ----------
+
+  /**
+   * Jika ``true``, render ``CardSkeleton`` sebagai pengganti ``children``.
+   * Transisi skeleton→children di-wrap ``AnimatePresence`` supaya smooth.
+   */
+  isLoading?: boolean;
+  /**
+   * Jika ``true``, children di-wrap ``motion.div`` dengan fade+slide-up
+   * entrance (opacity 0→1, y 8→0, duration 0.3s easeOut).
+   */
+  animateIn?: boolean;
+  /**
+   * Delay (detik) sebelum entrance animation dimulai. Berguna untuk
+   * stagger antar-card. Default 0.
+   */
+  animationDelay?: number;
+  /** Override props untuk ``CardSkeleton`` (mis. ``lines``, ``showHeader``). */
+  skeletonProps?: Omit<CardSkeletonProps, "className">;
 }
 
 // ============================================================================
@@ -181,10 +203,87 @@ export function BentoCard({
   children,
   glow = "none",
   span,
+  isLoading,
+  animateIn,
+  animationDelay = 0,
+  skeletonProps,
 }: BentoCardProps) {
+  const reduced = useReducedMotion() ?? false;
   const colMobileClass = COL_SPAN_MOBILE[span?.colMobile ?? 12] ?? "col-span-12";
   const colLgClass = span?.col ? COL_SPAN_LG[span.col] : undefined;
   const rowLgClass = span?.row ? ROW_SPAN_LG[span.row] : undefined;
+
+  // Decide what to render in the content area.
+  const renderContent = () => {
+    // isLoading prop explicitly provided → manage skeleton/data transition.
+    if (isLoading !== undefined) {
+      return (
+        <AnimatePresence mode="wait">
+          {isLoading ? (
+            <motion.div
+              key="skeleton"
+              initial={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="flex flex-1 flex-col"
+            >
+              <CardSkeleton
+                showHeader={false}
+                lines={3}
+                {...skeletonProps}
+                className="border-0 bg-transparent p-0 shadow-none backdrop-blur-none"
+              />
+            </motion.div>
+          ) : animateIn ? (
+            <motion.div
+              key="content"
+              initial={reduced ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={
+                reduced
+                  ? { duration: 0 }
+                  : { duration: 0.3, ease: "easeOut", delay: animationDelay }
+              }
+              className="flex flex-1 flex-col gap-2 min-w-0"
+            >
+              {children}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="content"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
+              className="flex flex-1 flex-col gap-2 min-w-0"
+            >
+              {children}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      );
+    }
+
+    // animateIn without isLoading → one-shot entrance animation.
+    if (animateIn) {
+      return (
+        <motion.div
+          initial={reduced ? false : { opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={
+            reduced
+              ? { duration: 0 }
+              : { duration: 0.3, ease: "easeOut", delay: animationDelay }
+          }
+          className="flex flex-1 flex-col gap-2 min-w-0"
+        >
+          {children}
+        </motion.div>
+      );
+    }
+
+    // Default: render children directly (backwards compatible).
+    return children;
+  };
 
   return (
     <section
@@ -243,7 +342,7 @@ export function BentoCard({
       )}
 
       <div className="relative z-10 flex flex-1 flex-col gap-2 min-w-0">
-        {children}
+        {renderContent()}
       </div>
     </section>
   );

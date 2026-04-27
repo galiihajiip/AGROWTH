@@ -50,6 +50,7 @@ import {
   StatBadge,
   type StatBadgeVariant,
 } from "@/components/ui/StatBadge";
+import { useMinLoadingTime } from "@/hooks/useMinLoadingTime";
 import { ANOMALY_INFO, RISK_COLORS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useAgrowthStore } from "@/store/useAgrowthStore";
@@ -130,6 +131,12 @@ interface GaugeProps {
   reducedMotion: boolean;
 }
 
+/**
+ * Test checklist:
+ * - [ ] Arc gauge tidak loncat langsung ke nilai final
+ * - [ ] Arc slight overshoot saat mendekati nilai final (terasa "hidup")
+ * - [ ] Risk label fade in setelah arc hampir selesai (delay 600ms)
+ */
 function Gauge({ gradientId, score, riskLabel, reducedMotion }: GaugeProps) {
   return (
     <svg
@@ -156,8 +163,8 @@ function Gauge({ gradientId, score, riskLabel, reducedMotion }: GaugeProps) {
       />
 
       {/* Progress arc — gradient stroke, animasi path drawing.
-          framer-motion setting pathLength otomatis menyetel
-          strokeDasharray="1 1" + animasi strokeDashoffset 1→(1-score). */}
+          cubicBezier(0.34,1.56,0.64,1) → slight overshoot = terasa hidup.
+          Durasi 800ms supaya cepat tapi tetap dramatis. */}
       <motion.path
         d={ARC_PATH}
         stroke={`url(#${gradientId})`}
@@ -169,12 +176,12 @@ function Gauge({ gradientId, score, riskLabel, reducedMotion }: GaugeProps) {
         transition={
           reducedMotion
             ? { duration: 0 }
-            : { duration: 1.2, ease: [0.16, 1, 0.3, 1] }
+            : { duration: 0.8, ease: [0.34, 1.56, 0.64, 1] }
         }
       />
 
-      {/* Big risk label — di dalam mangkuk arc, centered. */}
-      <text
+      {/* Big risk label — fade in setelah arc hampir selesai (delay 600ms). */}
+      <motion.text
         x={100}
         y={78}
         textAnchor="middle"
@@ -182,21 +189,35 @@ function Gauge({ gradientId, score, riskLabel, reducedMotion }: GaugeProps) {
         fontWeight={700}
         letterSpacing="0.04em"
         className="fill-foreground"
+        initial={reducedMotion ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={
+          reducedMotion
+            ? { duration: 0 }
+            : { duration: 0.3, delay: 0.6 }
+        }
       >
         {riskLabel.toUpperCase()}
-      </text>
+      </motion.text>
 
       {/* Sub-label di bawah label utama, mono uppercase. */}
-      <text
+      <motion.text
         x={100}
         y={100}
         textAnchor="middle"
         fontSize={9}
         letterSpacing="0.22em"
         className="fill-muted-foreground"
+        initial={reducedMotion ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={
+          reducedMotion
+            ? { duration: 0 }
+            : { duration: 0.3, delay: 0.7 }
+        }
       >
         SKOR RISIKO
-      </text>
+      </motion.text>
     </svg>
   );
 }
@@ -273,11 +294,14 @@ export interface RiskGaugeCardProps {
 
 export function RiskGaugeCard({ className, span }: RiskGaugeCardProps) {
   const recommendation = useAgrowthStore((s) => s.recommendationData);
-  const isLoading = useAgrowthStore((s) => s.isLoadingRecommendation);
+  const isLoadingRaw = useAgrowthStore((s) => s.isLoadingRecommendation);
   const hasCoordinate = useAgrowthStore(
     (s) => s.selectedCoordinate !== null,
   );
   const reducedMotion = useReducedMotion() ?? false;
+
+  // Jamin skeleton tampil min 300ms — sinkron dengan WeatherMetricsCard.
+  const showData = useMinLoadingTime(isLoadingRaw, 300);
 
   // useId() menghasilkan id stabil per render-tree, aman dari collision
   // bila >1 RiskGaugeCard di-mount pada halaman yang sama.
@@ -298,17 +322,17 @@ export function RiskGaugeCard({ className, span }: RiskGaugeCardProps) {
   const riskLabel = riskLevel ? RISK_COLORS[riskLevel].label : "—";
   const anomalyInfo = anomaly ? ANOMALY_INFO[anomaly] : null;
 
-  const showSkeleton = isLoading || recommendation === null;
-  const skeletonVariant: GaugeSkeletonProps["variant"] = isLoading
+  const showSkeleton = !showData || recommendation === null;
+  const skeletonVariant: GaugeSkeletonProps["variant"] = isLoadingRaw || !showData
     ? "loading"
     : hasCoordinate
       ? "loading"
       : "empty";
 
   // Subtitle adaptif: kondisi/anomali aktif vs status tunggu.
-  const subtitle = recommendation
+  const subtitle = recommendation && !showSkeleton
     ? `Skor ${riskLabel.toLowerCase()}`
-    : isLoading
+    : isLoadingRaw || !showData
       ? "Menghitung skor risiko…"
       : hasCoordinate
         ? "Menghitung skor risiko…"
@@ -335,11 +359,21 @@ export function RiskGaugeCard({ className, span }: RiskGaugeCardProps) {
               reducedMotion={reducedMotion}
             />
             {anomalyInfo ? (
-              <StatBadge
-                label="Anomali"
-                value={anomalyInfo.label}
-                variant={badgeVariant}
-              />
+              <motion.div
+                initial={reducedMotion ? false : { opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={
+                  reducedMotion
+                    ? { duration: 0 }
+                    : { duration: 0.25, delay: 0.7 }
+                }
+              >
+                <StatBadge
+                  label="Anomali"
+                  value={anomalyInfo.label}
+                  variant={badgeVariant}
+                />
+              </motion.div>
             ) : null}
           </>
         )}

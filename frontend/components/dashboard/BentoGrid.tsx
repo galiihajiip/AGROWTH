@@ -225,6 +225,34 @@ function OnboardingOverlay({ reduced }: { reduced: boolean }) {
 // Component
 // ============================================================================
 
+/**
+ * Variants untuk stagger entrance. ``containerVariants`` memicu
+ * ``staggerChildren`` yang otomatis menerapkan delay bertingkat
+ * ke setiap child ``itemVariants``. Mount-only — tidak re-trigger
+ * saat data berubah karena parent ``motion.div`` hanya diberi
+ * ``initial="hidden"`` + ``animate="visible"`` (bukan ``key``-change).
+ */
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.05,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
+    },
+  },
+};
+
 export function BentoGrid() {
   const reduced = useReducedMotion() ?? false;
   const hasCoordinate = useAgrowthStore(
@@ -232,7 +260,10 @@ export function BentoGrid() {
   );
 
   return (
-    <div
+    <motion.div
+      variants={reduced ? undefined : containerVariants}
+      initial={reduced ? false : "hidden"}
+      animate="visible"
       className={cn(
         // ``relative`` supaya OnboardingOverlay bisa di-absolute di atas.
         "relative",
@@ -249,21 +280,11 @@ export function BentoGrid() {
         "lg:auto-rows-[minmax(120px,1fr)]",
       )}
     >
-      {SLOTS.map((slot, i) => (
+      {SLOTS.map((slot) => (
         <motion.div
           key={slot.label}
           aria-label={slot.label}
-          initial={reduced ? false : { opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={
-            reduced
-              ? { duration: 0 }
-              : {
-                  duration: 0.5,
-                  delay: i * 0.05,
-                  ease: [0.16, 1, 0.3, 1],
-                }
-          }
+          variants={reduced ? undefined : itemVariants}
           className={cn(
             // Mobile default: full width.
             "col-span-12",
@@ -279,6 +300,6 @@ export function BentoGrid() {
       <AnimatePresence>
         {hasCoordinate ? null : <OnboardingOverlay reduced={reduced} />}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }
