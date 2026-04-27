@@ -185,15 +185,24 @@ export interface RecommendationResponse {
   mangsa: MangsaInfo;
   risk_level: RiskLevel;
   anomaly: AnomalyType;
-  /** Daftar tindakan praktis siap pakai. */
+  /** Daftar tindakan praktis siap pakai (action items). */
   recommendations: string[];
+  /**
+   * Tanaman yang direkomendasikan (≤10), prioritas hybrid mangsa
+   * + anomali iklim. Field terstruktur — JANGAN merge ke teks
+   * `recommendations` saat menampilkan; render terpisah sebagai chip/tag.
+   */
+  crops: string[];
   /** Saran cuaca naratif (1-2 kalimat). */
   weather_advice: string;
   /** Peringatan risiko relevan. */
   risk_warnings: string[];
   /** Ringkasan naratif Bahasa Jawa 80-120 kata. */
   summary?: string | null;
-  /** ISO 8601 datetime saat rekomendasi dibuat. */
+  /**
+   * ISO 8601 datetime saat rekomendasi dibuat. Selalu UTC dengan offset
+   * eksplisit (`+00:00` / `Z`); aman di-pass ke `new Date(...)`.
+   */
   generated_at: string;
 }
 

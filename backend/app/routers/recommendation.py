@@ -13,7 +13,7 @@ Pipeline internal:
 """
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 
 from fastapi import APIRouter, status
@@ -62,12 +62,9 @@ async def recommend(req: RecommendationRequest) -> RecommendationResponse:
         mangsa, pred.anomaly
     )
 
-    # 5) Daftar tindakan praktis (action items).
+    # 5) Action items murni — TIDAK merge crops ke teks (UI menampilkan
+    #    daftar tanaman dari ``crops`` field terstruktur).
     recommendations: List[str] = list(llm.modern_action)
-    if crops:
-        recommendations.append(
-            "Pilihan tanaman direkomendasikan: " + ", ".join(crops[:5])
-        )
 
     return RecommendationResponse(
         location=pred.location,
@@ -77,8 +74,11 @@ async def recommend(req: RecommendationRequest) -> RecommendationResponse:
         risk_level=pred.risk_level,
         anomaly=pred.anomaly,
         recommendations=recommendations,
+        crops=crops[:10],
         weather_advice=llm.traditional_wisdom,
         risk_warnings=list(llm.warning),
         summary=llm.narrative,
-        generated_at=datetime.now(),
+        # UTC + offset eksplisit supaya kompatibel dengan parser ISO 8601
+        # apa pun (mis. Date di JS, dateutil di Python, dst.)
+        generated_at=datetime.now(timezone.utc),
     )

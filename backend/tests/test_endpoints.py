@@ -138,8 +138,8 @@ def test_recommendation_full_pipeline(client: TestClient) -> None:
 
     expected_keys = {
         "location", "current", "forecast", "mangsa",
-        "risk_level", "anomaly", "recommendations", "weather_advice",
-        "risk_warnings", "summary", "generated_at",
+        "risk_level", "anomaly", "recommendations", "crops",
+        "weather_advice", "risk_warnings", "summary", "generated_at",
     }
     assert expected_keys.issubset(data.keys()), f"missing: {expected_keys - data.keys()}"
 
@@ -153,6 +153,38 @@ def test_recommendation_full_pipeline(client: TestClient) -> None:
     assert isinstance(data["recommendations"], list) and data["recommendations"]
     assert isinstance(data["summary"], str) and data["summary"]
     assert isinstance(data["weather_advice"], str) and data["weather_advice"]
+
+    # Field crops terstruktur, tidak dimerge ke recommendations
+    assert isinstance(data["crops"], list) and data["crops"], "crops kosong"
+    assert len(data["crops"]) <= 10
+    for c in data["crops"]:
+        assert isinstance(c, str) and c
+    # Pastikan tidak ada string "Pilihan tanaman direkomendasikan" yang
+    # bocor ke recommendations (regression atas refactor crops field).
+    for r in data["recommendations"]:
+        assert "tanaman direkomendasikan" not in r.lower()
+
+
+def test_recommendation_generated_at_is_timezone_aware(
+    client: TestClient,
+) -> None:
+    """``generated_at`` harus ISO datetime ber-offset UTC (tidak naive)."""
+    from datetime import datetime
+
+    response = client.post(
+        "/api/recommendation",
+        json={"coordinates": {"lat": -7.7956, "lon": 110.3695}},
+    )
+    assert response.status_code == 200
+    iso = response.json()["generated_at"]
+
+    # Harus parseable sebagai aware datetime
+    parsed = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+    assert parsed.tzinfo is not None, f"generated_at naive: {iso}"
+    # Offset 0 (UTC) — implementasi pakai timezone.utc
+    assert parsed.utcoffset().total_seconds() == 0, (
+        f"expected UTC offset, got {parsed.utcoffset()}"
+    )
 
 
 def test_recommendation_outside_java_returns_422(client: TestClient) -> None:

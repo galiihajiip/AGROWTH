@@ -172,7 +172,16 @@ class RecommendationResponse(BaseModel):
     anomaly: AnomalyType
     recommendations: List[str] = Field(
         default_factory=list,
-        description="Daftar rekomendasi aksi",
+        description="Daftar tindakan praktis siap pakai (action items)",
+    )
+    crops: List[str] = Field(
+        default_factory=list,
+        max_length=10,
+        description=(
+            "Tanaman yang direkomendasikan (≤10), prioritas hybrid mangsa "
+            "+ anomali iklim. Field terstruktur — JANGAN merge ke teks "
+            "``recommendations`` di sisi konsumen."
+        ),
     )
     weather_advice: str = Field(..., description="Saran terkait kondisi cuaca")
     risk_warnings: List[str] = Field(
@@ -181,4 +190,11 @@ class RecommendationResponse(BaseModel):
     summary: Optional[str] = Field(
         default=None, description="Ringkasan naratif (LLM-generated)"
     )
-    generated_at: datetime = Field(..., description="Waktu rekomendasi dibuat")
+    generated_at: datetime = Field(
+        ...,
+        description=(
+            "Waktu rekomendasi dibuat. Selalu UTC dengan offset eksplisit "
+            "(``+00:00`` / ``Z``) sehingga konsumen lintas zona waktu bisa "
+            "format ulang tanpa ambiguitas."
+        ),
+    )
