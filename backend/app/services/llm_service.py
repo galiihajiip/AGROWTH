@@ -15,12 +15,11 @@ import asyncio
 import json
 import logging
 import time
-from functools import lru_cache
 from typing import Any, Dict, List, Optional, Tuple
 
 from pydantic import BaseModel, Field, ValidationError
-from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from app.core import get_settings
 from app.models import (
     AnomalyType,
     ForecastPoint,
@@ -32,34 +31,6 @@ from app.models import (
 from app.services.pranata_mangsa import match_crops_to_mangsa
 
 logger = logging.getLogger(__name__)
-
-
-# ---------- Settings ----------
-
-class GeminiSettings(BaseSettings):
-    """Konfigurasi Gemini API via env / ``.env``."""
-
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="ignore",
-        case_sensitive=False,
-    )
-
-    gemini_api_key: str = Field(default="", description="Google AI Studio API key")
-    gemini_model: str = Field(
-        default="gemini-2.5-flash",
-        description="Nama model Gemini (default versi terbaru: 2.5-flash)",
-    )
-    gemini_temperature: float = Field(default=0.7, ge=0.0, le=2.0)
-    gemini_cache_ttl_sec: int = Field(default=300, ge=1)
-    gemini_timeout_sec: float = Field(default=20.0, gt=0)
-
-
-@lru_cache(maxsize=1)
-def get_settings() -> GeminiSettings:
-    """Singleton settings (lazy + cached)."""
-    return GeminiSettings()
 
 
 # ---------- LLM output schema ----------
