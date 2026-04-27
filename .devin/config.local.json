@@ -7,7 +7,19 @@
       "Exec(git checkout)",
       "Exec(git pull)",
       "Exec(git status)",
-      "Exec(git add)"
+      "Exec(git add)",
+      "Exec(uv run)",
+      "Exec(uv pip)",
+      "Exec(git commit)",
+      "Exec(ls)",
+      "Exec(git log)",
+      "Exec(tasklist)",
+      "Exec(wmic process)",
+      "Exec(taskkill)",
+      "Exec(cat)",
+      "Exec(git push)",
+      "Exec(python)",
+      "Exec(git diff)"
     ]
   }
 }
