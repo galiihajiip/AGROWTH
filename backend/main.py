@@ -2,9 +2,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.core import get_settings
+from app.core import RequestLoggingMiddleware, configure_logging, get_settings
 from app.routers import mangsa, predict, recommendation
 
+configure_logging()
 settings = get_settings()
 app = FastAPI(title=settings.app_name, version=settings.app_version)
 
@@ -15,6 +16,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(RequestLoggingMiddleware)
 
 # Routers
 app.include_router(predict.router)
