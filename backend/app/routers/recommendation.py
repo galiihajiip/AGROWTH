@@ -22,7 +22,7 @@ from app.core import get_limit, limiter
 from app.models import RecommendationRequest, RecommendationResponse
 from app.services.llm_service import generate_recommendation
 from app.services.pranata_mangsa import get_current_mangsa, match_crops_to_mangsa
-from app.services.weather_mock import predict_weather
+from app.services.weather_service import predict_weather
 
 router = APIRouter(prefix="/api", tags=["recommendation"])
 
@@ -45,7 +45,7 @@ async def recommend(
 ) -> RecommendationResponse:
     """Gabungkan prediksi cuaca + mangsa aktif + saran LLM menjadi satu respons."""
     # 1) Prediksi cuaca + risiko + anomali untuk koordinat tersebut.
-    pred = predict_weather(req.coordinates.lat, req.coordinates.lon)
+    pred = await predict_weather(req.coordinates.lat, req.coordinates.lon)
 
     # 2) Mangsa aktif (hari ini).
     mangsa = get_current_mangsa()

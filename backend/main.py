@@ -1,4 +1,5 @@
 """Entry point FastAPI AGROWTH: include semua router + middleware CORS."""
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 
 from fastapi import FastAPI, Request
@@ -24,7 +25,7 @@ _API_DESCRIPTION = """
 **AGROWTH** adalah API rekomendasi pertanian hybrid untuk Pulau Jawa yang
 memadukan:
 
-* **Prediksi cuaca + risiko + anomali** (mock deterministik 1-14 hari)
+* **Prediksi cuaca + risiko + anomali** (Open-Meteo real-time / mock fallback, 1-14 hari)
 * **Pranata Mangsa** (kalender pertanian tradisional Jawa, 12 mangsa)
 * **Rekomendasi naratif Bahasa Jawa** via Google Gemini 2.5 Flash
   (otomatis fallback ke aturan statis bila API key tidak tersedia)
@@ -56,7 +57,17 @@ _TAGS_METADATA = [
     },
 ]
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):  # noqa: ARG001
+    """Startup / shutdown lifecycle."""
+    yield
+    # Shutdown: tutup shared HTTP client Open-Meteo
+    from app.services.weather_openmeteo import close_http_client
+    await close_http_client()
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title=settings.app_name,
     version=settings.app_version,
     description=_API_DESCRIPTION,
@@ -139,6 +150,7 @@ async def health_check():
         "app": settings.app_name,
         "version": settings.app_version,
         "environment": settings.app_environment,
+        "weather_provider": settings.weather_provider,
         "llm_enabled": settings.llm_enabled,
         "llm_model": settings.gemini_model if settings.llm_enabled else None,
         "timestamp": datetime.now(timezone.utc).isoformat(),

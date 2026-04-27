@@ -74,6 +74,25 @@ class AppSettings(BaseSettings):
     gemini_cache_ttl_sec: int = Field(default=300, ge=1)
     gemini_timeout_sec: float = Field(default=20.0, gt=0)
 
+    # ---------- Weather provider ----------
+    # ``openmeteo`` (default) → call api.open-meteo.com (gratis, no key)
+    # ``mock`` → fallback statis deterministic untuk dev/CI offline.
+    # Bila Open-Meteo gagal/timeout, orchestrator akan fallback otomatis ke mock
+    # supaya UI tetap responsif.
+    weather_provider: str = Field(default="openmeteo")
+    open_meteo_base_url: str = Field(default="https://api.open-meteo.com/v1/forecast")
+    open_meteo_timeout_sec: float = Field(default=8.0, gt=0)
+
+    @field_validator("weather_provider")
+    @classmethod
+    def _normalize_provider(cls, v: str) -> str:
+        v_lower = v.strip().lower()
+        if v_lower not in {"openmeteo", "mock"}:
+            raise ValueError(
+                f"WEATHER_PROVIDER harus 'openmeteo' atau 'mock' (got: {v})"
+            )
+        return v_lower
+
     @field_validator("log_level")
     @classmethod
     def _normalize_log_level(cls, v: str) -> str:

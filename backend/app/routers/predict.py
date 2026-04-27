@@ -13,7 +13,7 @@ from fastapi import APIRouter, Query, Request, status
 
 from app.core import get_limit, limiter
 from app.models import CoordinateInput, PredictionResponse
-from app.services.weather_mock import predict_weather
+from app.services.weather_service import predict_weather
 
 router = APIRouter(prefix="/api", tags=["prediction"])
 
@@ -43,4 +43,4 @@ async def predict(
     Cache deterministik di layer service (lat~2dp, lon~2dp, tanggal, days).
     Rate limit per-IP: lihat ``RATE_LIMIT_PREDICT`` (default 60/menit).
     """
-    return predict_weather(coords.lat, coords.lon, days=days)
+    return await predict_weather(coords.lat, coords.lon, days=days)
