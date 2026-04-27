@@ -49,6 +49,7 @@ import { useEffect } from "react";
 
 import { BentoCard, type BentoCardSpan } from "@/components/ui/BentoCard";
 import { CardSkeleton } from "@/components/ui/CardSkeleton";
+import { DataSourceBadge } from "@/components/ui/DataSourceBadge";
 import { cn } from "@/lib/utils";
 import { useAgrowthStore, useWeatherData } from "@/store/useAgrowthStore";
 
@@ -266,6 +267,13 @@ export function WeatherMetricsCard({ className, span }: WeatherMetricsCardProps)
           </>
         )}
       </div>
+
+      {/* Data source transparency badge */}
+      {!showSkeleton ? (
+        <div className="flex justify-end">
+          <DataSourceBadge />
+        </div>
+      ) : null}
     </BentoCard>
   );
 }

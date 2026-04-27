@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -111,6 +111,13 @@ class PredictionResponse(BaseModel):
     )
     risk_level: RiskLevel
     anomaly: AnomalyType
+    data_source_info: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description=(
+            "Metadata sumber data: mode (mock/live), daftar sumber aktif. "
+            "Digunakan frontend untuk badge transparansi data."
+        ),
+    )
 
 
 # ---------- Mangsa (Pranata Mangsa Jawa) ----------

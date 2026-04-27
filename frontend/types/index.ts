@@ -129,6 +129,11 @@ export interface PredictionResponse {
   forecast: ForecastPoint[];
   risk_level: RiskLevel;
   anomaly: AnomalyType;
+  /** Metadata sumber data: mode (mock/live), daftar sumber aktif. */
+  data_source_info?: {
+    mode: string;
+    sources: string[];
+  } | null;
 }
 
 // ============================================================================

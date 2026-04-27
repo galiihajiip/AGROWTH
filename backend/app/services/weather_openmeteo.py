@@ -258,4 +258,11 @@ async def predict_weather_openmeteo(
         forecast=forecast,
         risk_level=risk,
         anomaly=anomaly,
+        data_source_info={
+            "mode": "live",
+            "sources": [
+                "Open-Meteo API (real-time)",
+                "Koordinat real Pulau Jawa",
+            ],
+        },
     )

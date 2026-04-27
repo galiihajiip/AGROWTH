@@ -15,7 +15,7 @@ from app.core import (
     limiter,
     register_exception_handlers,
 )
-from app.routers import mangsa, predict, recommendation, vulnerability
+from app.routers import info, mangsa, predict, recommendation, vulnerability
 
 configure_logging()
 settings = get_settings()
@@ -157,6 +157,7 @@ app.include_router(predict.router)
 app.include_router(recommendation.router)
 app.include_router(mangsa.router)
 app.include_router(vulnerability.router)
+app.include_router(info.router)
 
 
 @app.get("/", tags=["meta"])

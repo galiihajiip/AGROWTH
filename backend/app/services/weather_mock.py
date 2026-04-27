@@ -272,6 +272,13 @@ def _predict_weather_cached(
         forecast=forecast,
         risk_level=risk,
         anomaly=anomaly,
+        data_source_info={
+            "mode": "mock",
+            "sources": [
+                "Simulasi deterministik",
+                "Koordinat real Pulau Jawa",
+            ],
+        },
     )
 
 
