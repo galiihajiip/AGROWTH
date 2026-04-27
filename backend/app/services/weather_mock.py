@@ -21,6 +21,7 @@ from app.models import (
     RiskLevel,
     WeatherCurrent,
 )
+from app.services.pranata_mangsa import _normalize_doy
 
 
 # ---------- Region mapping ----------
@@ -110,7 +111,7 @@ def generate_current_weather(lat: float, lon: float, ref_date: date) -> WeatherC
     """Cuaca saat ini deterministik untuk lokasi & tanggal tertentu."""
     seed = _seed_for(lat, lon, ref_date)
     rng = np.random.default_rng(seed)
-    doy = ref_date.timetuple().tm_yday
+    doy = _normalize_doy(ref_date)
 
     temp, rain, hum, wind = _generate_day_weather(rng, doy)
     pressure = float(np.clip(rng.normal(1010.0, 4.0), 990.0, 1025.0))
@@ -185,7 +186,7 @@ def generate_forecast_7d(
         d = start_date + timedelta(days=i)
         seed = _seed_for(lat, lon, d)
         rng = np.random.default_rng(seed)
-        doy = d.timetuple().tm_yday
+        doy = _normalize_doy(d)
 
         mean_t, rain, hum, wind = _generate_day_weather(rng, doy)
         diurnal = float(abs(rng.normal(7.0, 1.5)))
