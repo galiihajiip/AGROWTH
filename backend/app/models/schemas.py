@@ -140,7 +140,10 @@ class MLVariables(BaseModel):
 
 
 class PredictionResponse(BaseModel):
-    """Hasil prediksi cuaca + risiko + anomali untuk sebuah lokasi."""
+    """Hasil prediksi cuaca + risiko + anomali untuk sebuah lokasi.
+    
+    CRITICAL-C-005: Menambahkan `ml_status` untuk transparansi fallback.
+    """
 
     location: LocationInfo
     current: WeatherCurrent
@@ -150,6 +153,18 @@ class PredictionResponse(BaseModel):
     )
     risk_level: RiskLevel
     anomaly: AnomalyType
+    ml_status: str = Field(
+        default="success",
+        description=(
+            "Status ML pipeline: 'success' (ensemble berhasil), "
+            "'fallback' (rule-based fallback digunakan), "
+            "'error' (gagal total, gunakan data statis)"
+        ),
+    )
+    ml_confidence: Optional[float] = Field(
+        default=None,
+        description="Confidence score ML (0..1), null jika fallback",
+    )
     data_source_info: Optional[Dict[str, Any]] = Field(
         default=None,
         description=(
@@ -200,19 +215,74 @@ class MangsaInfo(BaseModel):
 # ---------- Recommendation ----------
 
 class RecommendationRequest(BaseModel):
-    """Permintaan rekomendasi pertanian berdasarkan koordinat & konteks."""
+    """Permintaan rekomendasi pertanian berdasarkan koordinat & konteks.
+    
+    CRITICAL-H-001: Menambahkan validators untuk input fields LLM context.
+    """
 
     coordinates: CoordinateInput
     crop_type: Optional[str] = Field(
         default=None,
+        max_length=50,
         description="Jenis tanaman (padi, jagung, kedelai, dll)",
     )
     planting_date: Optional[date] = Field(
         default=None, description="Tanggal tanam (jika sudah)"
     )
     notes: Optional[str] = Field(
-        default=None, description="Catatan tambahan dari petani"
+        default=None,
+        max_length=500,
+        description="Catatan tambahan dari petani"
     )
+
+    @field_validator("crop_type")
+    @classmethod
+    def validate_crop_type(cls, v: Optional[str]) -> Optional[str]:
+        """Validasi crop_type: hanya alphanumeric + spaces, max 50 chars."""
+        if v is None:
+            return v
+        v = v.strip()
+        if not v:
+            return None
+        # Allow alphanumeric, spaces, dan beberapa karakter khusus (-, /)
+        if not all(c.isalnum() or c in ' -/' for c in v):
+            raise ValueError(
+                "crop_type hanya boleh alphanumeric, spaces, dash, slash"
+            )
+        if len(v) > 50:
+            raise ValueError("crop_type max 50 karakters")
+        return v
+
+    @field_validator("planting_date")
+    @classmethod
+    def validate_planting_date(cls, v: Optional[date]) -> Optional[date]:
+        """Validasi planting_date: harus dalam ±1 tahun dari hari ini."""
+        if v is None:
+            return v
+        from datetime import timedelta
+        today = date.today()
+        delta = abs((v - today).days)
+        if delta > 365:
+            raise ValueError(
+                "planting_date harus dalam ±1 tahun dari hari ini"
+            )
+        return v
+
+    @field_validator("notes")
+    @classmethod
+    def validate_notes(cls, v: Optional[str]) -> Optional[str]:
+        """Validasi notes: sanitize HTML entities, max 500 chars."""
+        if v is None:
+            return v
+        v = v.strip()
+        if not v:
+            return None
+        if len(v) > 500:
+            raise ValueError("notes max 500 karakters")
+        # Sanitize basic HTML entities (prevent prompt injection)
+        import html
+        v = html.unescape(v)
+        return v
 
 
 class RecommendationResponse(BaseModel):

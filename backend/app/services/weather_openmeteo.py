@@ -6,9 +6,12 @@ CoordinateInput validator (lat ∈ [-9,-5], lon ∈ [105,115]).
 Response di-mapping 1:1 ke ``WeatherCurrent`` / ``ForecastPoint`` tanpa
 mengubah Pydantic schema. WMO weather_code di-translate ke kondisi
 Bahasa Indonesia.
+
+CRITICAL-H-009: Menambahkan exponential backoff retry logic (max 2 retries).
 """
 from __future__ import annotations
 
+import asyncio
 import logging
 from datetime import date, datetime, timedelta, timezone
 from typing import Dict, List, Tuple
@@ -115,7 +118,11 @@ _DAILY_FIELDS = (
 async def _fetch_openmeteo(
     lat: float, lon: float, forecast_days: int,
 ) -> dict:
-    """Hit Open-Meteo forecast endpoint, return parsed JSON."""
+    """Hit Open-Meteo forecast endpoint, return parsed JSON.
+    
+    CRITICAL-H-009: Dengan exponential backoff retry (max 2 retries).
+    Retry strategy: 500ms, 1s. Jika semua gagal, raise exception.
+    """
     s = get_settings()
     params = {
         "latitude": round(lat, 4),
@@ -127,9 +134,34 @@ async def _fetch_openmeteo(
         "wind_speed_unit": "ms",  # m/s langsung, tidak perlu konversi
     }
     client = _get_http_client()
-    resp = await client.get(s.open_meteo_base_url, params=params)
-    resp.raise_for_status()
-    return resp.json()
+    
+    # Exponential backoff retry: max 3 attempts (0 retries = initial, 2 retries)
+    max_attempts = 3
+    retry_delays = [0.5, 1.0]  # seconds
+    
+    last_error = None
+    for attempt in range(max_attempts):
+        try:
+            resp = await client.get(s.open_meteo_base_url, params=params)
+            resp.raise_for_status()
+            return resp.json()
+        except (httpx.TimeoutException, httpx.NetworkError, httpx.HTTPStatusError) as e:
+            last_error = e
+            if attempt < max_attempts - 1:
+                delay = retry_delays[attempt] if attempt < len(retry_delays) else retry_delays[-1]
+                logger.warning(
+                    "Open-Meteo request failed (attempt %d/%d), retrying in %.1fs: %s",
+                    attempt + 1, max_attempts, delay, e
+                )
+                await asyncio.sleep(delay)
+            else:
+                logger.error(
+                    "Open-Meteo request failed after %d attempts: %s",
+                    max_attempts, e
+                )
+    
+    # Semua retry habis
+    raise RuntimeError(f"Open-Meteo API failed after {max_attempts} attempts") from last_error
 
 
 # ---------- Schema mapping ----------
@@ -223,9 +255,19 @@ async def predict_weather_openmeteo(
 ) -> PredictionResponse:
     """Fetch cuaca real dari Open-Meteo → PredictionResponse.
 
+    CRITICAL: Validate koordinat dalam bounds Pulau Jawa sebelum fetch.
     Raise pada network/parse error — caller (orchestrator) yang menangani
     fallback ke mock.
+    
+    Java bounds: lat ∈ [-9, -5], lon ∈ [105, 115]
     """
+    # CRITICAL-C-004: Validate bounds sebelum fetch API
+    if not (-9 <= lat <= -5 and 105 <= lon <= 115):
+        raise ValueError(
+            f"Koordinat ({lat:.4f}, {lon:.4f}) di luar batas Pulau Jawa "
+            f"(lat: [-9, -5], lon: [105, 115])"
+        )
+    
     if ref_date is None:
         ref_date = date.today()
     days = max(1, min(int(days), 14))

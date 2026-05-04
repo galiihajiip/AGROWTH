@@ -23,10 +23,13 @@
  *
  * Devtools middleware aktif di development; setiap mutasi diberi label
  * action sehingga mudah diinspeksi via Redux DevTools extension.
+ * 
+ * HIGH-H-010: Menambahkan localStorage persistence agar state tetap
+ * tersimpan saat page refresh.
  */
 import { toast } from "sonner";
 import { create } from "zustand";
-import { devtools } from "zustand/middleware";
+import { devtools, persist } from "zustand/middleware";
 import { useShallow } from "zustand/react/shallow";
 
 import { getCurrentMangsa, getRecommendation } from "@/lib/api";
@@ -137,17 +140,18 @@ const INITIAL_STATE: Pick<
 // ============================================================================
 
 export const useAgrowthStore = create<AgrowthState>()(
-  devtools(
-    (set, get) => ({
-      ...INITIAL_STATE,
+  persist(
+    devtools(
+      (set, get) => ({
+        ...INITIAL_STATE,
 
-      // ---------- setCoordinate (entry utama) ----------
-      setCoordinate: async (coord) => {
-        set(
-          { selectedCoordinate: coord, error: null },
-          false,
-          "setCoordinate",
-        );
+        // ---------- setCoordinate (entry utama) ----------
+        setCoordinate: async (coord) => {
+          set(
+            { selectedCoordinate: coord, error: null },
+            false,
+            "setCoordinate",
+          );
         await get().fetchRecommendation({ coordinates: coord });
       },
 
@@ -247,6 +251,19 @@ export const useAgrowthStore = create<AgrowthState>()(
     {
       name: "AgrowthStore",
       enabled: process.env.NODE_ENV !== "production",
+    },
+    ),
+    {
+      name: "agrowth-store-persistent", // localStorage key
+      partialize: (state) => ({
+        // Persist hanya selectedCoordinate & recommendationData
+        // Loading flags & error state tidak di-persist (state volatile)
+        selectedCoordinate: state.selectedCoordinate,
+        recommendationData: state.recommendationData,
+        currentMangsa: state.currentMangsa,
+        showVulnerabilityLayer: state.showVulnerabilityLayer,
+      }),
+      version: 1, // untuk future migration jika schema berubah
     },
   ),
 );

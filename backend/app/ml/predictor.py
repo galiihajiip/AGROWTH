@@ -5,11 +5,13 @@ label encoders dari disk. Prediksi dilakukan via soft-voting ensemble
 (rata-rata probabilitas dari Random Forest, Gradient Boosting, SVM).
 
 Jika model belum di-train (file .joblib belum ada), predictor akan
-otomatis menjalankan training saat pertama kali dimuat.
+otomatis menjalankan training saat pertama kali dimuat. Menggunakan
+threading.Lock untuk mencegah race condition pada first load.
 """
 from __future__ import annotations
 
 import logging
+import threading
 from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -21,6 +23,9 @@ from app.ml.features import N_FEATURES, extract_features
 from app.models import AnomalyType, RiskLevel
 
 logger = logging.getLogger(__name__)
+
+# Lock untuk mencegah concurrent model loading
+_LOAD_LOCK = threading.Lock()
 
 MODELS_DIR = Path(__file__).resolve().parent / "models"
 
@@ -58,43 +63,66 @@ class MLPredictor:
         return self._loaded
 
     def load(self) -> None:
-        """Load semua model dari disk. Auto-train jika belum ada."""
-        required_files = [
-            "scaler.joblib", "le_anomaly.joblib", "le_risk.joblib",
-            "anomaly_rf.joblib", "anomaly_gb.joblib", "anomaly_svm.joblib",
-            "risk_rf.joblib", "risk_gb.joblib", "risk_svm.joblib",
-        ]
+        """Load semua model dari disk. Auto-train jika belum ada.
+        
+        CRITICAL: Menggunakan threading.Lock untuk mencegah race condition
+        saat multiple concurrent requests hit load() sebelum models selesai
+        di-training (first time).
+        """
+        # Double-checked locking pattern
+        if self._loaded:
+            return
+        
+        with _LOAD_LOCK:
+            # Check again dalam lock (kalau thread lain sudah selesai load)
+            if self._loaded:
+                return
+            
+            required_files = [
+                "scaler.joblib", "le_anomaly.joblib", "le_risk.joblib",
+                "anomaly_rf.joblib", "anomaly_gb.joblib", "anomaly_svm.joblib",
+                "risk_rf.joblib", "risk_gb.joblib", "risk_svm.joblib",
+            ]
 
-        # Cek apakah semua file ada
-        all_exist = all((MODELS_DIR / f).exists() for f in required_files)
+            # Cek apakah semua file ada
+            all_exist = all((MODELS_DIR / f).exists() for f in required_files)
 
-        if not all_exist:
-            logger.info("Model files belum ada. Menjalankan training otomatis...")
-            from app.ml.train import train_models
-            train_models(eval_mode=False)
+            if not all_exist:
+                logger.info("Model files belum ada. Menjalankan training otomatis...")
+                from app.ml.train import train_models
+                try:
+                    train_models(eval_mode=False)
+                    logger.info("Training selesai.")
+                except Exception as e:
+                    logger.error("Training gagal: %s. Pastikan data training tersedia.", e)
+                    raise RuntimeError("ML model training failed") from e
 
-        # Load artifacts
-        self._scaler = joblib.load(MODELS_DIR / "scaler.joblib")
-        self._le_anomaly = joblib.load(MODELS_DIR / "le_anomaly.joblib")
-        self._le_risk = joblib.load(MODELS_DIR / "le_risk.joblib")
+            # Load artifacts
+            try:
+                self._scaler = joblib.load(MODELS_DIR / "scaler.joblib")
+                self._le_anomaly = joblib.load(MODELS_DIR / "le_anomaly.joblib")
+                self._le_risk = joblib.load(MODELS_DIR / "le_risk.joblib")
 
-        self._anomaly_models = {
-            "rf": joblib.load(MODELS_DIR / "anomaly_rf.joblib"),
-            "gb": joblib.load(MODELS_DIR / "anomaly_gb.joblib"),
-            "svm": joblib.load(MODELS_DIR / "anomaly_svm.joblib"),
-        }
+                self._anomaly_models = {
+                    "rf": joblib.load(MODELS_DIR / "anomaly_rf.joblib"),
+                    "gb": joblib.load(MODELS_DIR / "anomaly_gb.joblib"),
+                    "svm": joblib.load(MODELS_DIR / "anomaly_svm.joblib"),
+                }
 
-        self._risk_models = {
-            "rf": joblib.load(MODELS_DIR / "risk_rf.joblib"),
-            "gb": joblib.load(MODELS_DIR / "risk_gb.joblib"),
-            "svm": joblib.load(MODELS_DIR / "risk_svm.joblib"),
-        }
+                self._risk_models = {
+                    "rf": joblib.load(MODELS_DIR / "risk_rf.joblib"),
+                    "gb": joblib.load(MODELS_DIR / "risk_gb.joblib"),
+                    "svm": joblib.load(MODELS_DIR / "risk_svm.joblib"),
+                }
 
-        self._loaded = True
-        logger.info(
-            "Multi-ML models loaded: %d anomaly + %d risk classifiers",
-            len(self._anomaly_models), len(self._risk_models),
-        )
+                self._loaded = True
+                logger.info(
+                    "Multi-ML models loaded: %d anomaly + %d risk classifiers",
+                    len(self._anomaly_models), len(self._risk_models),
+                )
+            except FileNotFoundError as e:
+                logger.error("Model file not found: %s", e)
+                raise RuntimeError(f"ML model file missing: {e}") from e
 
     def predict(
         self,
