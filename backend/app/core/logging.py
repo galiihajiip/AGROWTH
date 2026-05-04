@@ -4,6 +4,7 @@
 """
 from __future__ import annotations
 
+import contextvars
 import logging
 import time
 import uuid
@@ -14,7 +15,19 @@ from starlette.responses import Response
 
 from app.core.settings import get_settings
 
-_LOG_FORMAT = "%(asctime)s %(levelname)-7s %(name)s :: %(message)s"
+# Menyimpan request_id saat ini per context (coroutine aman)
+request_id_ctx_var: contextvars.ContextVar[str] = contextvars.ContextVar(
+    "request_id", default="-"
+)
+
+class RequestIdFilter(logging.Filter):
+    """Menambahkan atribut `request_id` ke record logging."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        record.request_id = request_id_ctx_var.get()
+        return True
+
+_LOG_FORMAT = "%(asctime)s %(levelname)-7s %(name)s [req:%(request_id)s] :: %(message)s"
 
 
 def configure_logging() -> None:
@@ -27,6 +40,9 @@ def configure_logging() -> None:
     root = logging.getLogger()
     level = getattr(logging, settings.log_level, logging.INFO)
     root.setLevel(level)
+    
+    # Apply filter ke root supaya turun temurun dapet atribut
+    root.addFilter(RequestIdFilter())
 
     if not root.handlers:
         handler = logging.StreamHandler()
@@ -46,6 +62,9 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         # Reuse ID dari client (jika ada) supaya bisa lacak across systems.
         request_id = request.headers.get(self.header_name) or uuid.uuid4().hex[:12]
         request.state.request_id = request_id
+        
+        # Set context variable untuk log lain
+        token = request_id_ctx_var.set(request_id)
 
         started = time.monotonic()
         try:
@@ -53,16 +72,18 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         except Exception:
             duration_ms = (time.monotonic() - started) * 1000
             self.logger.exception(
-                "request_id=%s %s %s -> ERROR (%.1fms)",
-                request_id, request.method, request.url.path, duration_ms,
+                "%s %s -> ERROR (%.1fms)",
+                request.method, request.url.path, duration_ms,
             )
             raise
+        finally:
+            request_id_ctx_var.reset(token)
 
         duration_ms = (time.monotonic() - started) * 1000
         response.headers[self.header_name] = request_id
         self.logger.info(
-            "request_id=%s %s %s -> %d (%.1fms)",
-            request_id, request.method, request.url.path,
+            "%s %s -> %d (%.1fms)",
+            request.method, request.url.path,
             response.status_code, duration_ms,
         )
         return response
