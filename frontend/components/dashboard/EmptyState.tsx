@@ -18,7 +18,7 @@ export function EmptyState() {
 
   return (
     <div
-      className={`absolute inset-0 z-10 flex items-center justify-center bg-gradient-to-br from-glass-dark/40 to-glass-dark/60 backdrop-blur-sm transition-opacity duration-500 ${isVisible ? "opacity-100" : "opacity-0"}`}
+      className={`pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-gradient-to-br from-glass-dark/40 to-glass-dark/60 backdrop-blur-sm transition-opacity duration-500 ${isVisible ? "opacity-100" : "opacity-0"}`}
     >
       <div className="flex flex-col items-center gap-6 px-6 text-center">
         {/* Animated pointer icon */}
