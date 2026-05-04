@@ -24,7 +24,7 @@ function LegendItem({ color, label }: LegendItemProps) {
         style={{ backgroundColor: color }}
         aria-hidden
       />
-      <span className="text-[11px] font-medium text-white/80">{label}</span>
+      <span className="text-[11px] font-medium text-foreground/80">{label}</span>
     </div>
   );
 }
@@ -39,8 +39,8 @@ export function MapLegend() {
       <div
         className={cn(
           "flex flex-col gap-1.5 rounded-lg px-3 py-2",
-          "bg-black/50 backdrop-blur-md",
-          "border border-white/10 shadow-lg",
+          "bg-glass-dark backdrop-blur-md",
+          "border border-glass-border shadow-lg",
         )}
       >
         <LegendItem color="#3B82F6" label="Rentan Banjir" />

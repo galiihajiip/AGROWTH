@@ -295,7 +295,7 @@ export function BentoCard({
         rowLgClass,
         // ---------- Glass surface ----------
         "rounded-2xl border bg-glass-dark backdrop-blur-xl",
-        "bg-gradient-to-b from-white/[0.04] to-transparent",
+        "bg-gradient-to-b from-black/[0.02] to-transparent dark:from-white/[0.04] dark:to-transparent",
         BORDER_TINT[glow],
         "shadow-glass",
         // ---------- Hover ----------

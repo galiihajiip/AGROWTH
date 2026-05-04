@@ -17,6 +17,7 @@
  * (ditangkap React error boundary kalau dipasang) bila ``NEXT_PUBLIC_MAPBOX_TOKEN``
  * belum di-set di ``.env.local``.
  */
+import { useTheme } from "next-themes";
 import { useCallback } from "react";
 import Map, {
   NavigationControl,
@@ -30,7 +31,8 @@ import { VulnerabilityToggle } from "@/components/map/VulnerabilityToggle";
 import { isInsideJavaBounds } from "@/lib/constants";
 import {
   INITIAL_VIEW_STATE,
-  MAP_STYLE,
+  MAP_STYLE_DARK,
+  MAP_STYLE_LIGHT,
   MAX_BOUNDS,
   MAX_ZOOM,
   MIN_ZOOM,
@@ -39,16 +41,30 @@ import {
 import { useAgrowthStore } from "@/store/useAgrowthStore";
 
 export function MapView() {
+  const { resolvedTheme } = useTheme();
   const setCoordinate = useAgrowthStore((state) => state.setCoordinate);
   const selectedCoordinate = useAgrowthStore(
     (state) => state.selectedCoordinate,
+  );
+  const isLoadingRecommendation = useAgrowthStore(
+    (state) => state.isLoadingRecommendation,
+  );
+  const recommendationData = useAgrowthStore(
+    (state) => state.recommendationData,
   );
   // risk_level ikut hidup dari single recommendation fetch (sumber tunggal).
   const riskLevel = useAgrowthStore(
     (state) => state.recommendationData?.risk_level ?? null,
   );
 
+  const mapStyle = resolvedTheme === "light" ? MAP_STYLE_LIGHT : MAP_STYLE_DARK;
+
   const token = assertMapboxToken();
+
+  const coordinateLabel = selectedCoordinate
+    ? `${selectedCoordinate.lat.toFixed(4)}, ${selectedCoordinate.lon.toFixed(4)}`
+    : null;
+  const locationLabel = recommendationData?.location.name ?? "Koordinat dipilih";
 
   const handleClick = useCallback(
     (event: MapLayerMouseEvent) => {
@@ -61,10 +77,10 @@ export function MapView() {
   );
 
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-2xl border border-white/10">
+    <div className="relative h-full w-full overflow-hidden rounded-2xl border border-glass-border">
       <Map
         mapboxAccessToken={token}
-        mapStyle={MAP_STYLE}
+        mapStyle={mapStyle}
         initialViewState={INITIAL_VIEW_STATE}
         maxBounds={MAX_BOUNDS}
         minZoom={MIN_ZOOM}
@@ -94,6 +110,24 @@ export function MapView() {
           />
         ) : null}
       </Map>
+
+      {selectedCoordinate ? (
+        <div className="pointer-events-none absolute left-3 top-3 z-20 max-w-[calc(100%-6rem)] rounded-xl border border-glass-border bg-glass-dark/90 px-3 py-2 shadow-lg backdrop-blur-md">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-agrowth-300/90">
+              {isLoadingRecommendation ? "Menganalisis koordinat" : "Lokasi aktif"}
+            </span>
+            <span className="text-sm font-semibold tracking-tight text-foreground">
+              {locationLabel}
+            </span>
+            {coordinateLabel ? (
+              <span className="font-mono text-[11px] text-muted-foreground">
+                {coordinateLabel}
+              </span>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
 
       {/* Overlay controls (positioned outside <Map> for proper stacking) */}
       <VulnerabilityToggle />

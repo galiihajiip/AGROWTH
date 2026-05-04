@@ -31,8 +31,12 @@ export function assertMapboxToken(): string {
   return MAPBOX_TOKEN;
 }
 
-/** Style URL Mapbox dark mode. */
-export const MAP_STYLE = "mapbox://styles/mapbox/dark-v11" as const;
+/** Style URLs Mapbox per tema. */
+export const MAP_STYLE_DARK = "mapbox://styles/mapbox/dark-v11" as const;
+export const MAP_STYLE_LIGHT = "mapbox://styles/mapbox/light-v11" as const;
+
+/** @deprecated Pakai MAP_STYLE_DARK / MAP_STYLE_LIGHT + useTheme(). */
+export const MAP_STYLE = MAP_STYLE_DARK;
 
 /** Initial view state untuk react-map-gl (longitude/latitude/zoom). */
 export const INITIAL_VIEW_STATE = {

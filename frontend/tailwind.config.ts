@@ -85,15 +85,15 @@ const config: Config = {
           950: "#450a0a",
         },
 
-        // Permukaan glassmorphism (rgba semi-transparan).
+        // Permukaan glassmorphism — theme-aware via CSS variables.
         glass: {
-          subtle: "rgba(255, 255, 255, 0.04)",
-          DEFAULT: "rgba(255, 255, 255, 0.06)",
-          strong: "rgba(255, 255, 255, 0.10)",
-          border: "rgba(255, 255, 255, 0.12)",
-          "border-strong": "rgba(255, 255, 255, 0.18)",
-          dark: "rgba(2, 6, 23, 0.55)",
-          "dark-strong": "rgba(2, 6, 23, 0.75)",
+          subtle: "var(--glass-subtle)",
+          DEFAULT: "var(--glass)",
+          strong: "var(--glass-strong)",
+          border: "var(--glass-border)",
+          "border-strong": "var(--glass-border-strong)",
+          dark: "var(--glass-dark)",
+          "dark-strong": "var(--glass-dark-strong)",
         },
       },
 
@@ -111,18 +111,13 @@ const config: Config = {
         "3xl": "64px",
       },
 
-      // ========== SHADOWS ==========
+      // ========== SHADOWS (theme-aware via CSS vars) ==========
       boxShadow: {
-        glass:
-          "0 8px 32px 0 rgba(2, 6, 23, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06)",
-        "glass-strong":
-          "0 12px 48px 0 rgba(2, 6, 23, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.10)",
-        "glow-emerald":
-          "0 0 24px rgba(16, 185, 129, 0.45), 0 0 48px rgba(16, 185, 129, 0.18)",
-        "glow-amber":
-          "0 0 24px rgba(245, 158, 11, 0.45), 0 0 48px rgba(245, 158, 11, 0.18)",
-        "glow-danger":
-          "0 0 24px rgba(239, 68, 68, 0.45), 0 0 48px rgba(239, 68, 68, 0.18)",
+        glass: "var(--shadow-glass)",
+        "glass-strong": "var(--shadow-glass-strong)",
+        "glow-emerald": "var(--shadow-glow-emerald)",
+        "glow-amber": "var(--shadow-glow-amber)",
+        "glow-danger": "var(--shadow-glow-danger)",
       },
 
       // ========== RADIUS ==========
@@ -167,8 +162,7 @@ const config: Config = {
 
       // ========== BACKGROUND IMAGES (gradient siap pakai) ==========
       backgroundImage: {
-        "gradient-shimmer":
-          "linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%)",
+        "gradient-shimmer": "var(--gradient-shimmer)",
         "gradient-emerald":
           "linear-gradient(135deg, #10b981 0%, #047857 100%)",
         "gradient-amber":

@@ -128,7 +128,7 @@ function CropChip({ label }: CropChipProps) {
       className={cn(
         "inline-flex items-center gap-1 rounded-full",
         "border border-agrowth-500/30 bg-agrowth-500/10",
-        "px-2.5 py-0.5 text-xs font-medium text-agrowth-300",
+        "px-2.5 py-0.5 text-xs font-medium text-agrowth-700 dark:text-agrowth-300",
       )}
     >
       <Leaf className="h-3 w-3" strokeWidth={2.25} aria-hidden />
@@ -175,7 +175,7 @@ function DataSourcesBar({ sources }: DataSourcesBarProps) {
             className={cn(
               "inline-flex items-center gap-1 rounded-full",
               "border border-sky-500/25 bg-sky-500/10",
-              "px-2 py-0.5 text-[10px] font-medium text-sky-300",
+              "px-2 py-0.5 text-[10px] font-medium text-sky-600 dark:text-sky-300",
             )}
           >
             <Database className="h-2.5 w-2.5" strokeWidth={2.25} aria-hidden />
@@ -206,7 +206,7 @@ function WarningBar({ warnings }: WarningBarProps) {
         strokeWidth={2.25}
         aria-hidden
       />
-      <ul className="flex flex-col gap-1 text-xs leading-relaxed text-amber-200">
+      <ul className="flex flex-col gap-1 text-xs leading-relaxed text-amber-700 dark:text-amber-200">
         {warnings.map((w, i) => (
           <li key={i}>{w}</li>
         ))}
@@ -325,7 +325,7 @@ export function RecommendationCard({ className, span }: RecommendationCardProps)
         <div className="flex flex-1 flex-col gap-4">
           {/* ----- Mangsa greeting (sub-header) ----- */}
           {mangsaGreeting ? (
-            <p className="text-sm italic leading-relaxed text-agrowth-300/80">
+            <p className="text-sm italic leading-relaxed text-agrowth-700/80 dark:text-agrowth-300/80">
               {mangsaGreeting}
             </p>
           ) : null}

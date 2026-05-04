@@ -35,6 +35,43 @@
 
     /* Solid base background (dipakai untuk hero / canvas). */
     --bg-base: #f8fafc; /* slate-50 */
+
+    /* ----- Glass tokens (light mode) ----- */
+    --glass-subtle: rgba(0, 0, 0, 0.03);
+    --glass: rgba(0, 0, 0, 0.04);
+    --glass-strong: rgba(0, 0, 0, 0.07);
+    --glass-border: rgba(0, 0, 0, 0.10);
+    --glass-border-strong: rgba(0, 0, 0, 0.16);
+    --glass-dark: rgba(255, 255, 255, 0.65);
+    --glass-dark-strong: rgba(255, 255, 255, 0.80);
+
+    /* ----- Shadow tokens (light mode) ----- */
+    --shadow-glass: 0 4px 24px 0 rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    --shadow-glass-strong: 0 8px 32px 0 rgba(0, 0, 0, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    --shadow-glow-emerald: 0 0 20px rgba(16, 185, 129, 0.20), 0 0 40px rgba(16, 185, 129, 0.08);
+    --shadow-glow-amber: 0 0 20px rgba(245, 158, 11, 0.20), 0 0 40px rgba(245, 158, 11, 0.08);
+    --shadow-glow-danger: 0 0 20px rgba(239, 68, 68, 0.20), 0 0 40px rgba(239, 68, 68, 0.08);
+
+    /* ----- Chart/SVG colors (light mode) ----- */
+    --chart-grid: rgba(0, 0, 0, 0.06);
+    --chart-axis: rgba(0, 0, 0, 0.35);
+    --chart-tick: rgba(0, 0, 0, 0.55);
+    --chart-cursor: rgba(0, 0, 0, 0.10);
+
+    /* ----- Gradient shimmer (light mode) ----- */
+    --gradient-shimmer: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.04) 50%, transparent 100%);
+
+    /* ----- Overlay colors (popups, tooltips, map controls) ----- */
+    --overlay-bg: rgba(255, 255, 255, 0.92);
+    --overlay-text: rgba(0, 0, 0, 0.85);
+    --overlay-text-muted: rgba(0, 0, 0, 0.55);
+    --overlay-border: rgba(0, 0, 0, 0.10);
+    --overlay-bar-bg: rgba(0, 0, 0, 0.08);
+
+    /* SVG arc background */
+    --arc-bg: rgba(0, 0, 0, 0.08);
+    /* Circle stroke on map */
+    --circle-stroke: rgba(0, 0, 0, 0.15);
   }
 
   .dark {
@@ -58,6 +95,43 @@
 
     /* Slate-950 sebagai base dark — sumber kebenaran utama. */
     --bg-base: #020617;
+
+    /* ----- Glass tokens (dark mode) ----- */
+    --glass-subtle: rgba(255, 255, 255, 0.04);
+    --glass: rgba(255, 255, 255, 0.06);
+    --glass-strong: rgba(255, 255, 255, 0.10);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-border-strong: rgba(255, 255, 255, 0.18);
+    --glass-dark: rgba(2, 6, 23, 0.55);
+    --glass-dark-strong: rgba(2, 6, 23, 0.75);
+
+    /* ----- Shadow tokens (dark mode) ----- */
+    --shadow-glass: 0 8px 32px 0 rgba(2, 6, 23, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    --shadow-glass-strong: 0 12px 48px 0 rgba(2, 6, 23, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    --shadow-glow-emerald: 0 0 24px rgba(16, 185, 129, 0.45), 0 0 48px rgba(16, 185, 129, 0.18);
+    --shadow-glow-amber: 0 0 24px rgba(245, 158, 11, 0.45), 0 0 48px rgba(245, 158, 11, 0.18);
+    --shadow-glow-danger: 0 0 24px rgba(239, 68, 68, 0.45), 0 0 48px rgba(239, 68, 68, 0.18);
+
+    /* ----- Chart/SVG colors (dark mode) ----- */
+    --chart-grid: rgba(255, 255, 255, 0.06);
+    --chart-axis: rgba(255, 255, 255, 0.4);
+    --chart-tick: rgba(255, 255, 255, 0.55);
+    --chart-cursor: rgba(255, 255, 255, 0.12);
+
+    /* ----- Gradient shimmer (dark mode) ----- */
+    --gradient-shimmer: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%);
+
+    /* ----- Overlay colors (popups, tooltips, map controls) ----- */
+    --overlay-bg: rgba(26, 26, 46, 0.95);
+    --overlay-text: rgba(255, 255, 255, 0.90);
+    --overlay-text-muted: rgba(255, 255, 255, 0.60);
+    --overlay-border: rgba(255, 255, 255, 0.10);
+    --overlay-bar-bg: rgba(255, 255, 255, 0.10);
+
+    /* SVG arc background */
+    --arc-bg: rgba(255, 255, 255, 0.08);
+    /* Circle stroke on map */
+    --circle-stroke: rgba(255, 255, 255, 0.3);
   }
 
   * {
@@ -66,9 +140,8 @@
 
   html {
     @apply scroll-smooth;
-    /* Dark scrollbar di level html (Firefox + browser modern). */
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+    scrollbar-color: var(--glass-border-strong) transparent;
   }
 
   body {
@@ -90,7 +163,7 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Scrollbar dark untuk WebKit (Chrome, Edge, Safari). */
+  /* Scrollbar untuk WebKit (Chrome, Edge, Safari) — theme-aware. */
   ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -99,7 +172,7 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.12);
+    background: var(--glass-border);
     border-radius: 8px;
     border: 2px solid transparent;
     background-clip: padding-box;
@@ -137,7 +210,7 @@
   box-shadow: none;
 }
 .vuln-popup .mapboxgl-popup-tip {
-  border-top-color: rgba(26, 26, 46, 0.95);
+  border-top-color: var(--overlay-bg);
 }
 
 /* ===========================================================================

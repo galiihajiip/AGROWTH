@@ -35,9 +35,9 @@ export function DataSourceBadge({ className }: DataSourceBadgeProps) {
           "inline-flex items-center gap-1 rounded-full",
           "border border-amber-500/25 bg-amber-500/10",
           "px-2 py-0.5",
-          "text-[11px] font-medium text-amber-300/90",
+          "text-[11px] font-medium text-amber-600 dark:text-amber-300/90",
           "transition-colors duration-200",
-          "hover:bg-amber-500/15 hover:text-amber-200",
+          "hover:bg-amber-500/15 hover:text-amber-700 dark:hover:text-amber-200",
           "cursor-help",
         )}
         aria-label="Info sumber data"
@@ -52,16 +52,16 @@ export function DataSourceBadge({ className }: DataSourceBadgeProps) {
           className={cn(
             "absolute bottom-full right-0 z-50 mb-2",
             "w-64 rounded-lg px-3 py-2",
-            "bg-[#1a1a2e]/95 backdrop-blur-md",
-            "border border-white/10 shadow-xl",
-            "text-[11px] leading-relaxed text-white/80",
+            "bg-glass-dark backdrop-blur-md",
+            "border border-glass-border shadow-xl",
+            "text-[11px] leading-relaxed text-foreground/80",
             "animate-in fade-in slide-in-from-bottom-1 duration-150",
           )}
         >
           Data cuaca disimulasikan secara deterministik untuk stabilitas
           demo. Pipeline integrasi ke BMKG Open API &amp; NASA POWER API
           sudah disiapkan di{" "}
-          <span className="font-mono text-amber-300/80">
+          <span className="font-mono text-amber-500 dark:text-amber-300/80">
             backend/app/services/
           </span>{" "}
           dan dapat diaktifkan dengan konfigurasi environment.

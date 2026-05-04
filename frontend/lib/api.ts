@@ -2,7 +2,8 @@
  * API client AGROWTH — Axios instance + typed wrapper functions.
  *
  * - `baseURL` dari env `NEXT_PUBLIC_API_URL` (default `http://localhost:8000`).
- * - Timeout 30 detik untuk seluruh request.
+ * - Timeout 60 detik untuk seluruh request, configurable via
+ *   `NEXT_PUBLIC_API_TIMEOUT_MS`.
  * - Header default `Accept: application/json`.
  * - Request interceptor menambah `X-Request-ID` (uuid) untuk tracing.
  * - Response interceptor menerjemahkan AxiosError → `ApiError` (lihat `types`).
@@ -51,7 +52,21 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 /** Timeout default (ms) untuk seluruh request. */
-const DEFAULT_TIMEOUT_MS = 30_000;
+const DEFAULT_TIMEOUT_MS = 60_000;
+
+function getTimeoutMs(): number {
+  const rawTimeout = process.env.NEXT_PUBLIC_API_TIMEOUT_MS;
+  if (!rawTimeout) return DEFAULT_TIMEOUT_MS;
+
+  const parsedTimeout = Number(rawTimeout);
+  if (!Number.isFinite(parsedTimeout) || parsedTimeout <= 0) {
+    return DEFAULT_TIMEOUT_MS;
+  }
+
+  return parsedTimeout;
+}
+
+const REQUEST_TIMEOUT_MS = getTimeoutMs();
 
 /**
  * Singleton Axios instance untuk seluruh app.
@@ -59,7 +74,7 @@ const DEFAULT_TIMEOUT_MS = 30_000;
  */
 export const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  timeout: DEFAULT_TIMEOUT_MS,
+  timeout: REQUEST_TIMEOUT_MS,
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",
@@ -88,7 +103,7 @@ apiClient.interceptors.response.use(
       const isTimeout = error.code === "ECONNABORTED";
       throw new ApiError({
         message: isTimeout
-          ? `Request timeout setelah ${DEFAULT_TIMEOUT_MS / 1000}s`
+          ? `Request timeout setelah ${REQUEST_TIMEOUT_MS / 1000}s`
           : (error.message || "Network error: tidak bisa menghubungi server"),
         status: 0,
         detail: error.message ?? "network error",

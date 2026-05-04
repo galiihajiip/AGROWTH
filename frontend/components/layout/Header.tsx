@@ -13,6 +13,7 @@
  */
 import { Calendar, Github, Sprout } from "lucide-react";
 
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { cn } from "@/lib/utils";
 import { useAgrowthStore } from "@/store/useAgrowthStore";
 
@@ -89,7 +90,7 @@ export function Header({ className }: HeaderProps) {
           )}
         </div>
 
-        {/* ---------- RIGHT: IYREF + GitHub ---------- */}
+        {/* ---------- RIGHT: IYREF + Theme toggle + GitHub ---------- */}
         <div className="flex shrink-0 items-center gap-2">
           <span
             className={cn(
@@ -100,6 +101,7 @@ export function Header({ className }: HeaderProps) {
           >
             IYREF 2026
           </span>
+          <ThemeToggle />
           <a
             href={GITHUB_URL}
             target="_blank"

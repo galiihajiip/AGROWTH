@@ -26,7 +26,10 @@ from datetime import date
 
 from app.core import get_settings
 from app.models import PredictionResponse
-from app.services.weather_mock import predict_weather as predict_weather_mock
+from app.services.weather_mock import (
+    generate_ml_variables,
+    predict_weather as predict_weather_mock,
+)
 
 logger = logging.getLogger(__name__)
 
