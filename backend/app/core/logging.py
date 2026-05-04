@@ -1,7 +1,5 @@
 """Konfigurasi logging dan middleware akses HTTP.
 
-- :func:`configure_logging` mengeset root logger sesuai ``AppSettings.log_level``.
-- :class:`RequestLoggingMiddleware` menyuntikkan ``X-Request-ID`` ke tiap respon
   dan menulis 1 baris log per request (method, path, status, duration_ms).
 """
 from __future__ import annotations

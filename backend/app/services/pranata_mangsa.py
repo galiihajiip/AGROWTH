@@ -9,11 +9,16 @@ deterministik untuk:
 from __future__ import annotations
 
 import json
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 from typing import Dict, List, Union
 
 from app.models import AnomalyType, MangsaInfo
+
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:  # pragma: no cover - Python 3.12 has zoneinfo
+    ZoneInfo = None
 
 # ---------- Module-level cache (loaded once at import) ----------
 
@@ -105,7 +110,10 @@ def get_current_mangsa(d: Union[date, None] = None) -> MangsaInfo:
     Menangani wrap-around mangsa Kapitu (DOY 356..365 → 1..33).
     """
     if d is None:
-        d = date.today()
+        if ZoneInfo is not None:
+            d = datetime.now(ZoneInfo("Asia/Jakarta")).date()
+        else:
+            d = datetime.utcnow().date()
     doy = _normalize_doy(d)
 
     for entry in _RAW_MANGSA:

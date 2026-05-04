@@ -141,17 +141,16 @@ const INITIAL_STATE: Pick<
 
 export const useAgrowthStore = create<AgrowthState>()(
   persist(
-    devtools(
-      (set, get) => ({
-        ...INITIAL_STATE,
+    devtools((set, get) => ({
+      ...INITIAL_STATE,
 
-        // ---------- setCoordinate (entry utama) ----------
-        setCoordinate: async (coord) => {
-          set(
-            { selectedCoordinate: coord, error: null },
-            false,
-            "setCoordinate",
-          );
+      // ---------- setCoordinate (entry utama) ----------
+      setCoordinate: async (coord) => {
+        set(
+          { selectedCoordinate: coord, error: null },
+          false,
+          "setCoordinate",
+        );
         await get().fetchRecommendation({ coordinates: coord });
       },
 
@@ -179,9 +178,6 @@ export const useAgrowthStore = create<AgrowthState>()(
             "fetchRecommendation:success",
           );
 
-          // Toast success singkat — tampilkan region untuk konteks.
-          // ID stabil supaya cache hit / re-fetch cepat tidak menumpuk
-          // toast (sonner replace by id).
           const region =
             data.location.province ??
             data.location.name ??
@@ -198,9 +194,6 @@ export const useAgrowthStore = create<AgrowthState>()(
             "fetchRecommendation:error",
           );
 
-          // Toast error: title singkat + description detail.
-          // ID konsisten supaya retry cepat menggantikan toast lama,
-          // bukan menumpuk.
           toast.error("Gagal memuat rekomendasi", {
             id: "recommendation-error",
             description: apiErr.friendlyMessage,
@@ -219,14 +212,8 @@ export const useAgrowthStore = create<AgrowthState>()(
           );
         } catch (err) {
           const apiErr = toApiError(err);
-          set(
-            { error: apiErr },
-            false,
-            "fetchCurrentMangsa:error",
-          );
+          set({ error: apiErr }, false, "fetchCurrentMangsa:error");
 
-          // Mangsa fetch fail tidak memutus alur user (bukan blocking),
-          // jadi toast lebih ringan + auto-dismiss biasa.
           toast.error("Gagal memuat mangsa aktif", {
             id: "mangsa-error",
             description: apiErr.friendlyMessage,
@@ -247,23 +234,16 @@ export const useAgrowthStore = create<AgrowthState>()(
 
       // ---------- reset ----------
       reset: () => set(INITIAL_STATE, false, "reset"),
-    }),
+    })),
     {
-      name: "AgrowthStore",
-      enabled: process.env.NODE_ENV !== "production",
-    },
-    ),
-    {
-      name: "agrowth-store-persistent", // localStorage key
+      name: "agrowth-store-persistent",
       partialize: (state) => ({
-        // Persist hanya selectedCoordinate & recommendationData
-        // Loading flags & error state tidak di-persist (state volatile)
         selectedCoordinate: state.selectedCoordinate,
         recommendationData: state.recommendationData,
         currentMangsa: state.currentMangsa,
         showVulnerabilityLayer: state.showVulnerabilityLayer,
       }),
-      version: 1, // untuk future migration jika schema berubah
+      version: 1,
     },
   ),
 );

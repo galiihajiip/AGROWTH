@@ -24,6 +24,7 @@ import Map, {
   type MapLayerMouseEvent,
 } from "react-map-gl";
 
+import { EmptyState } from "@/components/dashboard/EmptyState";
 import { MapLegend } from "@/components/map/MapLegend";
 import { MapMarker } from "@/components/map/MapMarker";
 import { VulnerabilityLayer } from "@/components/map/VulnerabilityLayer";
@@ -78,6 +79,7 @@ export function MapView() {
 
   return (
     <div className="relative h-full w-full overflow-hidden rounded-2xl border border-glass-border">
+      {!selectedCoordinate ? <EmptyState /> : null}
       <Map
         mapboxAccessToken={token}
         mapStyle={mapStyle}

@@ -5,7 +5,7 @@
  * Menangkap error (mis. Mapbox token tidak tersedia) dan menampilkan
  * friendly fallback UI bukan white screen crash.
  */
-import { AlertCircle, MapOff } from "lucide-react";
+import { MapPinOff } from "lucide-react";
 import React, { PropsWithChildren } from "react";
 
 interface MapErrorBoundaryProps extends PropsWithChildren {}
@@ -42,7 +42,7 @@ export class MapErrorBoundary extends React.Component<
         <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-2xl border border-glass-border bg-glass-dark p-6">
           <div className="flex flex-col items-center gap-4 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-warning-500/15 ring-1 ring-warning-500/35">
-              <MapOff className="h-8 w-8 text-warning-400" strokeWidth={2} />
+              <MapPinOff className="h-8 w-8 text-warning-400" strokeWidth={2} />
             </div>
 
             <div className="space-y-2">
