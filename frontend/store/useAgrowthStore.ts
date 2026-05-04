@@ -257,9 +257,9 @@ export const useAgrowthStore = create<AgrowthState>()(
 
 /**
  * Subset selector untuk konsumen yang hanya butuh ``PredictionResponse``-
- * shape (cuaca + forecast + risk + anomaly + location). Diturunkan dari
- * ``recommendationData`` sehingga 1 fetch dipakai bersama; ``null`` saat
- * belum ada koordinat dipilih.
+ * shape (cuaca + forecast + risk + anomaly + location + ml_variables).
+ * Diturunkan dari ``recommendationData`` sehingga 1 fetch dipakai bersama;
+ * ``null`` saat belum ada koordinat dipilih.
  */
 export const useWeatherData = (): PredictionResponse | null =>
   useAgrowthStore(
@@ -272,6 +272,8 @@ export const useWeatherData = (): PredictionResponse | null =>
         forecast: r.forecast,
         risk_level: r.risk_level,
         anomaly: r.anomaly,
+        // ml_variables diteruskan ke MLPredictivePanel untuk feature panel
+        ml_variables: r.ml_variables ?? null,
       };
     }),
   );

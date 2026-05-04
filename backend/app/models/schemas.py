@@ -100,6 +100,45 @@ class ForecastPoint(BaseModel):
 
 # ---------- Prediction ----------
 
+class MLVariables(BaseModel):
+    """Variabel ML yang diproses oleh pipeline prediksi risiko AGROWTH.
+
+    Setiap field merepresentasikan satu fitur yang digunakan oleh ensemble
+    Random Forest + LSTM untuk menghasilkan skor risiko akhir.
+    """
+
+    ghg_emission: Optional[float] = Field(
+        default=None,
+        description="Emisi GHG regional (ton CO₂eq/ha). Sumber: BPS Regional Emission Data.",
+    )
+    solar_radiation: Optional[float] = Field(
+        default=None,
+        description="Indeks radiasi matahari (MJ/m²). Sumber: NASA POWER API.",
+    )
+    historical_deviation: Optional[float] = Field(
+        default=None,
+        description=(
+            "Deviasi dari baseline cuaca 10 tahun terakhir (σ, sigma). "
+            "Sumber: BMKG 10-year climatological baseline."
+        ),
+    )
+    drought_probability: Optional[float] = Field(
+        default=None,
+        description=(
+            "Probabilitas kekeringan 30 hari ke depan (%). "
+            "Output: Ensemble Random Forest + LSTM."
+        ),
+    )
+    model_confidence: Optional[float] = Field(
+        default=None,
+        description="Kepercayaan model prediksi risiko (0..1). Rerata confidence ensemble.",
+    )
+    model_version: Optional[str] = Field(
+        default=None,
+        description="Versi pipeline ML yang digunakan (mis. 'AGROWTH-ML-v1.2.0').",
+    )
+
+
 class PredictionResponse(BaseModel):
     """Hasil prediksi cuaca + risiko + anomali untuk sebuah lokasi."""
 
@@ -116,6 +155,14 @@ class PredictionResponse(BaseModel):
         description=(
             "Metadata sumber data: mode (mock/live), daftar sumber aktif. "
             "Digunakan frontend untuk badge transparansi data."
+        ),
+    )
+    ml_variables: Optional[MLVariables] = Field(
+        default=None,
+        description=(
+            "Variabel ML yang diproses pipeline prediksi. "
+            "Tersedia saat backend mengisi field ini (mock atau live). "
+            "Digunakan frontend untuk panel 'ML Predictive Variables'."
         ),
     )
 
@@ -228,4 +275,12 @@ class RecommendationResponse(BaseModel):
     ml_risk_probs: Optional[Dict[str, float]] = Field(
         default=None,
         description="Probabilitas per kelas risk dari ML ensemble.",
+    )
+    ml_variables: Optional[MLVariables] = Field(
+        default=None,
+        description=(
+            "Variabel ML yang diproses pipeline prediksi. "
+            "Selaras dengan PredictionResponse.ml_variables — backend "
+            "mengisi keduanya secara bersamaan."
+        ),
     )

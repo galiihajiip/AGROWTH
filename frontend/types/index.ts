@@ -115,6 +115,53 @@ export interface ForecastPoint {
 }
 
 // ============================================================================
+// ML Variables (diproses via Multi-ML Pipeline)
+// ============================================================================
+
+/** Arah tren nilai variabel ML dibandingkan baseline. */
+export type MLVariableTrend = "up" | "down" | "stable";
+
+/**
+ * Satu variabel ML yang digunakan oleh pipeline prediksi risiko.
+ * Setiap variabel berkontribusi sebagian (``modelContribution``) ke
+ * skor risiko akhir yang dihasilkan ensemble RF + LSTM.
+ */
+export interface MLVariable {
+  /** Identifier unik variabel. */
+  id: string;
+  /** Label singkat yang ditampilkan di UI. */
+  label: string;
+  /** Nilai numerik saat ini. */
+  value: number;
+  /** Satuan pengukuran (mis. "ton CO₂eq/ha", "MJ/m²", "σ", "%"). */
+  unit: string;
+  /** Sumber data asal variabel ini. */
+  source: string;
+  /**
+   * Bobot kontribusi fitur ini ke model prediksi risiko (0..1).
+   * Contoh: 0.28 = 28% pengaruh ke risk score final.
+   */
+  modelContribution: number;
+  /** Tren relatif terhadap baseline historis. */
+  trend: MLVariableTrend;
+  /** Deskripsi singkat variabel untuk tooltip/info. */
+  description: string;
+}
+
+/**
+ * Variabel ML raw dari backend (field ``ml_variables`` di PredictionResponse).
+ * Semua field optional karena mode mock/live mungkin tidak selalu mengisinya.
+ */
+export interface MLVariablesRaw {
+  ghg_emission?: number | null;
+  solar_radiation?: number | null;
+  historical_deviation?: number | null;
+  drought_probability?: number | null;
+  model_confidence?: number | null;
+  model_version?: string | null;
+}
+
+// ============================================================================
 // Prediction
 // ============================================================================
 
@@ -134,6 +181,11 @@ export interface PredictionResponse {
     mode: string;
     sources: string[];
   } | null;
+  /**
+   * Variabel ML yang diproses oleh pipeline prediksi.
+   * Tersedia saat backend mengisi field ini (mock atau live).
+   */
+  ml_variables?: MLVariablesRaw | null;
 }
 
 // ============================================================================
@@ -222,6 +274,12 @@ export interface RecommendationResponse {
   ml_anomaly_probs?: Record<string, number> | null;
   /** Probabilitas per kelas risk dari ML ensemble. */
   ml_risk_probs?: Record<string, number> | null;
+  /**
+   * Variabel ML yang diproses pipeline prediksi.
+   * Selaras dengan ``PredictionResponse.ml_variables`` — backend mengisi
+   * keduanya secara bersamaan sehingga nilai selalu konsisten.
+   */
+  ml_variables?: MLVariablesRaw | null;
 }
 
 // ============================================================================

@@ -41,10 +41,10 @@ import type { ComponentType } from "react";
 
 import { ForecastChartCard } from "@/components/dashboard/ForecastChartCard";
 import { LocationInfoCard } from "@/components/dashboard/LocationInfoCard";
+import { MLPredictivePanel } from "@/components/dashboard/MLPredictivePanel";
 import { PranataMangsaCard } from "@/components/dashboard/PranataMangsaCard";
 import { RecommendationCard } from "@/components/dashboard/RecommendationCard";
 import { RiskGaugeCard } from "@/components/dashboard/RiskGaugeCard";
-import { WeatherMetricsCard } from "@/components/dashboard/WeatherMetricsCard";
 import { cn } from "@/lib/utils";
 import { useAgrowthStore } from "@/store/useAgrowthStore";
 
@@ -100,11 +100,11 @@ const SLOTS: readonly CardSlot[] = [
     gridClassLg: "lg:col-start-8 lg:col-span-5 lg:row-start-1 lg:row-span-1",
     label: "Informasi lokasi",
   },
-  // 3. WeatherMetricsCard — 4 metrik cuaca.
+  // 3. MLPredictivePanel — 4 metrik cuaca + 4 ML variables + pipeline ticker.
   {
-    Component: WeatherMetricsCard,
+    Component: MLPredictivePanel,
     gridClassLg: "lg:col-start-8 lg:col-span-5 lg:row-start-2 lg:row-span-2",
-    label: "Metrik cuaca",
+    label: "ML Predictive Variables",
   },
   // 4. RecommendationCard — hero AI narrative.
   {

@@ -17,6 +17,7 @@ from app.models import (
     AnomalyType,
     ForecastPoint,
     LocationInfo,
+    MLVariables,
     PredictionResponse,
     RiskLevel,
     WeatherCurrent,
@@ -247,6 +248,57 @@ def classify_risk(
     return risk, dominant
 
 
+# ---------- ML Variables mock ----------
+
+def generate_ml_variables(
+    lat: float, lon: float, ref_date: date, anomaly_score: float = 0.0,
+    forecast: "List[ForecastPoint] | None" = None,
+) -> MLVariables:
+    """Hasilkan MLVariables mock deterministik berbasis seed (lat, lon, date).
+
+    Nilai konsisten per koordinat sehingga perubahan lokasi selalu menghasilkan
+    output yang berbeda tetapi reproducible (cocok untuk demo & pengujian UI).
+    """
+    seed = _seed_for(lat, lon, ref_date)
+    rng = np.random.default_rng(seed)
+    doy = _normalize_doy(ref_date)
+
+    # GHG Emission: base 2.1 ± 0.5 ton CO₂eq/ha
+    ghg_emission = float(np.clip(rng.normal(2.1, 0.25), 1.0, 4.5))
+
+    # Solar Radiation: sinusoidal seasonal 15..22 MJ/m² (puncak kemarau ~Juli DOY 200)
+    solar_base = 18.5 + 3.5 * math.cos(2 * math.pi * (doy - 200) / 365.0)
+    solar_radiation = float(np.clip(rng.normal(solar_base, 0.8), 10.0, 25.0))
+
+    # Historical Anomaly Deviation: -2.0..+3.0 sigma, dipengaruhi anomaly_score
+    deviation_base = anomaly_score * 3.0 - 1.0  # mapping 0..1 → -1..+2
+    historical_deviation = float(np.clip(rng.normal(deviation_base, 0.6), -2.5, 3.5))
+
+    # Drought Probability: derived dari forecast curah hujan rata-rata
+    if forecast:
+        avg_rain = sum(fp.rainfall_mm for fp in forecast) / max(len(forecast), 1)
+    else:
+        avg_rain = 10.0  # fallback: moderat
+    if avg_rain < 5.0:
+        drought_base = float(np.clip(rng.normal(75.0, 8.0), 60.0, 95.0))
+    elif avg_rain < 15.0:
+        drought_base = float(np.clip(rng.normal(50.0, 10.0), 30.0, 70.0))
+    else:
+        drought_base = float(np.clip(rng.normal(20.0, 8.0), 5.0, 45.0))
+
+    # Model confidence: 0.88..0.97 (narrow range untuk kredibilitas demo)
+    model_confidence = float(np.clip(rng.normal(0.925, 0.025), 0.88, 0.97))
+
+    return MLVariables(
+        ghg_emission=round(ghg_emission, 2),
+        solar_radiation=round(solar_radiation, 1),
+        historical_deviation=round(historical_deviation, 2),
+        drought_probability=round(drought_base, 1),
+        model_confidence=round(model_confidence, 4),
+        model_version="AGROWTH-ML-v1.2.0",
+    )
+
+
 # ---------- Orchestrator + cache ----------
 
 @lru_cache(maxsize=128)
@@ -266,6 +318,11 @@ def _predict_weather_cached(
         lat_r, lon_r, ref_date + timedelta(days=1), days=days,
     )
     risk, anomaly = classify_risk(scores, types)
+
+    # Rata-rata anomaly score untuk ML variables
+    avg_score = sum(scores) / max(len(scores), 1) if scores else 0.0
+    ml_vars = generate_ml_variables(lat_r, lon_r, ref_date, anomaly_score=avg_score, forecast=forecast)
+
     return PredictionResponse(
         location=location,
         current=current,
@@ -277,8 +334,13 @@ def _predict_weather_cached(
             "sources": [
                 "Simulasi deterministik",
                 "Koordinat real Pulau Jawa",
+                "BPS Regional Emission Data (mock)",
+                "NASA POWER API (mock)",
+                "BMKG 10yr baseline (mock)",
+                "Ensemble RF+LSTM (mock)",
             ],
         },
+        ml_variables=ml_vars,
     )
 
 

@@ -146,4 +146,6 @@ async def recommend(
         data_sources=_get_data_sources(),
         ml_anomaly_probs=ml_a_probs,
         ml_risk_probs=ml_r_probs,
+        # Variabel ML dari pipeline prediksi — sudah diisi oleh predict_weather
+        ml_variables=pred.ml_variables,
     )
