@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ── Primary Meta ──────────────────────────────────────── -->
+  <title>AGROWTH — Sistem Intelijen Iklim Adaptif Berbasis Pranata Mangsa</title>
+  <meta name="description" content="AGROWTH adalah platform kecerdasan iklim adaptif yang menggabungkan kearifan lokal Pranata Mangsa dengan machine learning untuk membantu petani Jawa membuat keputusan pertanian yang lebih cerdas." />
+  <meta name="author" content="Tim AGROWTH" />
+  <meta name="keywords" content="pranata mangsa, pertanian cerdas, kecerdasan iklim, agritech, petani jawa, machine learning, iklim adaptif" />
+
+  <!-- ── Open Graph ─────────────────────────────────────────── -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:title"       content="AGROWTH — Sistem Intelijen Iklim Adaptif Berbasis Pranata Mangsa" />
+  <meta property="og:description" content="Platform kecerdasan iklim adaptif yang menggabungkan kearifan lokal Pranata Mangsa dengan machine learning untuk petani Jawa." />
+  <meta property="og:image"       content="./assets/og-image.png" />
+  <meta property="og:url"         content="https://agrowth.id" />
+  <meta property="og:locale"      content="id_ID" />
+  <meta property="og:site_name"   content="AGROWTH" />
+
+  <!-- ── Twitter Card ──────────────────────────────────────── -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="AGROWTH — Sistem Intelijen Iklim Adaptif" />
+  <meta name="twitter:description" content="Platform kecerdasan iklim adaptif berbasis Pranata Mangsa untuk petani Jawa." />
+  <meta name="twitter:image"       content="./assets/og-image.png" />
+
+  <!-- ── Favicon (inline SVG) ──────────────────────────────── -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23052e16'/><text y='24' x='4' font-size='22'>🌾</text></svg>" />
+
+  <!-- ── Google Fonts ──────────────────────────────────────── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;1,700&family=JetBrains+Mono:wght@400&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- ── Stylesheets ───────────────────────────────────────── -->
+  <link rel="stylesheet" href="./styles/main.css" />
+  <link rel="stylesheet" href="./styles/animations.css" />
+  <link rel="stylesheet" href="./styles/components.css" />
+</head>
+
+<body>
+
+  <!-- Grain / noise overlay -->
+  <div class="grain-overlay" aria-hidden="true"></div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       NAV
+  ══════════════════════════════════════════════════════════ -->
+  <header class="nav" id="main-nav" role="banner">
+    <div class="nav-inner">
+
+      <!-- Logo -->
+      <a href="#hero" class="nav-logo" aria-label="AGROWTH home">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-rice-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 22V12"/>
+          <path d="M12 12C12 12 7 10 5 5c4 0 7 3 7 7z"/>
+          <path d="M12 12C12 12 17 10 19 5c-4 0-7 3-7 7z"/>
+          <path d="M12 12C12 12 10 16 6 17c0-4 3-6 6-5z"/>
+        </svg>
+        <span>AGROWTH</span>
+        <span class="nav-logo-dot animate-pulse-glow" aria-hidden="true"></span>
+      </a>
+
+      <!-- Center links (desktop) -->
+      <nav class="nav-links" id="nav-links" aria-label="Navigasi utama">
+        <a href="#features"     class="nav-link" data-section="features">Fitur</a>
+        <a href="#how-it-works" class="nav-link" data-section="how-it-works">Cara Kerja</a>
+        <a href="#demo"         class="nav-link" data-section="demo">Demo</a>
+        <a href="#impact"       class="nav-link" data-section="impact">Dampak</a>
+      </nav>
+
+      <!-- Right side -->
+      <div class="nav-right">
+        <span class="badge nav-badge" style="border-color:var(--color-rice-800);font-size:11px;">IYREF 2026</span>
+        <a href="#demo" class="btn-primary nav-cta">Lihat Demo</a>
+        <button class="menu-toggle" id="menu-toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Buka menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Mobile dropdown -->
+    <div class="nav-mobile" id="nav-mobile" aria-hidden="true">
+      <a href="#features"     class="nav-mobile-link" data-section="features">Fitur</a>
+      <a href="#how-it-works" class="nav-mobile-link" data-section="how-it-works">Cara Kerja</a>
+      <a href="#demo"         class="nav-mobile-link" data-section="demo">Demo</a>
+      <a href="#impact"       class="nav-mobile-link" data-section="impact">Dampak</a>
+      <a href="#demo"         class="btn-primary" style="width:100%;justify-content:center;margin-top:8px;">Lihat Demo</a>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ══════════════════════════════════════════════════════
+         #hero
+    ══════════════════════════════════════════════════════ -->
+    <section id="hero" class="hero">
+
+      <!-- Background Layers -->
+      <div class="hero-bg" aria-hidden="true">
+        <div class="hero-bg-gradient"></div>
+        <div class="hero-bg-grid"></div>
+        <div class="hero-bg-orb hero-bg-orb--left"></div>
+        <div class="hero-bg-orb hero-bg-orb--right"></div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="hero-content">
+
+        <!-- LEFT COLUMN -->
+        <div class="hero-left">
+
+          <!-- a. Eyebrow badge -->
+          <div class="hero-eyebrow animate-fade-in-up" style="animation-delay:0ms">
+            <span class="badge badge-green">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Hackathon IYREF 2026 · Subtema Climate Resilience &amp; Local Wisdom
+            </span>
+          </div>
+
+          <!-- b. Main heading -->
+          <h1 class="heading-xl hero-heading animate-fade-in-up" style="animation-delay:100ms">
+            Sistem Intelijen Iklim<br>
+            <span class="text-gradient">Adaptif</span> untuk<br>
+            Petani <em class="hero-heading-em">Nusantara</em>
+          </h1>
+
+          <!-- c. Subheading -->
+          <p class="hero-sub animate-fade-in-up" style="animation-delay:200ms">
+            AGROWTH menggabungkan Multi-Machine Learning modern dengan kearifan lokal Pranata Mangsa Jawa untuk memberikan navigasi tanam yang presisi dan adaptif terhadap perubahan iklim.
+          </p>
+
+          <!-- d. Tech stack pills -->
+          <div class="hero-pills animate-fade-in-up" style="animation-delay:300ms">
+            <span class="hero-pill">FastAPI</span>
+            <span class="hero-pill">Next.js</span>
+            <span class="hero-pill">Gemini AI</span>
+            <span class="hero-pill">Mapbox</span>
+            <span class="hero-pill">Scikit-Learn</span>
+            <span class="hero-pill hero-pill--soil">Pranata Mangsa™</span>
+          </div>
+
+          <!-- e. CTA buttons -->
+          <div class="hero-cta animate-fade-in-up" style="animation-delay:400ms">
+            <a href="#demo" class="btn-primary hero-btn-lg">Lihat Demo Langsung →</a>
+            <a href="#" class="btn-secondary hero-btn-lg">Baca Proposal ↗</a>
+            <p class="hero-cta-note">Open source · MIT License · IYREF 2026</p>
+          </div>
+
+          <!-- f. Social proof strip -->
+          <div class="hero-stats animate-fade-in-up" style="animation-delay:500ms">
+            <div class="hero-stats-divider"></div>
+            <div class="hero-stats-row">
+              <span class="hero-stat">🌾 12 Pranata Mangsa</span>
+              <span class="hero-stat-sep">|</span>
+              <span class="hero-stat">🤖 Multi-ML Pipeline</span>
+              <span class="hero-stat-sep">|</span>
+              <span class="hero-stat">🗺 Seluruh Pulau Jawa</span>
+            </div>
+          </div>
+
+        </div><!-- /hero-left -->
+
+        <!-- RIGHT COLUMN — Dashboard Mockup -->
+        <div class="hero-right animate-fade-in-left" style="animation-delay:300ms">
+          <div class="mockup animate-float">
+
+            <!-- Top bar -->
+            <div class="mockup-topbar">
+              <div class="mockup-dots" aria-hidden="true">
+                <span class="mockup-dot mockup-dot--red"></span>
+                <span class="mockup-dot mockup-dot--yellow"></span>
+                <span class="mockup-dot mockup-dot--green"></span>
+              </div>
+              <span class="mockup-title">AGROWTH Dashboard</span>
+              <span class="mockup-live">● LIVE</span>
+            </div>
+
+            <!-- 2x2 Card Grid -->
+            <div class="mockup-grid">
+
+              <!-- Card 1: Risk Level -->
+              <div class="mockup-card" id="mc-1">
+                <p class="mockup-card-label">TINGKAT RISIKO</p>
+                <p class="mockup-card-value mockup-card-value--red">HIGH</p>
+                <p class="mockup-card-sub">anomaly score 0.74</p>
+              </div>
+
+              <!-- Card 2: Mangsa -->
+              <div class="mockup-card" id="mc-2">
+                <p class="mockup-card-label">MANGSA AKTIF</p>
+                <p class="mockup-card-value mockup-card-value--serif">Kanem</p>
+                <p class="mockup-card-sub">9 Nov – 21 Des</p>
+              </div>
+
+              <!-- Card 3: Rainfall -->
+              <div class="mockup-card" id="mc-3">
+                <p class="mockup-card-label">CURAH HUJAN</p>
+                <svg class="mockup-sparkline" viewBox="0 0 80 32" fill="none" aria-hidden="true">
+                  <polyline points="0,28 10,22 20,25 30,14 40,18 50,8 60,12 70,5 80,9" stroke="var(--color-rice-500)" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
+                  <polyline points="0,28 10,22 20,25 30,14 40,18 50,8 60,12 70,5 80,9 80,32 0,32" fill="rgba(34,197,94,0.08)"/>
+                </svg>
+                <p class="mockup-card-value" style="font-size:18px;">68 <span style="font-size:11px;font-weight:400;color:var(--text-muted)">mm</span></p>
+              </div>
+
+              <!-- Card 4: AI Recommendation -->
+              <div class="mockup-card" id="mc-4">
+                <p class="mockup-card-label">REKOMENDASI AI</p>
+                <p class="mockup-card-rec">Tunda persemaian padi, alihkan ke…</p>
+                <p class="mockup-card-rec mockup-card-rec--dim">tanaman sela jagung hingga Mangsa…</p>
+              </div>
+
+            </div><!-- /mockup-grid -->
+
+            <!-- Bottom bar -->
+            <div class="mockup-bottombar">
+              Powered by Gemini AI · Pranata Mangsa Engine · Multi-ML
+            </div>
+
+          </div><!-- /mockup -->
+        </div><!-- /hero-right -->
+
+      </div><!-- /hero-content -->
+
+      <!-- Scroll indicator -->
+      <div class="hero-scroll-indicator" id="scroll-indicator" aria-hidden="true">
+        <div class="hero-scroll-arrow"></div>
+        <p class="hero-scroll-text">Scroll untuk explore</p>
+      </div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         #problem
+    ══════════════════════════════════════════════════════ -->
+    <section id="problem" class="problem-section">
+      <div class="section-container">
+
+        <!-- a. Section opener -->
+        <div class="section-opener" data-animate>
+          <p class="section-label">// Masalah yang Mendesak</p>
+          <h2 class="heading-lg">Petani Jawa di Tengah<br><span class="text-gradient">Krisis Iklim</span></h2>
+          <p class="section-sub">Anomali cuaca global merusak akurasi Pranata Mangsa yang telah menjadi panduan bertani selama berabad-abad.</p>
+        </div>
+
+        <!-- b. Stats row -->
+        <div class="stats-row">
+
+          <div class="card-glass stat-card" data-animate style="animation-delay:100ms">
+            <p class="stat-number text-gradient" data-stat="3x">3×</p>
+            <p class="stat-label">Kenaikan frekuensi kekeringan padi sawah Pulau Jawa dalam 4 tahun terakhir</p>
+            <span class="badge stat-source">Dewanti et al., 2024</span>
+          </div>
+
+          <div class="card-glass stat-card" data-animate style="animation-delay:200ms">
+            <p class="stat-number stat-number--amber" data-stat="402ha">402 ha</p>
+            <p class="stat-label">Sawah terendam banjir di Bojonegoro — rekor tertinggi akibat anomali El Niño</p>
+            <span class="badge stat-source">Dewanti et al., 2024</span>
+          </div>
+
+          <div class="card-glass stat-card" data-animate style="animation-delay:300ms">
+            <p class="stat-number stat-number--red" data-stat="396ha">396 ha</p>
+            <p class="stat-label">Lahan gagal panen di Lamongan akibat anomali cuaca ekstrem</p>
+            <span class="badge stat-source">Dewanti et al., 2024</span>
+          </div>
+
+        </div><!-- /stats-row -->
+
+        <!-- c. Problem narrative + Gap diagram -->
+        <div class="problem-narrative">
+
+          <!-- Left: text + quote -->
+          <div class="narrative-left" data-animate>
+            <h3 class="heading-md">Pranata Mangsa Kehilangan Akurasi</h3>
+            <p class="narrative-body">
+              Pranata Mangsa adalah sistem kalender pertanian Jawa berbasis fenologi alam yang telah digunakan selama lebih dari 1.000 tahun. Namun penelitian terbaru UGM (2025) membuktikan bahwa intensitas dan distribusi curah hujan mengalami pergeseran signifikan — sehingga patokan musim tradisional tidak lagi bisa diandalkan secara tunggal oleh petani modern.
+            </p>
+            <blockquote class="problem-quote">
+              "Pergeseran pola curah hujan ekstrem akibat perubahan iklim global menyebabkan mismatch antara penanda fenologis Pranata Mangsa dengan kondisi aktual lapangan, menuntut rekalibrasi berbasis data empiris."
+              <cite>— Penelitian Pranata Mangsa &amp; Perubahan Iklim, UGM 2025</cite>
+            </blockquote>
+          </div>
+
+          <!-- Right: Gap diagram -->
+          <div class="gap-diagram" data-animate style="animation-delay:150ms">
+            <p class="gap-diagram-title">Kesenjangan Akurasi Pranata Mangsa</p>
+
+            <div class="gap-bar-group">
+              <p class="gap-bar-label">Ekspektasi Tradisional (pra-2000)</p>
+              <div class="gap-track">
+                <div class="gap-bar gap-bar--full" data-width="100">
+                  <span class="gap-bar-value">100% Akurasi</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="gap-bar-group">
+              <p class="gap-bar-label">Akurasi Saat Ini (2024)</p>
+              <div class="gap-track">
+                <div class="gap-bar gap-bar--current" data-width="45">
+                  <span class="gap-bar-value">~45% Akurasi</span>
+                </div>
+                <div class="gap-bar gap-bar--gap" data-width="55">
+                  <span class="gap-bar-gap-label">GAP: Dibutuhkan Rekalibrasi</span>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /gap-diagram -->
+        </div><!-- /problem-narrative -->
+
+        <!-- d. Target user pain points -->
+        <div class="pain-points">
+          <div class="pain-point" data-animate style="animation-delay:0ms">
+            <div class="pain-icon" aria-hidden="true">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-rice-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <h4 class="pain-title">Petani Kecil</h4>
+            <p class="pain-body">Kehilangan sumber pendapatan utama saat gagal panen akibat salah membaca tanda musim.</p>
+          </div>
+
+          <div class="pain-point" data-animate style="animation-delay:100ms">
+            <div class="pain-icon" aria-hidden="true">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-amber-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                <path d="M8 21h8M12 17v4"/>
+              </svg>
+            </div>
+            <h4 class="pain-title">Penyuluh Pertanian (PPL)</h4>
+            <p class="pain-body">Tidak memiliki tools decision support berbasis data untuk memberikan rekomendasi yang akurat kepada petani binaan.</p>
+          </div>
+
+          <div class="pain-point" data-animate style="animation-delay:200ms">
+            <div class="pain-icon" aria-hidden="true">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-rice-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <h4 class="pain-title">Pemda &amp; Dinas Pertanian</h4>
+            <p class="pain-body">Kesulitan mengalokasikan bantuan mitigasi bencana pertanian yang tepat sasaran dan berbasis proyeksi risiko wilayah.</p>
+          </div>
+        </div><!-- /pain-points -->
+
+      </div><!-- /section-container -->
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         #solution
+    ══════════════════════════════════════════════════════ -->
+    <section id="solution" class="solution-section">
+      <div class="section-container">
+
+        <!-- a. Section opener -->
+        <div class="section-opener" data-animate>
+          <p class="section-label">// Solusi Kami</p>
+          <h2 class="heading-lg">Memperkenalkan<br><span class="text-gradient">AGROWTH</span></h2>
+          <p class="solution-acronym">Applied Generative Reasoning for Optimal Weather &amp; Traditional Harvest</p>
+        </div>
+
+        <!-- b. 3 Pillar cards -->
+        <div class="pillars-row">
+
+          <!-- Pilar 1 -->
+          <div class="card-glass pillar-card" data-animate style="animation-delay:100ms">
+            <div class="pillar-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-rice-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="2" y="2" width="8" height="8" rx="2"/>
+                <rect x="14" y="2" width="8" height="8" rx="2"/>
+                <rect x="2" y="14" width="8" height="8" rx="2"/>
+                <rect x="14" y="14" width="8" height="8" rx="2"/>
+              </svg>
+            </div>
+            <h3 class="pillar-title">Multi-ML Engine</h3>
+            <p class="pillar-body">Random Forest + LSTM ensemble menganalisis data BMKG, NASA POWER, dan emisi GHG regional untuk proyeksi anomali cuaca presisi tinggi.</p>
+            <p class="pillar-tag">scikit-learn · numpy · fastapi</p>
+          </div>
+
+          <!-- Pilar 2 -->
+          <div class="card-glass pillar-card" data-animate style="animation-delay:200ms">
+            <div class="pillar-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-amber-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                <line x1="9" y1="7" x2="15" y2="7"/>
+                <line x1="9" y1="11" x2="15" y2="11"/>
+              </svg>
+            </div>
+            <h3 class="pillar-title">Pranata Mangsa Engine</h3>
+            <p class="pillar-body">Sistem pengetahuan 12 mangsa tradisional Jawa didigitalisasi dan direkalibrasi secara real-time menggunakan data empiris iklim mutakhir.</p>
+            <p class="pillar-tag pillar-tag--amber">12 Mangsa · Knowledge Base · Rekalibrasi Adaptif</p>
+          </div>
+
+          <!-- Pilar 3 -->
+          <div class="card-glass pillar-card" data-animate style="animation-delay:300ms">
+            <div class="pillar-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-rice-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                <path d="M8 10h8M8 14h4"/>
+              </svg>
+            </div>
+            <h3 class="pillar-title">LLM Cultural Translator</h3>
+            <p class="pillar-body">Gemini AI mengubah data numerik kompleks menjadi narasi rekomendasi dalam bahasa lokal Jawa, dengan sapaan krama alus yang akrab di telinga petani.</p>
+            <p class="pillar-tag">Gemini 1.5 Flash · Bahasa Jawa · Krama Alus</p>
+          </div>
+
+        </div><!-- /pillars-row -->
+
+        <!-- c. Comparison table -->
+        <div class="comparison-wrapper" data-animate style="animation-delay:100ms">
+          <p class="comparison-heading">Apa yang Membuat AGROWTH Berbeda?</p>
+          <div class="comparison-scroll">
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th class="col-feature">Fitur</th>
+                  <th class="col-others">Aplikasi Cuaca Biasa</th>
+                  <th class="col-agrowth">AGROWTH</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Sumber Data</td>
+                  <td>Satu sumber (BMKG)</td>
+                  <td class="td-agrowth">Multi-source (BMKG + NASA + GHG)</td>
+                </tr>
+                <tr>
+                  <td>Model Prediksi</td>
+                  <td>Deterministik</td>
+                  <td class="td-agrowth">ML Ensemble (RF + LSTM)</td>
+                </tr>
+                <tr>
+                  <td>Kearifan Lokal</td>
+                  <td><span class="cmp-no">✗</span></td>
+                  <td class="td-agrowth"><span class="cmp-yes">✓</span> Pranata Mangsa 12 mangsa</td>
+                </tr>
+                <tr>
+                  <td>Bahasa Output</td>
+                  <td>Teknis</td>
+                  <td class="td-agrowth">Bahasa Jawa Krama Alus</td>
+                </tr>
+                <tr>
+                  <td>Target Pengguna</td>
+                  <td>Umum</td>
+                  <td class="td-agrowth">Petani + PPL + Pemda</td>
+                </tr>
+                <tr>
+                  <td>Rekalibrasi Adaptif</td>
+                  <td><span class="cmp-no">✗</span></td>
+                  <td class="td-agrowth"><span class="cmp-yes">✓</span> Real-time</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div><!-- /comparison-wrapper -->
+
+      </div><!-- /section-container -->
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         #features
+    ══════════════════════════════════════════════════════ -->
+    <section id="features" class="features-section">
+      <div class="section-container">
+
+        <!-- opener -->
+        <div class="section-opener" data-animate>
+          <p class="section-label">// Fitur Unggulan</p>
+          <h2 class="heading-lg">Dirancang untuk<br>Petani <span class="text-gradient">Modern</span></h2>
+        </div>
+
+        <!-- bento grid -->
+        <div class="bento-grid">
+
+          <!-- CARD BESAR: Peta Kerentanan (col-span-2, row-span-2) -->
+          <div class="card-glass bento-card bento-card--hero" data-animate style="animation-delay:50ms">
+            <div class="bento-card-header">
+              <div>
+                <p class="bento-tag">Mapbox GL · React-Map-GL</p>
+                <h3 class="bento-title">Peta Kerentanan Wilayah Real-time</h3>
+                <p class="bento-body">Klik lokasi mana saja di Pulau Jawa untuk analisis instan. Overlay kerentanan banjir dan kekeringan divisualisasikan langsung di peta Mapbox interaktif.</p>
+              </div>
+              <div class="bento-icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-rice-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              </div>
+            </div>
+            <!-- mini map mockup -->
+            <div class="mini-map" aria-hidden="true">
+              <div class="mini-map-grid"></div>
+              <div class="mini-map-dot" style="top:35%;left:28%;width:14px;height:14px;background:rgba(239,68,68,0.8);"></div>
+              <div class="mini-map-dot" style="top:55%;left:52%;width:10px;height:10px;background:rgba(251,146,60,0.8);"></div>
+              <div class="mini-map-dot" style="top:45%;left:70%;width:18px;height:18px;background:rgba(239,68,68,0.6);"></div>
+              <div class="mini-map-dot" style="top:65%;left:40%;width:8px;height:8px;background:rgba(251,191,36,0.9);"></div>
+              <div class="mini-map-label">Jawa Barat</div>
+              <div class="mini-map-label" style="left:48%;">Jawa Tengah</div>
+              <div class="mini-map-label" style="left:72%;">Jawa Timur</div>
+            </div>
+          </div>
+
+          <!-- CARD: Multi-ML Pipeline -->
+          <div class="card-glass bento-card" data-animate style="animation-delay:100ms">
+            <div class="bento-icon-sm" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-rice-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="8" height="8" rx="2"/><rect x="14" y="2" width="8" height="8" rx="2"/><rect x="2" y="14" width="8" height="8" rx="2"/><rect x="14" y="14" width="8" height="8" rx="2"/></svg>
+            </div>
+            <h3 class="bento-title">Multi-ML Pipeline</h3>
+            <p class="bento-body">Random Forest + LSTM ensemble dengan confidence interval ±4.2%</p>
+            <div class="ml-bar-row" aria-label="RF 60% LSTM 40%">
+              <div class="ml-bar ml-bar--rf" style="flex:6"><span>RF 60%</span></div>
+              <div class="ml-bar ml-bar--lstm" style="flex:4"><span>LSTM 40%</span></div>
+            </div>
+          </div>
+
+          <!-- CARD: 12 Pranata Mangsa -->
+          <div class="card-glass bento-card" data-animate style="animation-delay:150ms">
+            <div class="bento-icon-sm" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-amber-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            </div>
+            <h3 class="bento-title">12 Pranata Mangsa</h3>
+            <p class="bento-body">Knowledge base kearifan Jawa + rekalibrasi otomatis vs data empiris</p>
+            <!-- 12-dot circle -->
+            <div class="mangsa-circle" aria-hidden="true">
+              <div class="mangsa-ring">
+                <span class="mangsa-dot mangsa-dot--active" style="--i:0"></span>
+                <span class="mangsa-dot" style="--i:1"></span>
+                <span class="mangsa-dot" style="--i:2"></span>
+                <span class="mangsa-dot" style="--i:3"></span>
+                <span class="mangsa-dot" style="--i:4"></span>
+                <span class="mangsa-dot" style="--i:5"></span>
+                <span class="mangsa-dot" style="--i:6"></span>
+                <span class="mangsa-dot" style="--i:7"></span>
+                <span class="mangsa-dot" style="--i:8"></span>
+                <span class="mangsa-dot" style="--i:9"></span>
+                <span class="mangsa-dot" style="--i:10"></span>
+                <span class="mangsa-dot" style="--i:11"></span>
+              </div>
+              <span class="mangsa-center-label">Kanem</span>
+            </div>
+          </div>
+
+          <!-- CARD: Narasi Krama Alus -->
+          <div class="card-glass bento-card" data-animate style="animation-delay:200ms">
+            <div class="bento-icon-sm" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-rice-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <h3 class="bento-title">Narasi Krama Alus</h3>
+            <p class="bento-body">LLM menghasilkan rekomendasi dalam bahasa Jawa yang hangat dan kontekstual</p>
+            <div class="speech-bubble" aria-label="Contoh narasi krama alus">
+              <em>"Kulo nuwun, sedulur tani… mangsa kanem sampun dumugi…"</em>
+            </div>
+          </div>
+
+          <!-- CARD: Proyeksi 3 Bulan -->
+          <div class="card-glass bento-card" data-animate style="animation-delay:250ms">
+            <div class="bento-icon-sm" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-rice-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+            </div>
+            <h3 class="bento-title">Proyeksi 3 Bulan</h3>
+            <p class="bento-body">Seasonal intelligence — prediksi tren curah hujan vs baseline historis</p>
+            <svg class="bento-sparkline" viewBox="0 0 120 30" fill="none" aria-hidden="true">
+              <polyline points="0,25 15,18 30,22 45,10 60,15 75,6 90,10 105,4 120,8" stroke="var(--color-rice-500)" stroke-width="1.5" stroke-linejoin="round"/>
+              <polyline points="0,25 15,18 30,22 45,10 60,15 75,6 90,10 105,4 120,8 120,30 0,30" fill="rgba(34,197,94,0.07)"/>
+              <line x1="0" y1="20" x2="120" y2="20" stroke="rgba(74,222,128,0.15)" stroke-width="1" stroke-dasharray="4 3"/>
+            </svg>
+          </div>
+
+          <!-- CARD BESAR: Open Source (col-span-2) -->
+          <div class="card-glass bento-card bento-card--wide" data-animate style="animation-delay:300ms">
+            <div class="bento-oss-left">
+              <div class="bento-icon-sm" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-rice-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <h3 class="bento-title">Privacy-First · Open Source · MIT License</h3>
+              <p class="bento-body">Tidak ada data pengguna yang disimpan. Seluruh kode tersedia di GitHub untuk komunitas pengembang pertanian Indonesia.</p>
+              <div class="bento-badges">
+                <span class="badge badge-green">MIT License</span>
+                <span class="badge badge-amber">No User Data Stored</span>
+              </div>
+            </div>
+            <div class="bento-oss-right" aria-hidden="true">
+              <div class="github-mockup">
+                <div class="github-mockup-row">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--color-rice-400)" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                  <span>AGROWTH</span>
+                  <span class="github-star">★ 47</span>
+                </div>
+                <div class="github-mockup-langs">
+                  <span class="lang-dot" style="background:#3178c6"></span><span>TypeScript</span>
+                  <span class="lang-dot" style="background:#3572A5;margin-left:8px"></span><span>Python</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /bento-grid -->
+      </div><!-- /section-container -->
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         #how-it-works
+    ══════════════════════════════════════════════════════ -->
+    <section id="how-it-works" class="hiw-section">
+      <div class="section-container">
+
+        <!-- opener -->
+        <div class="section-opener" data-animate>
+          <p class="section-label">// Cara Kerja</p>
+          <h2 class="heading-lg">Dari Klik Peta ke<br><span class="text-gradient">Wisdom Adaptif</span></h2>
+          <p class="section-sub">5 tahap proses dari input koordinat hingga rekomendasi tiba di tangan petani</p>
+        </div>
+
+        <!-- timeline -->
+        <div class="hiw-timeline">
+
+          <!-- Step 1 -->
+          <div class="hiw-step" data-animate style="animation-delay:0ms">
+            <div class="hiw-left">
+              <div class="hiw-num">01</div>
+              <div class="hiw-connector" aria-hidden="true"></div>
+            </div>
+            <div class="hiw-right">
+              <div class="hiw-content card-glass">
+                <div class="hiw-content-main">
+                  <h3 class="hiw-title">Klik Titik di Peta Jawa</h3>
+                  <p class="hiw-body">User memilih koordinat lokasi sawah via Mapbox interactive map. Sistem otomatis mendeteksi region (Jawa Barat / Tengah / Timur / dll).</p>
+                  <span class="hiw-tag">Mapbox GL · onClick Handler</span>
+                </div>
+                <div class="hiw-visual" aria-hidden="true">
+                  <div class="hiw-map-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-rice-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+                    <div class="hiw-cursor animate-pulse-glow"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="hiw-step" data-animate style="animation-delay:100ms">
+            <div class="hiw-left">
+              <div class="hiw-num">02</div>
+              <div class="hiw-connector" aria-hidden="true"></div>
+            </div>
+            <div class="hiw-right">
+              <div class="hiw-content card-glass">
+                <div class="hiw-content-main">
+                  <h3 class="hiw-title">Multi-ML Engine Aktif</h3>
+                  <p class="hiw-body">FastAPI backend menerima koordinat, menjalankan pipeline: Feature Engineering → Random Forest → LSTM → Risk Classifier → Anomaly Detector.</p>
+                  <span class="hiw-tag">FastAPI · Scikit-Learn · NumPy</span>
+                </div>
+                <div class="hiw-visual" aria-hidden="true">
+                  <div class="hiw-pipeline">
+                    <span class="hiw-pipe-box hiw-pipe-box--anim" style="--delay:0ms">FE</span>
+                    <span class="hiw-pipe-arrow">→</span>
+                    <span class="hiw-pipe-box hiw-pipe-box--anim" style="--delay:300ms">RF</span>
+                    <span class="hiw-pipe-arrow">→</span>
+                    <span class="hiw-pipe-box hiw-pipe-box--anim" style="--delay:600ms">LSTM</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="hiw-step" data-animate style="animation-delay:200ms">
+            <div class="hiw-left">
+              <div class="hiw-num">03</div>
+              <div class="hiw-connector" aria-hidden="true"></div>
+            </div>
+            <div class="hiw-right">
+              <div class="hiw-content card-glass">
+                <div class="hiw-content-main">
+                  <h3 class="hiw-title">Rekalibrasi Pranata Mangsa</h3>
+                  <p class="hiw-body">Engine mencocokkan tanggal hari ini dengan 12 mangsa aktif, lalu membandingkan ekspektasi tradisional vs prediksi ML untuk mendeteksi deviasi.</p>
+                  <span class="hiw-tag">pranata_mangsa.py · JSON Knowledge Base</span>
+                </div>
+                <div class="hiw-visual" aria-hidden="true">
+                  <div class="hiw-compare">
+                    <div class="hiw-compare-col">
+                      <p class="hiw-compare-label">Tradisional</p>
+                      <div class="hiw-compare-bar hiw-compare-bar--trad"></div>
+                    </div>
+                    <span class="hiw-compare-arrow">⇔</span>
+                    <div class="hiw-compare-col">
+                      <p class="hiw-compare-label">Prediksi ML</p>
+                      <div class="hiw-compare-bar hiw-compare-bar--ml"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="hiw-step" data-animate style="animation-delay:300ms">
+            <div class="hiw-left">
+              <div class="hiw-num">04</div>
+              <div class="hiw-connector" aria-hidden="true"></div>
+            </div>
+            <div class="hiw-right">
+              <div class="hiw-content card-glass">
+                <div class="hiw-content-main">
+                  <h3 class="hiw-title">Gemini Translate ke Bahasa Petani</h3>
+                  <p class="hiw-body">Data numerik kompleks dikonversi menjadi narasi rekomendasi taktis dalam Bahasa Jawa krama alus, dilengkapi peribahasa Jawa yang relevan.</p>
+                  <span class="hiw-tag">Gemini 1.5 Flash · Prompt Engineering</span>
+                </div>
+                <div class="hiw-visual" aria-hidden="true">
+                  <div class="hiw-llm">
+                    <div class="hiw-llm-json">{json}</div>
+                    <span class="hiw-pipe-arrow">→</span>
+                    <div class="hiw-llm-bubble">"Kulo nuwun…"</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="hiw-step" data-animate style="animation-delay:400ms">
+            <div class="hiw-left">
+              <div class="hiw-num hiw-num--highlight">05</div>
+            </div>
+            <div class="hiw-right">
+              <div class="hiw-content card-glass">
+                <div class="hiw-content-main">
+                  <h3 class="hiw-title">Dashboard Interaktif Real-time</h3>
+                  <p class="hiw-body">Seluruh output tersaji di Bento Grid dashboard: Risk Gauge, Forecast Chart, Pranata Mangsa Card, dan AI Recommendation Card — semua update simultan.</p>
+                  <span class="hiw-tag">Next.js · Framer Motion · Recharts</span>
+                </div>
+                <div class="hiw-visual" aria-hidden="true">
+                  <div class="hiw-bento-mini">
+                    <div class="hiw-bento-cell">Risk</div>
+                    <div class="hiw-bento-cell">Mangsa</div>
+                    <div class="hiw-bento-cell">Hujan</div>
+                    <div class="hiw-bento-cell">AI Rec</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /hiw-timeline -->
+
+        <!-- architecture bar -->
+        <div class="arch-bar card-glass" data-animate style="animation-delay:200ms">
+          <div class="arch-pills">
+            <span class="arch-pill" style="--ad:0ms">User</span>
+            <span class="arch-sep">→</span>
+            <span class="arch-pill" style="--ad:100ms">MapClick</span>
+            <span class="arch-sep">→</span>
+            <span class="arch-pill" style="--ad:200ms">Next.js</span>
+            <span class="arch-sep">→</span>
+            <span class="arch-pill" style="--ad:300ms">FastAPI</span>
+            <span class="arch-sep">→</span>
+            <span class="arch-pill arch-pill--ml" style="--ad:400ms">RF + LSTM</span>
+            <span class="arch-sep">→</span>
+            <span class="arch-pill arch-pill--amber" style="--ad:500ms">Pranata Engine</span>
+            <span class="arch-sep">→</span>
+            <span class="arch-pill arch-pill--ml" style="--ad:600ms">Gemini LLM</span>
+            <span class="arch-sep">→</span>
+            <span class="arch-pill arch-pill--highlight" style="--ad:700ms">Bento Dashboard</span>
+          </div>
+        </div>
+
+      </div><!-- /section-container -->
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         #demo
+    ══════════════════════════════════════════════════════ -->
+    <section id="demo" class="demo-section">
+      <div class="section-container">
+
+        <!-- a. opener -->
+        <div class="section-opener" data-animate>
+          <p class="section-label">// Demo Interaktif</p>
+          <h2 class="heading-lg">Coba AGROWTH<br><span class="text-gradient">Sekarang</span></h2>
+          <p class="section-sub">Pilih kabupaten di bawah untuk melihat simulasi output AGROWTH — atau buka dashboard lengkap.</p>
+        </div>
+
+        <!-- b. preset location selector -->
+        <div class="demo-selector" data-animate style="animation-delay:100ms">
+          <button class="demo-preset-btn" data-city="Surabaya">Surabaya</button>
+          <button class="demo-preset-btn" data-city="Bandung">Bandung</button>
+          <button class="demo-preset-btn" data-city="Semarang">Semarang</button>
+          <button class="demo-preset-btn demo-preset-btn--active" data-city="Yogyakarta">Yogyakarta</button>
+          <button class="demo-preset-btn" data-city="Malang">Malang</button>
+          <button class="demo-preset-btn" data-city="Bojonegoro">Bojonegoro</button>
+          <button class="demo-preset-btn" data-city="Lamongan">Lamongan</button>
+          <button class="demo-preset-btn" data-city="Solo">Solo</button>
+        </div>
+
+        <!-- c. dashboard mockup -->
+        <div class="demo-mockup-wrap" data-animate style="animation-delay:150ms">
+          <div class="demo-mockup">
+
+            <!-- top bar -->
+            <div class="demo-topbar">
+              <div class="demo-topbar-left">
+                <div class="mockup-dots">
+                  <span class="mockup-dot mockup-dot--red"></span>
+                  <span class="mockup-dot mockup-dot--yellow"></span>
+                  <span class="mockup-dot mockup-dot--green"></span>
+                </div>
+                <span class="demo-topbar-title">AGROWTH v1.2.0 · Dashboard</span>
+              </div>
+              <div class="demo-topbar-right">
+                <span class="demo-live-badge">
+                  <span class="demo-live-dot animate-pulse-glow"></span>
+                  Simulasi Real-time
+                </span>
+              </div>
+            </div>
+
+            <!-- main grid -->
+            <div class="demo-grid">
+
+              <!-- LEFT: map -->
+              <div class="demo-map-panel">
+                <div class="demo-map-grid"></div>
+                <!-- vulnerability overlays -->
+                <div class="demo-vuln-circle" style="width:120px;height:120px;top:25%;left:35%;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);"></div>
+                <div class="demo-vuln-circle" style="width:80px;height:80px;top:50%;left:55%;background:rgba(251,146,60,0.12);border:1px solid rgba(251,146,60,0.3);"></div>
+                <div class="demo-vuln-circle" style="width:60px;height:60px;top:40%;left:25%;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.25);"></div>
+                <!-- pin -->
+                <div class="demo-pin-wrap">
+                  <div class="demo-pin-label" id="demo-city-label">Yogyakarta</div>
+                  <div class="demo-pin-ring"></div>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-rice-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3" fill="var(--color-rice-400)" stroke="none"/></svg>
+                </div>
+                <!-- bottom coords -->
+                <div class="demo-map-coords">
+                  <span id="demo-coords">-7.7956° S, 110.3695° E</span>
+                </div>
+              </div>
+
+              <!-- RIGHT: cards -->
+              <div class="demo-cards-panel">
+
+                <!-- Card 1: Risk -->
+                <div class="demo-card">
+                  <p class="demo-card-label">RISK LEVEL</p>
+                  <p class="demo-card-value" id="demo-risk">MEDIUM</p>
+                  <p class="demo-card-sub">anomaly score: <span id="demo-anomaly">0.52</span></p>
+                </div>
+
+                <!-- Card 2: Mangsa -->
+                <div class="demo-card">
+                  <p class="demo-card-label">MANGSA AKTIF</p>
+                  <p class="demo-card-value demo-card-value--serif" id="demo-mangsa">Kanem</p>
+                  <p class="demo-card-sub" id="demo-mangsa-period">9 Nov – 21 Des</p>
+                </div>
+
+                <!-- Card 3: Rainfall bars -->
+                <div class="demo-card">
+                  <p class="demo-card-label">CURAH HUJAN (7 HARI)</p>
+                  <div class="demo-rain-bars" id="demo-rain-bars">
+                    <!-- filled by JS -->
+                  </div>
+                </div>
+
+                <!-- Card 4: AI Recommendation -->
+                <div class="demo-card demo-card--rec">
+                  <div class="demo-card-label-row">
+                    <p class="demo-card-label">REKOMENDASI AI</p>
+                    <span class="demo-gemini-chip">Gemini</span>
+                  </div>
+                  <p class="demo-card-rec" id="demo-recommendation"></p>
+                </div>
+
+              </div><!-- /demo-cards-panel -->
+            </div><!-- /demo-grid -->
+          </div><!-- /demo-mockup -->
+        </div>
+
+        <!-- d. CTAs -->
+        <div class="demo-cta-row" data-animate style="animation-delay:200ms">
+          <a href="http://localhost:3000" class="btn-primary hero-btn-lg" target="_blank" rel="noopener">Buka Dashboard Lengkap →</a>
+          <a href="https://github.com/galiihajiip/AGROWTH" class="btn-secondary hero-btn-lg" target="_blank" rel="noopener">Lihat Source Code ↗</a>
+        </div>
+
+      </div><!-- /section-container -->
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         #impact
+    ══════════════════════════════════════════════════════ -->
+    <section id="impact" class="impact-section">
+      <div class="section-container">
+
+        <!-- a. opener -->
+        <div class="section-opener" data-animate>
+          <p class="section-label">// Dampak &amp; SDG</p>
+          <h2 class="heading-lg">Dampak Nyata untuk<br><span class="text-gradient">Petani Indonesia</span></h2>
+        </div>
+
+        <!-- b. SDG badges -->
+        <div class="sdg-row">
+
+          <div class="card-glass sdg-card sdg-card--climate" data-animate style="animation-delay:50ms">
+            <div class="sdg-num">SDG 13</div>
+            <div class="sdg-icon" aria-hidden="true">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-rice-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </div>
+            <h3 class="sdg-title">Penanganan Perubahan Iklim</h3>
+            <p class="sdg-body">Memperkuat kapasitas adaptasi petani menghadapi anomali cuaca ekstrem dan pergeseran pola musim.</p>
+          </div>
+
+          <div class="card-glass sdg-card sdg-card--hunger" data-animate style="animation-delay:150ms">
+            <div class="sdg-num sdg-num--amber">SDG 2</div>
+            <div class="sdg-icon" aria-hidden="true">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-amber-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 1 0 20"/><path d="M12 6v6l4 2"/><path d="M9 3.5C6.5 5 5 8 5 12"/></svg>
+            </div>
+            <h3 class="sdg-title">Tanpa Kelaparan</h3>
+            <p class="sdg-body">Menjaga stabilitas produksi pangan nasional melalui keputusan tanam berbasis data dan kearifan lokal.</p>
+          </div>
+
+          <div class="card-glass sdg-card sdg-card--land" data-animate style="animation-delay:250ms">
+            <div class="sdg-num sdg-num--green">SDG 15</div>
+            <div class="sdg-icon" aria-hidden="true">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-rice-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"/><path d="M12 12C12 12 7 10 5 5c4 0 7 3 7 7z"/><path d="M12 12C12 12 17 10 19 5c-4 0-7 3-7 7z"/></svg>
+            </div>
+            <h3 class="sdg-title">Ekosistem Daratan</h3>
+            <p class="sdg-body">Manajemen lahan pertanian yang lebih terukur untuk mencegah degradasi dan menjaga keanekaragaman hayati.</p>
+          </div>
+
+        </div><!-- /sdg-row -->
+
+        <!-- c. Impact counters -->
+        <div class="impact-stats-grid">
+
+          <div class="impact-stat" data-animate style="animation-delay:0ms">
+            <p class="impact-num text-gradient">
+              <span data-counter data-target="2.3" data-decimals="1" data-suffix=" Juta+" data-duration="2000">0</span>
+            </p>
+            <p class="impact-label">Petani padi Pulau Jawa sebagai target akhir</p>
+            <p class="impact-source">BPS, 2023</p>
+          </div>
+
+          <div class="impact-stat" data-animate style="animation-delay:100ms">
+            <p class="impact-num text-gradient">
+              <span data-counter data-target="68" data-suffix="%" data-duration="1600">0</span>
+            </p>
+            <p class="impact-label">Potensi reduksi probabilitas gagal panen</p>
+            <p class="impact-source">ML confidence projection</p>
+          </div>
+
+          <div class="impact-stat" data-animate style="animation-delay:200ms">
+            <p class="impact-num text-gradient">
+              <span data-counter data-target="12" data-duration="1200">0</span>
+            </p>
+            <p class="impact-label">Pranata Mangsa didigitalisasi &amp; direkalibrasi</p>
+            <p class="impact-source">Knowledge base AGROWTH</p>
+          </div>
+
+          <div class="impact-stat" data-animate style="animation-delay:300ms">
+            <p class="impact-num text-gradient">
+              <span data-counter data-target="3" data-duration="800">0</span>
+            </p>
+            <p class="impact-label">SDG Goals yang ditarget secara langsung</p>
+            <p class="impact-source">UN Sustainable Development Goals</p>
+          </div>
+
+        </div><!-- /impact-stats-grid -->
+
+        <!-- d. Roadmap -->
+        <div class="roadmap-wrap" data-animate style="animation-delay:100ms">
+          <p class="roadmap-title">Visi Jangka Panjang</p>
+          <div class="roadmap-track">
+
+            <div class="roadmap-phase roadmap-phase--done">
+              <div class="roadmap-node roadmap-node--done"></div>
+              <div class="roadmap-content">
+                <span class="roadmap-badge roadmap-badge--done">✓ Selesai</span>
+                <p class="roadmap-phase-title">MVP Hackathon</p>
+              </div>
+              <div class="roadmap-line roadmap-line--solid"></div>
+            </div>
+
+            <div class="roadmap-phase">
+              <div class="roadmap-node"></div>
+              <div class="roadmap-content">
+                <span class="roadmap-badge">Q3 2026</span>
+                <p class="roadmap-phase-title">Integrasi BMKG Live API</p>
+              </div>
+              <div class="roadmap-line roadmap-line--dashed"></div>
+            </div>
+
+            <div class="roadmap-phase">
+              <div class="roadmap-node"></div>
+              <div class="roadmap-content">
+                <span class="roadmap-badge">Q4 2026</span>
+                <p class="roadmap-phase-title">Model ML Produksi (10yr data)</p>
+              </div>
+              <div class="roadmap-line roadmap-line--dashed"></div>
+            </div>
+
+            <div class="roadmap-phase">
+              <div class="roadmap-node"></div>
+              <div class="roadmap-content">
+                <span class="roadmap-badge">Q1 2027</span>
+                <p class="roadmap-phase-title">Mobile App React Native</p>
+              </div>
+              <div class="roadmap-line roadmap-line--dashed"></div>
+            </div>
+
+            <div class="roadmap-phase">
+              <div class="roadmap-node"></div>
+              <div class="roadmap-content">
+                <span class="roadmap-badge">Q2 2027</span>
+                <p class="roadmap-phase-title">WhatsApp Bot + Koperasi</p>
+              </div>
+            </div>
+
+          </div><!-- /roadmap-track -->
+        </div>
+
+        <!-- e. Team -->
+        <div class="team-wrap" data-animate style="animation-delay:100ms">
+          <p class="team-title">Tim AGROWTH</p>
+          <div class="team-members">
+
+            <div class="team-member">
+              <div class="team-avatar">GA</div>
+              <p class="team-name">Galih Aji Pangestu</p>
+              <p class="team-role">Lead Engineer</p>
+            </div>
+
+            <div class="team-member">
+              <div class="team-avatar team-avatar--amber">SN</div>
+              <p class="team-name">Sabrina Nurlita D.O.</p>
+              <p class="team-role">Researcher</p>
+            </div>
+
+            <div class="team-member">
+              <div class="team-avatar">MR</div>
+              <p class="team-name">Muhammad Reza F.</p>
+              <p class="team-role">ML Engineer</p>
+            </div>
+
+            <div class="team-member">
+              <div class="team-avatar team-avatar--soil">AA</div>
+              <p class="team-name">Angelita Aliyah Putri</p>
+              <p class="team-role">UI/UX Designer</p>
+            </div>
+
+          </div>
+          <p class="team-university">Universitas Pembangunan Nasional 'Veteran' Jawa Timur</p>
+        </div>
+
+      </div><!-- /section-container -->
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         #cta
+    ══════════════════════════════════════════════════════ -->
+    <section id="cta" class="cta-section">
+      <!-- glow orb -->
+      <div class="cta-orb" aria-hidden="true"></div>
+
+      <div class="cta-inner" data-animate>
+        <p class="section-label">// Mulai Sekarang</p>
+        <h2 class="heading-lg cta-heading">
+          Bantu Petani Indonesia<br>
+          <span class="text-gradient">Bertahan di Era Krisis Iklim</span>
+        </h2>
+        <p class="cta-sub">
+          AGROWTH menggabungkan kecerdasan buatan, data multi-sumber, dan kearifan Pranata Mangsa
+          untuk menghasilkan rekomendasi yang benar-benar dipahami petani.
+        </p>
+
+        <div class="cta-buttons">
+          <a href="http://localhost:3000" class="btn-primary hero-btn-lg cta-btn-primary" target="_blank" rel="noopener">
+            Buka Dashboard →
+          </a>
+          <a href="https://github.com/galiihajiip/AGROWTH" class="btn-secondary hero-btn-lg" target="_blank" rel="noopener">
+            GitHub ↗
+          </a>
+        </div>
+
+        <div class="cta-badges">
+          <span class="badge badge-green">MIT License</span>
+          <span class="badge">Open Source</span>
+          <span class="badge">IYREF 2026</span>
+          <span class="badge badge-amber">Climate Resilience</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ══════════════════════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════════════════════ -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+
+      <!-- brand -->
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-rice-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2C6.5 2 4 7 4 12c0 2.5 1 4.5 2 6"/><path d="M12 2c2 3 3 6.5 3 10 0 2.5-.5 4.5-1 6"/><path d="M4 18c2-1 5-2 8-2s6 1 8 2"/></svg>
+          <span class="footer-logo-text">AGROWTH</span>
+          <span class="footer-logo-dot" aria-hidden="true"></span>
+        </div>
+        <p class="footer-tagline">Applied Generative Reasoning for<br>Optimal Weather &amp; Traditional Harvest</p>
+        <div class="footer-social">
+          <a href="https://github.com/galiihajiip/AGROWTH" class="footer-social-link" target="_blank" rel="noopener" aria-label="GitHub">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- nav links -->
+      <div class="footer-nav">
+        <p class="footer-nav-title">Navigasi</p>
+        <ul class="footer-nav-list">
+          <li><a href="#problem">Masalah</a></li>
+          <li><a href="#solution">Solusi</a></li>
+          <li><a href="#features">Fitur</a></li>
+          <li><a href="#how-it-works">Cara Kerja</a></li>
+          <li><a href="#demo">Demo</a></li>
+          <li><a href="#impact">Dampak</a></li>
+        </ul>
+      </div>
+
+      <!-- tech stack -->
+      <div class="footer-nav">
+        <p class="footer-nav-title">Tech Stack</p>
+        <ul class="footer-nav-list">
+          <li>Next.js · FastAPI</li>
+          <li>Random Forest · LSTM</li>
+          <li>Gemini 1.5 Flash</li>
+          <li>BMKG · NASA POWER</li>
+          <li>Mapbox GL</li>
+          <li>Pranata Mangsa Engine</li>
+        </ul>
+      </div>
+
+      <!-- hackathon info -->
+      <div class="footer-nav">
+        <p class="footer-nav-title">Kompetisi</p>
+        <ul class="footer-nav-list">
+          <li>IYREF 2026</li>
+          <li>Climate Resilience</li>
+          <li>&amp; Local Wisdom</li>
+          <li class="footer-uni">UPN Veteran Jatim</li>
+        </ul>
+        <div class="footer-sdg-badges">
+          <span class="footer-sdg-pill">SDG 2</span>
+          <span class="footer-sdg-pill">SDG 13</span>
+          <span class="footer-sdg-pill">SDG 15</span>
+        </div>
+      </div>
+
+    </div><!-- /footer-inner -->
+
+    <div class="footer-bottom">
+      <p class="footer-copy">
+        © 2026 AGROWTH · Tim UPN Veteran Jawa Timur · Dibuat dengan ♥ untuk petani Indonesia
+      </p>
+      <p class="footer-legal">
+        MIT License · No User Data Stored · Open Source
+      </p>
+    </div>
+  </footer>
+
+  <!-- ── Scripts ───────────────────────────────────────────── -->
+  <script src="./scripts/main.js"></script>
+  <script src="./scripts/animations.js"></script>
+  <script src="./scripts/counter.js"></script>
+
+</body>
+</html>

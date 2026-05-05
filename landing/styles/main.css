@@ -1,0 +1,143 @@
+/* ============================================================
+   AGROWTH Landing Page — Design Tokens & Base Styles
+   ============================================================ */
+
+/* ---- Design Tokens ---------------------------------------- */
+:root {
+  /* Color: Rice (Green) */
+  --color-rice-50:  #f0fdf4;
+  --color-rice-100: #dcfce7;
+  --color-rice-200: #bbf7d0;
+  --color-rice-400: #4ade80;
+  --color-rice-500: #22c55e;
+  --color-rice-600: #16a34a;
+  --color-rice-700: #15803d;
+  --color-rice-800: #166534;
+  --color-rice-900: #14532d;
+  --color-rice-950: #052e16;
+
+  /* Color: Soil (Brown) */
+  --color-soil-400: #a78060;
+  --color-soil-600: #7c5c3a;
+
+  /* Color: Amber */
+  --color-amber-400: #fbbf24;
+  --color-amber-500: #f59e0b;
+
+  /* Backgrounds */
+  --bg-dark:       #020b04;
+  --bg-card:       rgba(5, 46, 22, 0.6);
+  --bg-card-hover: rgba(5, 46, 22, 0.8);
+
+  /* Borders */
+  --border-glass:       rgba(74, 222, 128, 0.12);
+  --border-glass-hover: rgba(74, 222, 128, 0.25);
+
+  /* Text */
+  --text-primary:   #f0fdf4;
+  --text-secondary: #86efac;
+  --text-muted:     rgba(134, 239, 172, 0.6);
+
+  /* Typography */
+  --font-sans:  'Inter', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-mono:  'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Shadows */
+  --shadow-glow: 0 0 40px rgba(34, 197, 94, 0.15);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+  /* Border Radius */
+  --radius-card: 16px;
+  --radius-pill: 999px;
+}
+
+/* ---- Minimal CSS Reset ------------------------------------ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ---- Smooth Scroll ---------------------------------------- */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ---- Body ------------------------------------------------- */
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---- Custom Scrollbar ------------------------------------- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-rice-800);
+  border-radius: var(--radius-pill);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-rice-800) transparent;
+}
+
+/* ---- Text Selection --------------------------------------- */
+::selection {
+  background-color: var(--color-rice-600);
+  color: #ffffff;
+}
+
+/* ---- Focus Visible ---------------------------------------- */
+:focus-visible {
+  outline: 2px solid var(--color-rice-500);
+  outline-offset: 2px;
+}
+
+/* ---- Images & Media --------------------------------------- */
+img,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* ---- Links ------------------------------------------------ */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ---- Lists ------------------------------------------------ */
+ol,
+ul {
+  list-style: none;
+}
+
+/* ---- Container -------------------------------------------- */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: clamp(16px, 4vw, 64px);
+}
+
+/* ---- Section Spacing -------------------------------------- */
+section {
+  padding-block: clamp(64px, 10vw, 128px);
+}

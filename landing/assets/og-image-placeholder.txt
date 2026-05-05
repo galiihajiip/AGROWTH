@@ -1,0 +1,26 @@
+OG IMAGE PLACEHOLDER
+====================
+
+File: assets/og-image.png
+Dimensions: 1200 × 630 px (standard Open Graph)
+Format: PNG (or JPEG for smaller file size)
+
+Design brief:
+- Background: #020b04 (--bg-dark)
+- Left half: AGROWTH wordmark in Playfair Display 700, color #4ade80
+- Sub-line: "Sistem Intelijen Iklim Adaptif Berbasis Pranata Mangsa"
+  font Inter 500, color #86efac
+- Right half: hero illustration / screenshot of dashboard map
+- Bottom strip: rice-green gradient line
+- Badge bottom-left: "IYREF 2026 · ITB"
+
+Tools to generate:
+  - Figma / Adobe XD — export as PNG
+  - Alternatively use a canvas script: scripts/generate-og.js (TODO)
+  - Or a service like og-image.vercel.app
+
+Referenced in index.html as:
+  <meta property="og:image" content="./assets/og-image.png" />
+  <meta name="twitter:image" content="./assets/og-image.png" />
+
+Replace this file with the actual og-image.png before launch.
