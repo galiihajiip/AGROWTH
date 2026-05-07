@@ -76,6 +76,22 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Subtle rice-field / sawah terrace contour as fixed full-page backdrop */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='700' viewBox='0 0 1200 700'%3E%3Cg fill='none' stroke='%2316a34a' stroke-width='0.6' opacity='0.12'%3E%3Cellipse cx='600' cy='900' rx='120' ry='55'/%3E%3Cellipse cx='600' cy='900' rx='200' ry='92'/%3E%3Cellipse cx='600' cy='900' rx='290' ry='133'/%3E%3Cellipse cx='600' cy='900' rx='390' ry='179'/%3E%3Cellipse cx='600' cy='900' rx='500' ry='230'/%3E%3Cellipse cx='600' cy='900' rx='620' ry='285'/%3E%3Cellipse cx='600' cy='900' rx='750' ry='345'/%3E%3Cellipse cx='600' cy='900' rx='890' ry='410'/%3E%3Cellipse cx='600' cy='900' rx='1040' ry='478'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 50% 85%;
+  background-size: 120% auto;
+  /* Mask: only visible as a very faint halo at the bottom-center, invisible elsewhere */
+  -webkit-mask-image: radial-gradient(ellipse 70% 40% at 50% 100%, rgba(0,0,0,0.35) 0%, transparent 65%);
+  mask-image: radial-gradient(ellipse 70% 40% at 50% 100%, rgba(0,0,0,0.35) 0%, transparent 65%);
+}
+
 /* ---- Custom Scrollbar ------------------------------------- */
 ::-webkit-scrollbar {
   width: 6px;

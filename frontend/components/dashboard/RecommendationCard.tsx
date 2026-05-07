@@ -187,34 +187,6 @@ function DataSourcesBar({ sources }: DataSourcesBarProps) {
   );
 }
 
-interface WarningBarProps {
-  warnings: string[];
-}
-
-function WarningBar({ warnings }: WarningBarProps) {
-  if (warnings.length === 0) return null;
-  return (
-    <div
-      role="alert"
-      className={cn(
-        "flex items-start gap-2 rounded-lg",
-        "border border-amber-500/30 bg-amber-500/10 p-3",
-      )}
-    >
-      <AlertTriangle
-        className="mt-0.5 h-4 w-4 shrink-0 text-amber-400"
-        strokeWidth={2.25}
-        aria-hidden
-      />
-      <ul className="flex flex-col gap-1 text-xs leading-relaxed text-amber-700 dark:text-amber-200">
-        {warnings.map((w, i) => (
-          <li key={i}>{w}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
 function ContentSkeleton() {
   return (
     <div className="relative flex flex-1 flex-col gap-3" aria-busy="true">
@@ -305,7 +277,6 @@ export function RecommendationCard({ className, span }: RecommendationCardProps)
   const warnings = recommendation?.risk_warnings ?? [];
   const dataSources = recommendation?.data_sources ?? [];
   const mangsaGreeting = recommendation?.mangsa_greeting ?? "";
-  const traditionalProverb = recommendation?.traditional_proverb ?? "";
 
   return (
     <BentoCard
@@ -314,7 +285,7 @@ export function RecommendationCard({ className, span }: RecommendationCardProps)
       icon={Sparkles}
       iconClassName="animate-spin-slow"
       glow="emerald"
-      span={span ?? { col: 7, row: 4 }}
+      span={span ?? { col: 5, row: 2 }}
       className={className}
     >
       {mode === "loading" ? <ContentSkeleton /> : null}
@@ -322,89 +293,70 @@ export function RecommendationCard({ className, span }: RecommendationCardProps)
       {mode === "empty" ? <EmptyState /> : null}
 
       {mode === "loaded" ? (
-        <div className="flex flex-1 flex-col gap-4">
-          {/* ----- Mangsa greeting (sub-header) ----- */}
+        <div className="flex flex-1 flex-col gap-2">
+          {/* ----- Mangsa greeting ----- */}
           {mangsaGreeting ? (
-            <p className="text-sm italic leading-relaxed text-agrowth-700/80 dark:text-agrowth-300/80">
+            <p className="text-xs italic leading-snug text-agrowth-700/80 dark:text-agrowth-300/80">
               {mangsaGreeting}
             </p>
           ) : null}
 
-          {/* ----- Section 1: Traditional wisdom (blockquote) ----- */}
+          {/* ----- Wisdom blockquote ----- */}
           {wisdom ? (
-            <blockquote
-              className={cn(
-                "border-l-2 border-agrowth-500/60 pl-3",
-                "text-sm italic leading-relaxed text-muted-foreground",
-              )}
-            >
+            <blockquote className="border-l-2 border-agrowth-500/60 pl-2.5 text-xs italic leading-snug text-muted-foreground">
               {wisdom}
             </blockquote>
           ) : null}
 
-          {/* ----- Section 2: Narasi (FadeInWords) ----- */}
+          {/* ----- Narasi (FadeInWords) ----- */}
           {summary ? (
             <FadeInWords
               text={summary}
-              className="text-sm leading-relaxed text-foreground"
+              className="text-xs leading-relaxed text-foreground"
             />
           ) : null}
 
-          {/* ----- Traditional proverb (footer quote) ----- */}
-          {traditionalProverb ? (
-            <p
-              className={cn(
-                "text-xs italic leading-relaxed text-muted-foreground/70",
-                "border-t border-glass-border pt-2",
-              )}
-            >
-              &ldquo;{traditionalProverb}&rdquo;
-            </p>
-          ) : null}
-
-          {/* ----- Section 3: Modern action checklist ----- */}
-          {actions.length > 0 ? (
-            <div className="flex flex-col gap-2">
-              <SectionLabel>Tindakan Modern</SectionLabel>
-              <ul className="flex flex-col gap-1.5">
-                {actions.map((action, i) => (
-                  <li
-                    key={i}
-                    className="flex items-start gap-2 text-sm leading-relaxed text-foreground"
-                  >
-                    <CheckSquare
-                      className="mt-0.5 h-4 w-4 shrink-0 text-agrowth-400"
-                      strokeWidth={2.25}
-                      aria-hidden
-                    />
-                    <span>{action}</span>
-                  </li>
-                ))}
-              </ul>
+          {/* ----- Actions + crops in 2-col grid ----- */}
+          {(actions.length > 0 || crops.length > 0) ? (
+            <div className="grid grid-cols-2 gap-2">
+              {actions.length > 0 ? (
+                <div className="flex flex-col gap-1">
+                  <SectionLabel>Tindakan</SectionLabel>
+                  <ul className="flex flex-col gap-1">
+                    {actions.slice(0, 3).map((action, i) => (
+                      <li key={i} className="flex items-start gap-1.5 text-[11px] leading-snug text-foreground">
+                        <CheckSquare className="mt-0.5 h-3 w-3 shrink-0 text-agrowth-400" strokeWidth={2.25} aria-hidden />
+                        <span>{action}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              {crops.length > 0 ? (
+                <div className="flex flex-col gap-1">
+                  <SectionLabel>Tanaman</SectionLabel>
+                  <div className="flex flex-wrap gap-1">
+                    {crops.map((crop, i) => (
+                      <CropChip key={i} label={crop} />
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
           ) : null}
 
-          {/* ----- Section 4: Crop badges ----- */}
-          {crops.length > 0 ? (
-            <div className="flex flex-col gap-2">
-              <SectionLabel>Tanaman Direkomendasikan</SectionLabel>
-              <div className="flex flex-wrap gap-1.5">
-                {crops.map((crop, i) => (
-                  <CropChip key={i} label={crop} />
-                ))}
-              </div>
+          {/* ----- Footer: warning + sources + powered-by ----- */}
+          <div className="mt-auto flex flex-wrap items-center justify-between gap-1.5 pt-1">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <DataSourcesBar sources={dataSources} />
+              {warnings.length > 0 ? (
+                <span className="flex items-center gap-1 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] text-amber-200">
+                  <AlertTriangle className="h-3 w-3 shrink-0" strokeWidth={2.25} aria-hidden />
+                  {warnings[0]}
+                </span>
+              ) : null}
             </div>
-          ) : null}
-
-          {/* ----- Section 5: Data sources ----- */}
-          <DataSourcesBar sources={dataSources} />
-
-          {/* ----- Footer: warning + powered-by chip ----- */}
-          <div className="mt-auto flex flex-col gap-2 pt-2">
-            <WarningBar warnings={warnings} />
-            <div className="flex justify-end">
-              <PoweredByGemini />
-            </div>
+            <PoweredByGemini />
           </div>
         </div>
       ) : null}

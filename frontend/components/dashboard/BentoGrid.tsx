@@ -86,6 +86,18 @@ interface CardSlot {
  * Source order = stagger animation order (index 0 muncul paling awal).
  * Visual placement di lg+ dikontrol via ``gridClassLg`` sehingga urutan
  * DOM bebas dari urutan visual.
+ *
+ * Layout desktop (12 col × 6 row):
+ * ┌──────────────────────────────┬──────────────────────┐
+ * │ MapView       (1-7, row 1-4) │ LocationInfo (8-12,1)│
+ * │                              ├──────────────────────┤
+ * │                              │ MLPanel    (8-12,2-4)│
+ * ├───────────────┬──────────────┼──────────────────────┤
+ * │ PranataMangsa │ RiskGauge    │ RecommendationCard   │
+ * │   (1-4, 5-6)  │  (5-7, 5-6) │      (8-12, 5-6)     │
+ * ├───────────────┴──────────────┴──────────────────────┤
+ * │        ForecastChart — full width (1-12, 7-8)       │
+ * └─────────────────────────────────────────────────────┘
  */
 const SLOTS: readonly CardSlot[] = [
   // 1. MapView — fokus utama, muncul paling awal.
@@ -94,41 +106,41 @@ const SLOTS: readonly CardSlot[] = [
     gridClassLg: "lg:col-start-1 lg:col-span-7 lg:row-start-1 lg:row-span-4",
     label: "Peta interaktif",
   },
-  // 2. LocationInfoCard — status singkat di pojok kanan-atas.
+  // 2. LocationInfoCard — compact 1 row di pojok kanan-atas.
   {
     Component: LocationInfoCard,
     gridClassLg: "lg:col-start-8 lg:col-span-5 lg:row-start-1 lg:row-span-1",
     label: "Informasi lokasi",
   },
-  // 3. MLPredictivePanel — 4 metrik cuaca + 4 ML variables + pipeline ticker.
+  // 3. MLPredictivePanel — 3 row di kanan, sejajar sisa peta.
   {
     Component: MLPredictivePanel,
-    gridClassLg: "lg:col-start-8 lg:col-span-5 lg:row-start-2 lg:row-span-2",
+    gridClassLg: "lg:col-start-8 lg:col-span-5 lg:row-start-2 lg:row-span-3",
     label: "ML Predictive Variables",
   },
-  // 4. RecommendationCard — hero AI narrative.
-  {
-    Component: RecommendationCard,
-    gridClassLg: "lg:col-start-8 lg:col-span-5 lg:row-start-4 lg:row-span-3",
-    label: "Rekomendasi AI",
-  },
-  // 5. PranataMangsaCard — kearifan lokal.
+  // 4. PranataMangsaCard — kiri bawah peta.
   {
     Component: PranataMangsaCard,
     gridClassLg: "lg:col-start-1 lg:col-span-4 lg:row-start-5 lg:row-span-2",
     label: "Mangsa aktif",
   },
-  // 6. RiskGaugeCard — gauge skor risiko.
+  // 5. RiskGaugeCard — tengah bawah peta.
   {
     Component: RiskGaugeCard,
     gridClassLg: "lg:col-start-5 lg:col-span-3 lg:row-start-5 lg:row-span-2",
     label: "Risiko iklim",
   },
-  // 7. ForecastChartCard — chart 7-hari.
+  // 6. RecommendationCard — kanan bawah, sejajar mangsa & risiko.
+  {
+    Component: RecommendationCard,
+    gridClassLg: "lg:col-start-8 lg:col-span-5 lg:row-start-5 lg:row-span-2",
+    label: "Rekomendasi AI",
+  },
+  // 7. ForecastChartCard — full 12 kolom agar chart lebar & nyaman dibaca.
   {
     Component: ForecastChartCard,
-    gridClassLg: "lg:col-start-1 lg:col-span-7 lg:row-start-7 lg:row-span-2",
-    label: "Prakiraan 7 hari",
+    gridClassLg: "lg:col-start-1 lg:col-span-12 lg:row-start-7 lg:row-span-2",
+    label: "Proyeksi musiman",
   },
 ];
 
@@ -269,15 +281,11 @@ export function BentoGrid() {
         "relative",
         // Mobile: single column flow via col-span-12 default per slot.
         "grid grid-cols-12 gap-4",
-        // Tinggi baris auto sesuai konten dengan minimum 120px supaya
-        // chart/canvas punya ruang yang masuk akal.
-        "auto-rows-[minmax(120px,auto)]",
-        // Di lg+, definisikan 6 baris awal sama tinggi (1fr) supaya
-        // kartu yang dirancang untuk row-span tertentu konsisten;
-        // baris ke-7 dan ke-8 dipakai oleh ForecastChartCard via
-        // auto-rows ekstensi.
-        "lg:grid-rows-[repeat(6,minmax(120px,1fr))]",
-        "lg:auto-rows-[minmax(120px,1fr)]",
+        // Tinggi baris: mobile auto, desktop rows 1-6 sama tinggi + rows 7-8 untuk chart
+        "auto-rows-[minmax(100px,auto)]",
+        // 6 baris konten (masing2 ~100px min) + 2 baris untuk ForecastChart full-width
+        "lg:grid-rows-[repeat(6,minmax(100px,1fr))_minmax(180px,1fr)_minmax(180px,1fr)]",
+        "lg:auto-rows-[minmax(100px,1fr)]",
       )}
     >
       {SLOTS.map((slot) => (

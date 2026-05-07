@@ -340,7 +340,7 @@ function Gauge({ gradientId, score, riskLabel, reducedMotion }: GaugeProps) {
   return (
     <svg
       viewBox="0 0 200 120"
-      className="w-full max-w-[280px]"
+      className="w-full"
       role="img"
       aria-label={`Skor risiko: ${riskLabel}`}
     >
@@ -423,12 +423,9 @@ function FactorRow({ factor, contribution, direction, description }: FactorRowPr
       title={description}
       className="grid grid-cols-[1.2fr_minmax(5rem,1fr)_3rem_1rem] items-center gap-2"
     >
-      <div className="min-w-0">
-        <div className="truncate text-[11px] font-medium text-foreground">
+      <div className="min-w-0" title={description}>
+        <div className="truncate text-[10px] font-medium text-foreground">
           {factor}
-        </div>
-        <div className="truncate text-[9px] leading-tight text-muted-foreground">
-          {description}
         </div>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-white/5 ring-1 ring-white/10">
@@ -459,7 +456,7 @@ function GaugeSkeleton({ variant }: GaugeSkeletonProps) {
     <div className="flex w-full flex-col items-center gap-2">
       <svg
         viewBox="0 0 200 120"
-        className="w-full max-w-[280px] opacity-60"
+        className="w-full opacity-60"
         aria-hidden
       >
         <path
@@ -655,114 +652,85 @@ export function RiskGaugeCard({ className, span }: RiskGaugeCardProps) {
       span={span ?? { col: 3, row: 2 }}
       className={className}
     >
-      <div className="relative flex flex-1 flex-col gap-4 pt-6">
-        {!showSkeleton ? (
-          <motion.div
-            className="absolute right-0 top-0 z-20"
-            initial={reducedMotion ? false : { opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={reducedMotion ? { duration: 0 } : { duration: 0.25, delay: 0.15 }}
-          >
-            <span
-              title="Berdasarkan analisis deviasi pola curah hujan historis BMKG"
-              className={cn(
-                "inline-flex items-center rounded-full border px-2.5 py-1",
-                "font-mono text-[9px] uppercase tracking-[0.18em]",
-                ensoBadge.className,
-              )}
-            >
-              {ensoBadge.label}
-            </span>
-          </motion.div>
-        ) : null}
-
+      <div className="relative flex flex-1 flex-col gap-2">
         {showSkeleton ? (
           <GaugeSkeleton variant={skeletonVariant} />
         ) : (
           <>
-            <div className="flex flex-col items-center gap-3">
-              <Gauge
-                gradientId={gradientId}
-                score={score}
-                riskLabel={riskLabel}
-                reducedMotion={reducedMotion}
-              />
-
-              <div className="w-full max-w-[280px]">
-                <div
-                  className={cn(
-                    "rounded-xl border px-3 py-2 text-center",
-                    "text-[11px] font-semibold leading-snug",
-                    getRiskToneClasses(riskLevel),
-                  )}
-                >
-                  {pusoStatement}
-                </div>
-              </div>
-
-              {anomalyInfo ? (
-                <motion.div
-                  initial={reducedMotion ? false : { opacity: 0, scale: 0.92 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={
-                    reducedMotion
-                      ? { duration: 0 }
-                      : { duration: 0.25, delay: 0.35 }
-                  }
-                >
+            {/* Row atas: gauge kiri + breakdown kanan */}
+            <div className="flex items-start gap-3">
+              {/* Gauge — fixed narrow width */}
+              <div className="flex shrink-0 flex-col items-center gap-1" style={{ width: "130px" }}>
+                <Gauge
+                  gradientId={gradientId}
+                  score={score}
+                  riskLabel={riskLabel}
+                  reducedMotion={reducedMotion}
+                />
+                {anomalyInfo ? (
                   <StatBadge
                     label="Anomali"
                     value={anomalyInfo.label}
                     variant={badgeVariant}
                   />
-                </motion.div>
-              ) : null}
-            </div>
+                ) : null}
+              </div>
 
-            <section className="rounded-xl border border-glass-border bg-glass/50 p-3">
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <div>
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-foreground">
-                    Probabilistic Breakdown
-                  </div>
-                  <div className="text-[9px] text-muted-foreground">
-                    Kontribusi fitur yang paling mempengaruhi skor risiko.
-                  </div>
+              {/* Breakdown kanan */}
+              <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                <span
+                  title="Berdasarkan analisis deviasi pola curah hujan historis BMKG"
+                  className={cn(
+                    "inline-flex self-start items-center rounded-full border px-2 py-0.5",
+                    "font-mono text-[9px] uppercase tracking-[0.15em]",
+                    ensoBadge.className,
+                  )}
+                >
+                  {ensoBadge.label}
+                </span>
+                <div className="flex flex-col gap-1.5">
+                  {factors.map((factor, index) => (
+                    <motion.div
+                      key={factor.factor}
+                      initial={reducedMotion ? false : { opacity: 0, y: 3 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={
+                        reducedMotion
+                          ? { duration: 0 }
+                          : { duration: 0.2, delay: 0.1 * index }
+                      }
+                    >
+                      <FactorRow {...factor} />
+                    </motion.div>
+                  ))}
                 </div>
               </div>
-              <div className="flex flex-col gap-2">
-                {factors.map((factor, index) => (
-                  <motion.div
-                    key={factor.factor}
-                    initial={reducedMotion ? false : { opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={
-                      reducedMotion
-                        ? { duration: 0 }
-                        : { duration: 0.25, delay: 0.15 * index }
-                    }
-                  >
-                    <FactorRow {...factor} />
-                  </motion.div>
-                ))}
-              </div>
-            </section>
+            </div>
 
-            <section className="rounded-xl border border-glass-border bg-glass/50 p-3">
-              <div className="mb-2 flex items-center justify-between gap-2 text-[9px] uppercase tracking-[0.18em] text-muted-foreground">
-                <span>30 hari lalu</span>
-                <span>Hari ini</span>
-              </div>
-              <Sparkline
-                path={sparkline.path}
-                points={sparkline.points}
-                color={sparklineColor}
-                reducedMotion={reducedMotion}
-              />
-            </section>
+            {/* Puso statement */}
+            <div
+              className={cn(
+                "rounded-xl border px-2.5 py-1.5",
+                "text-[11px] font-semibold leading-snug",
+                getRiskToneClasses(riskLevel),
+              )}
+            >
+              {pusoStatement}
+            </div>
 
-            <div className="mt-auto border-t border-white/5 pt-1 font-mono text-[10px] leading-tight text-muted-foreground">
-              {CARD_FOOTER}
+            {/* Sparkline + footer */}
+            <div className="mt-auto flex items-center gap-2">
+              <div className="flex-1">
+                <Sparkline
+                  path={sparkline.path}
+                  points={sparkline.points}
+                  color={sparklineColor}
+                  reducedMotion={reducedMotion}
+                />
+              </div>
+              <div className="shrink-0 font-mono text-[9px] leading-tight text-muted-foreground">
+                30h tren
+              </div>
             </div>
           </>
         )}

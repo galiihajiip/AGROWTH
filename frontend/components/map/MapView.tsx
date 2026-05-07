@@ -65,7 +65,13 @@ export function MapView() {
   const coordinateLabel = selectedCoordinate
     ? `${selectedCoordinate.lat.toFixed(4)}, ${selectedCoordinate.lon.toFixed(4)}`
     : null;
-  const locationLabel = recommendationData?.location.name ?? "Koordinat dipilih";
+
+  const loc = recommendationData?.location ?? null;
+  const locationLabel = loc
+    ? [loc.kelurahan, loc.kecamatan ? `Kec. ${loc.kecamatan}` : null, loc.region, loc.province]
+        .filter(Boolean)
+        .join(", ") || loc.name || "Koordinat dipilih"
+    : "Koordinat dipilih";
 
   const handleClick = useCallback(
     (event: MapLayerMouseEvent) => {

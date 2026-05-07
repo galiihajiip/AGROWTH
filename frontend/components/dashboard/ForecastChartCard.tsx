@@ -35,6 +35,8 @@ import type { ForecastPoint } from "@/types";
 // Tokens
 // ============================================================================
 
+
+type ViewMode = SeasonalView;
 const TEMP_COLOR = "#10b981";
 const RAIN_COLOR = "#3b82f6";
 const BASELINE_COLOR = "#9ca3af";
@@ -43,8 +45,6 @@ const NEGATIVE_COLOR = "#ef4444";
 const GRID_COLOR = "var(--chart-grid)";
 const AXIS_COLOR = "var(--chart-axis)";
 const TICK_COLOR = "var(--chart-tick)";
-
-type ViewMode = SeasonalView;
 
 interface SevenDayPoint {
   date: string;
@@ -274,7 +274,7 @@ export function ForecastChartCard({ className, span }: ForecastChartCardProps) {
   const renderChart = () => {
     if (activeView === "7d") {
       return (
-        <ResponsiveContainer width="100%" height={290}>
+        <ResponsiveContainer width="100%" height={320}>
           <LineChart data={sevenDayData} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
             <CartesianGrid stroke={GRID_COLOR} strokeDasharray="3 3" vertical={false} />
             <XAxis dataKey="date" stroke={AXIS_COLOR} tick={{ fill: TICK_COLOR, fontSize: 11 }} tickLine={false} axisLine={{ stroke: AXIS_COLOR }} />
@@ -289,7 +289,7 @@ export function ForecastChartCard({ className, span }: ForecastChartCardProps) {
     }
 
     return (
-      <ResponsiveContainer width="100%" height={290}>
+      <ResponsiveContainer width="100%" height={320}>
         <ComposedChart data={activeSeasonalData} margin={{ top: 12, right: 12, bottom: 0, left: 0 }}>
           <CartesianGrid stroke={GRID_COLOR} strokeDasharray="3 3" vertical={false} />
           <XAxis dataKey="label" stroke={AXIS_COLOR} tick={{ fill: TICK_COLOR, fontSize: 11 }} tickLine={false} axisLine={{ stroke: AXIS_COLOR }} interval={activeView === "3m" ? 8 : 3} />
@@ -352,7 +352,7 @@ export function ForecastChartCard({ className, span }: ForecastChartCardProps) {
       subtitle={subtitle}
       icon={TrendingUp}
       glow="emerald"
-      span={span ?? { col: 7, row: 2 }}
+      span={span ?? { col: 12, row: 2 }}
       className={className}
     >
       <div className="flex w-full flex-1 flex-col gap-3">
@@ -386,7 +386,7 @@ export function ForecastChartCard({ className, span }: ForecastChartCardProps) {
         {showSkeleton ? (
           <ChartSkeleton />
         ) : showEmpty ? (
-          <div className="flex h-[290px] items-center justify-center text-xs text-muted-foreground/60">
+          <div className="flex h-[320px] items-center justify-center text-xs text-muted-foreground/60">
             Pilih lokasi untuk melihat proyeksi musiman.
           </div>
         ) : (
@@ -398,7 +398,7 @@ export function ForecastChartCard({ className, span }: ForecastChartCardProps) {
               </div>
             ) : null}
 
-            <div className="h-[290px] w-full">
+            <div className="h-[320px] w-full">
               {renderChart()}
             </div>
 

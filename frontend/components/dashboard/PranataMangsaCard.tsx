@@ -186,31 +186,22 @@ function ProgressBar({
 }: ProgressBarProps) {
   const pct = Math.round(progress * 100);
   return (
-    <div className="space-y-2 rounded-2xl border border-glass-border/70 bg-glass/50 p-3">
-      <div className="flex items-end justify-between gap-3">
-        <div>
-          <div className="font-mono text-[9px] uppercase tracking-[0.22em] text-muted-foreground">
-            Posisi dalam Siklus Pranata Mangsa
-          </div>
-          <div className="mt-1 text-xs text-muted-foreground">
-            {daysInto}/{total} hari berjalan
-            <span className="px-1.5">·</span>
-            {pct}% terlewati
-          </div>
-        </div>
-        <div className="text-right font-mono text-[10px] leading-tight text-muted-foreground">
-          <div>Mangsa {nextMangsaName}</div>
-          <div>dalam {daysRemaining} hari</div>
-        </div>
+    <div className="space-y-1.5 rounded-xl border border-glass-border/70 bg-glass/50 px-3 py-2">
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-mono text-[10px] tabular-nums text-muted-foreground">
+          {daysInto}/{total} hari · {pct}%
+        </span>
+        <span className="font-mono text-[10px] text-muted-foreground">
+          → {nextMangsaName} dalam {daysRemaining}h
+        </span>
       </div>
-
       <div
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={total}
         aria-valuenow={daysInto}
         aria-label={`Hari ke-${daysInto} dari ${total}`}
-        className="relative h-2 w-full overflow-hidden rounded-full bg-white/10 ring-1 ring-white/10"
+        className="relative h-1.5 w-full overflow-hidden rounded-full bg-white/10 ring-1 ring-white/10"
       >
         <motion.div
           className="h-full rounded-full bg-gradient-to-r from-agrowth-500 via-amber-400 to-danger-500"
@@ -284,63 +275,43 @@ function RecalibrationBlock({ mangsa, anomaly, riskLevel, mlReady, reducedMotion
   const traditionalCopy = mangsa.description || "Ekspektasi tradisional belum tersedia.";
   const mlCopy = mlReady
     ? getAnomalyNarrative(anomaly ?? "normal")
-    : "Pilih koordinat peta agar prediksi ML AGROWTH dapat memvalidasi siklus Pranata Mangsa.";
+    : "Pilih koordinat peta agar prediksi ML dapat memvalidasi siklus Pranata Mangsa.";
   const riskTone = getRiskToneClasses(riskLevel);
 
   return (
-    <section className="rounded-3xl border border-amber-200/70 bg-gradient-to-b from-amber-50/80 via-amber-50/50 to-transparent p-4 shadow-[0_0_0_1px_rgba(245,158,11,0.04)]">
-      <div className="mb-3 flex items-center gap-2">
-        <div className="rounded-full border border-amber-300/50 bg-amber-100/70 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.22em] text-amber-900/80">
-          Rekalibrasi AGROWTH
+    <section className="rounded-2xl border border-amber-200/70 bg-gradient-to-b from-amber-50/80 via-amber-50/50 to-transparent p-3">
+      <div className="mb-2 flex items-center gap-1.5">
+        <div className="rounded-full border border-amber-300/50 bg-amber-100/70 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-amber-900/80">
+          ⚡ Rekalibrasi AGROWTH
         </div>
-        <div className="text-[9px] uppercase tracking-[0.22em] text-muted-foreground">
-          Membandingkan warisan tradisional dengan validasi empiris ML
-        </div>
+        <div className="text-[9px] text-muted-foreground">Tradisional vs ML</div>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-[1fr_auto_1fr] md:items-stretch">
+      <div className="grid grid-cols-2 gap-2">
         <motion.div
-          initial={reducedMotion ? false : { opacity: 0, y: 6 }}
+          initial={reducedMotion ? false : { opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
           transition={reducedMotion ? { duration: 0 } : { duration: 0.25 }}
-          className="rounded-2xl border border-amber-200/60 bg-amber-50/70 p-4 text-left"
+          className="rounded-xl border border-amber-200/60 bg-amber-50/70 p-2.5 text-left"
         >
-          <div className="mb-2 flex items-center gap-2 text-amber-900/70">
-            <TraditionalIcon className="h-4 w-4" aria-hidden />
-            <span className="font-mono text-[9px] uppercase tracking-[0.22em]">Pranata Mangsa Tradisional</span>
+          <div className="mb-1 flex items-center gap-1.5 text-amber-900/70">
+            <TraditionalIcon className="h-3 w-3 shrink-0" aria-hidden />
+            <span className="font-mono text-[9px] uppercase tracking-[0.18em]">Tradisional</span>
           </div>
-          <div className="text-[11px] italic text-amber-900/75">Ekspektasi Leluhur</div>
-          <p className="mt-1 text-sm leading-relaxed text-amber-950">{traditionalCopy}</p>
+          <p className="line-clamp-3 text-[11px] leading-snug text-amber-950">{traditionalCopy}</p>
         </motion.div>
 
-        <div className="hidden md:flex md:flex-col md:items-center md:justify-center">
-          <div className="h-full w-px bg-gradient-to-b from-transparent via-amber-400/60 to-transparent" />
-          <div className="-mt-32 rotate-90 rounded-full border border-amber-300/60 bg-amber-100/90 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.28em] text-amber-900/80">
-            ⚡ Rekalibrasi
-          </div>
-          <div className="mt-2 rounded-full border border-amber-300/60 bg-white/90 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.28em] text-amber-900/80">
-            VS
-          </div>
-        </div>
-
         <motion.div
-          initial={reducedMotion ? false : { opacity: 0, y: 6 }}
+          initial={reducedMotion ? false : { opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={
-            reducedMotion
-              ? { duration: 0 }
-              : { duration: 0.25, delay: 0.15 }
-          }
-          className={cn("rounded-2xl border p-4 text-left", riskTone)}
+          transition={reducedMotion ? { duration: 0 } : { duration: 0.25, delay: 0.1 }}
+          className={cn("rounded-xl border p-2.5 text-left", riskTone)}
         >
-          <div className="mb-2 flex items-center gap-2">
-            <MlIcon className="h-4 w-4" aria-hidden />
-            <span className="font-mono text-[9px] uppercase tracking-[0.22em]">Prediksi ML AGROWTH</span>
+          <div className="mb-1 flex items-center gap-1.5">
+            <MlIcon className="h-3 w-3 shrink-0" aria-hidden />
+            <span className="font-mono text-[9px] uppercase tracking-[0.18em]">ML AGROWTH</span>
           </div>
-          <div className={cn("text-[11px] font-semibold", riskLevel === "low" ? "text-emerald-200" : riskLevel === "medium" ? "text-amber-200" : riskLevel === "high" ? "text-orange-200" : "text-red-200")}>
-            Realita Iklim Saat Ini
-          </div>
-          <p className="mt-1 text-sm leading-relaxed">{mlCopy}</p>
+          <p className="line-clamp-3 text-[11px] leading-snug">{mlCopy}</p>
         </motion.div>
       </div>
     </section>
@@ -348,18 +319,12 @@ function RecalibrationBlock({ mangsa, anomaly, riskLevel, mlReady, reducedMotion
 }
 
 function CalibrationAccuracy({ anomaly, mlReady }: { anomaly: AnomalyType | null; mlReady: boolean }) {
-  if (!mlReady) {
-    return (
-      <div className="rounded-2xl border border-slate-500/20 bg-slate-500/10 px-3 py-2 text-sm text-slate-200">
-        Menunggu prediksi ML untuk mengukur kalibrasi Pranata Mangsa
-      </div>
-    );
-  }
+  if (!mlReady) return null;
 
   const accurate = anomaly === "normal";
   return (
-    <div className={cn("rounded-2xl border px-3 py-2 text-sm", accurate ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-200" : "border-amber-500/20 bg-amber-500/10 text-amber-200")}>
-      {accurate ? "✓ Pranata Mangsa Akurat untuk musim ini" : "⚠ Deviasi dari Pranata Mangsa terdeteksi — gunakan prediksi ML"}
+    <div className={cn("rounded-xl border px-2.5 py-1.5 text-[11px]", accurate ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-200" : "border-amber-500/20 bg-amber-500/10 text-amber-200")}>
+      {accurate ? "✓ Pranata Mangsa akurat musim ini" : "⚠ Deviasi terdeteksi — gunakan prediksi ML"}
     </div>
   );
 }
@@ -367,39 +332,29 @@ function CalibrationAccuracy({ anomaly, mlReady }: { anomaly: AnomalyType | null
 function TransitionAlert({ nextMangsaName, daysRemaining }: { nextMangsaName: string; daysRemaining: number }) {
   if (daysRemaining > 7) return null;
   return (
-    <div className="rounded-2xl border border-amber-300/70 bg-amber-50/70 px-3 py-2 text-xs leading-relaxed text-amber-950">
-      <span className="inline-flex items-center gap-1 font-semibold">
-        <Clock3 className="h-3.5 w-3.5" aria-hidden />
-        Transisi Mangsa Alert
-      </span>{" "}
-      <span>
-        ⏱ Transisi ke Mangsa {nextMangsaName} dalam {daysRemaining} hari — persiapkan strategi tanam baru
-      </span>
+    <div className="flex items-center gap-1.5 rounded-xl border border-amber-300/70 bg-amber-50/70 px-2.5 py-1.5 text-[11px] text-amber-950">
+      <Clock3 className="h-3 w-3 shrink-0" aria-hidden />
+      <span>Transisi → <strong>{nextMangsaName}</strong> dalam {daysRemaining} hari</span>
     </div>
   );
 }
 
 function NaturalSignsFooter({ signs }: { signs: string[] }) {
-  const visibleSigns = signs.slice(0, 2);
+  const visibleSigns = signs.slice(0, 3);
   if (visibleSigns.length === 0) return null;
 
   return (
-    <section className="space-y-2 rounded-2xl border border-glass-border/70 bg-glass/50 p-3">
-      <div className="text-[9px] font-mono uppercase tracking-[0.22em] text-muted-foreground">
-        Penanda Alam Aktif (Pranata Mangsa)
-      </div>
-      <div className="flex flex-wrap gap-2">
-        {visibleSigns.map((sign, index) => (
-          <span
-            key={`${sign}-${index}`}
-            className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-xs text-foreground"
-          >
-            <Leaf className="h-3 w-3 text-emerald-400" aria-hidden />
-            <span className="line-clamp-1">{sign}</span>
-          </span>
-        ))}
-      </div>
-    </section>
+    <div className="flex flex-wrap gap-1.5">
+      {visibleSigns.map((sign, index) => (
+        <span
+          key={`${sign}-${index}`}
+          className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-foreground"
+        >
+          <Leaf className="h-2.5 w-2.5 shrink-0 text-emerald-400" aria-hidden />
+          <span className="line-clamp-1">{sign}</span>
+        </span>
+      ))}
+    </div>
   );
 }
 
@@ -460,23 +415,21 @@ export function PranataMangsaCard({ className, span }: PranataMangsaCardProps) {
       {mangsa === null || progressData === null ? (
         <ContentSkeleton />
       ) : (
-        <div className="relative flex flex-1 flex-col gap-3">
-          <div>
+        <div className="relative flex flex-1 flex-col gap-2">
+          <div className="flex items-baseline justify-between gap-2">
             <h3
-              className={cn(
-                "font-serif text-3xl font-semibold italic leading-tight tracking-tight text-foreground",
-              )}
+              className="font-serif text-2xl font-semibold italic leading-tight tracking-tight text-foreground"
               style={{ fontFamily: '"Playfair Display", Georgia, serif' }}
             >
               {mangsa.name}
-              <span className="ml-2 align-middle font-mono text-xs not-italic text-muted-foreground">
+              <span className="ml-1.5 align-middle font-mono text-[10px] not-italic text-muted-foreground">
                 #{mangsa.number}
               </span>
             </h3>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {formatMmDd(mangsa.period_start)} – {formatMmDd(mangsa.period_end)}
+            <p className="shrink-0 text-[11px] text-muted-foreground">
+              {formatMmDd(mangsa.period_start)}–{formatMmDd(mangsa.period_end)}
               <span className="px-1">·</span>
-              {mangsa.duration_days} hari
+              {mangsa.duration_days}h
               <span className="px-1">·</span>
               <span className="capitalize">{mangsa.season}</span>
             </p>

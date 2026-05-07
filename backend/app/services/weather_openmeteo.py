@@ -27,6 +27,7 @@ from app.models import (
     RiskLevel,
     WeatherCurrent,
 )
+from app.services.geocode_service import reverse_geocode
 from app.services.weather_mock import (
     _anomaly_score,
     classify_risk,
@@ -274,16 +275,31 @@ async def predict_weather_openmeteo(
 
     raw = await _fetch_openmeteo(lat, lon, days)
 
-    # Location info (Open-Meteo returns elevation)
-    region = get_region_name(lat, lon)
+    # Location info: coba reverse geocode presisi dulu, fallback bbox provinsi
     elevation = raw.get("elevation")
-    location = LocationInfo(
-        lat=lat,
-        lon=lon,
-        province=region,
-        name=f"Lokasi {region}",
-        elevation_m=round(float(elevation), 1) if elevation is not None else None,
-    )
+    elevation_m = round(float(elevation), 1) if elevation is not None else None
+
+    geo = await reverse_geocode(lat, lon)
+    if geo is not None:
+        location = LocationInfo(
+            lat=lat,
+            lon=lon,
+            name=geo.name,
+            kelurahan=geo.kelurahan,
+            kecamatan=geo.kecamatan,
+            region=geo.region,
+            province=geo.province,
+            elevation_m=elevation_m,
+        )
+    else:
+        region = get_region_name(lat, lon)
+        location = LocationInfo(
+            lat=lat,
+            lon=lon,
+            province=region,
+            name=f"Lokasi {region}",
+            elevation_m=elevation_m,
+        )
 
     current = _parse_current(raw)
     forecast, scores, types = _parse_forecast(raw, ref_date, days)

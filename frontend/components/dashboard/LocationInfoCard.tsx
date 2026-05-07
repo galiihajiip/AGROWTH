@@ -97,11 +97,14 @@ export function LocationInfoCard({ className, span }: LocationInfoCardProps) {
   const now = useTickingNow();
 
   const hasCoordinate = coordinate !== null;
-  const region =
-    recommendation?.location.province ??
-    recommendation?.location.name ??
-    null;
+  const loc = recommendation?.location ?? null;
+  const kelurahan = loc?.kelurahan ?? null;
+  const kecamatan = loc?.kecamatan ?? null;
+  const kabupaten = loc?.region ?? null;
+  const provinsi   = loc?.province ?? null;
   const generatedAt = recommendation?.generated_at ?? null;
+
+  const locationReady = !!(kelurahan || kecamatan || kabupaten || provinsi);
 
   return (
     <BentoCard
@@ -113,62 +116,65 @@ export function LocationInfoCard({ className, span }: LocationInfoCardProps) {
       className={className}
     >
       {hasCoordinate ? (
-        <div className="flex flex-1 flex-col gap-2">
-          {/* Region + lat/lon */}
-          <div>
-            <h3 className="truncate text-base font-semibold leading-tight text-foreground">
-              {region ?? "Memuat lokasi…"}
-            </h3>
-            <p className="mt-1 font-mono text-xs tabular-nums text-muted-foreground">
-              {coordinate.lat.toFixed(5)}°, {coordinate.lon.toFixed(5)}°
-            </p>
-          </div>
-
-          {/* Last updated */}
-          {generatedAt ? (
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Clock
-                className="h-3 w-3"
-                strokeWidth={2.25}
-                aria-hidden
-              />
-              <span>{relativeTime(generatedAt, now)}</span>
-            </div>
-          ) : null}
-
-          {/* Reset button (mt-auto → menempel di bawah card) */}
-          <div className="mt-auto flex justify-end pt-1">
-            <button
-              type="button"
-              onClick={reset}
-              aria-label="Reset lokasi terpilih"
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-md",
-                "border border-glass-border bg-glass px-2.5 py-1",
-                "text-xs font-medium text-muted-foreground",
-                "transition-colors duration-200",
-                "hover:bg-glass-strong hover:text-foreground",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0",
+        <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
+          {/* Kiri: hierarki lokasi */}
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+            {locationReady ? (
+              <p className="truncate text-sm font-semibold leading-tight text-foreground">
+                {[kelurahan, kecamatan ? `Kec. ${kecamatan}` : null, kabupaten]
+                  .filter(Boolean)
+                  .join(", ")}
+              </p>
+            ) : (
+              <p className="truncate text-sm font-semibold leading-tight text-foreground">
+                Memuat lokasi…
+              </p>
+            )}
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
+              {provinsi && (
+                <span className="text-[11px] font-medium text-agrowth-400/80">
+                  {provinsi}
+                </span>
               )}
-            >
-              <RotateCcw
-                className="h-3 w-3"
-                strokeWidth={2.25}
-                aria-hidden
-              />
-              Reset
-            </button>
+              <span className="font-mono text-[11px] tabular-nums text-muted-foreground/70">
+                {coordinate.lat.toFixed(4)}°, {coordinate.lon.toFixed(4)}°
+              </span>
+              {generatedAt && (
+                <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                  <Clock className="h-3 w-3 shrink-0" strokeWidth={2.25} aria-hidden />
+                  {relativeTime(generatedAt, now)}
+                </span>
+              )}
+            </div>
           </div>
+
+          {/* Kanan: reset */}
+          <button
+            type="button"
+            onClick={reset}
+            aria-label="Reset lokasi terpilih"
+            className={cn(
+              "inline-flex shrink-0 items-center gap-1.5 rounded-md",
+              "border border-glass-border bg-glass px-2.5 py-1",
+              "text-xs font-medium text-muted-foreground",
+              "transition-colors duration-200",
+              "hover:bg-glass-strong hover:text-foreground",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0",
+            )}
+          >
+            <RotateCcw className="h-3 w-3" strokeWidth={2.25} aria-hidden />
+            Reset
+          </button>
         </div>
       ) : (
-        // Empty state — arrow ke peta + ajakan klik
-        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-2 py-2 text-center">
+        // Empty state
+        <div className="flex flex-1 items-center gap-3">
           <ArrowUpLeft
-            className="h-8 w-8 animate-float text-muted-foreground/50"
+            className="h-6 w-6 animate-float text-muted-foreground/50"
             strokeWidth={1.75}
             aria-hidden
           />
-          <p className="max-w-[200px] text-xs leading-relaxed text-muted-foreground/70">
+          <p className="text-xs leading-relaxed text-muted-foreground/70">
             Klik di peta untuk memilih lokasi koordinat.
           </p>
         </div>

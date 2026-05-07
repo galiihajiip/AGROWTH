@@ -68,9 +68,11 @@ class LocationInfo(BaseModel):
 
     lat: float
     lon: float
-    name: Optional[str] = Field(default=None, description="Nama lokasi/desa/kota")
+    name: Optional[str] = Field(default=None, description="Nama lokasi/desa/kelurahan")
+    kelurahan: Optional[str] = Field(default=None, description="Kelurahan / desa")
+    kecamatan: Optional[str] = Field(default=None, description="Kecamatan")
     province: Optional[str] = Field(default=None, description="Provinsi")
-    region: Optional[str] = Field(default=None, description="Region/kabupaten")
+    region: Optional[str] = Field(default=None, description="Kabupaten / Kota")
     elevation_m: Optional[float] = Field(default=None, description="Elevasi (meter)")
 
 

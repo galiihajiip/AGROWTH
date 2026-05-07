@@ -256,7 +256,7 @@ function MLVariableRow({ variable, barColorClass, barDelay = 0, resetKey }: MLVa
             value={variable.value}
             decimals={variable.unit === "%" ? 0 : 2}
             resetKey={resetKey}
-            className="text-sm font-semibold leading-none text-foreground"
+            className="text-xs font-semibold leading-none text-foreground"
           />
           <span className="text-[9px] font-medium text-muted-foreground">{variable.unit}</span>
         </div>
@@ -475,7 +475,7 @@ export function MLPredictivePanel({ className, span }: MLPredictivePanelProps) {
         )}
 
         {/* Main 2-column layout */}
-        <div className="flex flex-1 gap-0 min-h-0">
+        <div className="flex gap-0 min-h-0">
           {/* LEFT column — 4 weather metrics (compact) */}
           <div className="flex flex-col gap-1.5 min-w-0 flex-shrink-0 w-[47%]">
             <WeatherMetric
@@ -517,23 +517,12 @@ export function MLPredictivePanel({ className, span }: MLPredictivePanelProps) {
           </div>
 
           {/* CENTER separator */}
-          <div className="flex flex-col items-center mx-2 flex-shrink-0">
-            <div className="flex-1 w-px bg-glass-border/50" />
-            <span
-              className={cn(
-                "rotate-90 whitespace-nowrap font-mono text-[8px] text-muted-foreground/50",
-                "my-2 origin-center",
-              )}
-              style={{ writingMode: "vertical-lr" }}
-              aria-hidden
-            >
-              ⟵ Sensor · ML ⟶
-            </span>
-            <div className="flex-1 w-px bg-glass-border/50" />
+          <div className="flex flex-col items-center mx-2 flex-shrink-0 pt-1">
+            <div className="h-full w-px bg-glass-border/50" />
           </div>
 
           {/* RIGHT column — 4 ML feature variables */}
-          <div className="flex flex-col gap-2.5 flex-1 min-w-0 justify-between">
+          <div className="flex flex-col gap-2 flex-1 min-w-0">
             {mlVariables.map((variable, i) => {
               const style = ML_VAR_STYLES[i] ?? ML_VAR_STYLES[0];
               return (

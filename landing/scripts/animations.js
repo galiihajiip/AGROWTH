@@ -21,7 +21,7 @@ function initNavScroll() {
   if (!nav) return;
 
   const onScroll = () => {
-    nav.classList.toggle('scrolled', window.scrollY > 50);
+    nav.classList.toggle('scrolled', window.scrollY > 50);b
     const indicator = document.getElementById('scroll-indicator');
     if (indicator) indicator.classList.toggle('hidden', window.scrollY > 100);
   };
@@ -247,3 +247,4 @@ document.addEventListener('DOMContentLoaded', initAnimations);
    ============================================================ */
 window.AGROWTH = window.AGROWTH || {};
 Object.assign(window.AGROWTH, { initNavScroll, initScrollSpy, initHamburger, initHeroEntrance, initTicker, initParallax });
+b

@@ -67,15 +67,19 @@ export interface Coordinate {
 // Lokasi & Cuaca
 // ============================================================================
 
-/** Informasi lokasi geografis (hasil reverse-geocode bbox per provinsi). */
+/** Informasi lokasi geografis (hasil reverse-geocode Nominatim). */
 export interface LocationInfo {
   lat: number;
   lon: number;
-  /** Nama lokasi/desa/kota (opsional). */
+  /** Nama lokasi paling granular (kelurahan / desa). */
   name?: string | null;
-  /** Provinsi (opsional). */
+  /** Kelurahan / desa. */
+  kelurahan?: string | null;
+  /** Kecamatan. */
+  kecamatan?: string | null;
+  /** Provinsi. */
   province?: string | null;
-  /** Region/kabupaten (opsional). */
+  /** Kabupaten / Kota. */
   region?: string | null;
   /** Elevasi (meter, opsional). */
   elevation_m?: number | null;
